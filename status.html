@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Status Pembayaran | FreeZeeHosting</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { theme: { extend: { colors: { freeze: { main: '#00f2fe', bright: '#4facfe' } }, fontFamily: { display: ['"Space Grotesk"', 'sans-serif'] } } } }
+    </script>
+    <style>
+        body { background-color: #02040a; color: #94a3b8; }
+        .glass-card { background: rgba(8, 13, 26, 0.75); border: 1px solid rgba(255, 255, 255, 0.05); box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.7); }
+    </style>
+</head>
+<body class="antialiased flex items-center justify-center min-h-screen p-4">
+
+    <div class="glass-card rounded-3xl w-full max-w-lg p-8 text-center" id="statusContainer">
+        <div id="loadingState">
+            <i class="fa-solid fa-circle-notch fa-spin text-5xl text-freeze-main mb-6"></i>
+            <h2 class="font-display text-2xl font-bold text-white mb-2">Memverifikasi Pembayaran...</h2>
+            <p class="text-slate-400 text-sm">Mohon tunggu sebentar, sistem sedang mengecek status ke Pakasir dan menyiapkan server kamu.</p>
+        </div>
+
+        <div id="successState" class="hidden text-left">
+            <div class="text-center mb-6">
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-500/20 text-green-400 mb-4 text-2xl"><i class="fa-solid fa-server"></i></div>
+                <h2 class="font-display text-2xl font-bold text-white mb-2">Server Siap Digunakan!</h2>
+            </div>
+            
+            <div class="bg-[#02040a] border border-freeze-main/30 rounded-xl p-6 mb-6">
+                <div class="space-y-4 text-sm">
+                    <div class="flex flex-col border-b border-white/5 pb-3">
+                        <span class="text-slate-500 text-[11px] uppercase tracking-wider mb-1">URL Panel</span>
+                        <span class="text-freeze-bright font-mono text-base" id="resPanel">https://panel.freezeehost.com</span>
+                    </div>
+                    <div class="flex justify-between items-center border-b border-white/5 pb-3">
+                        <div><span class="text-slate-500 text-[11px] uppercase tracking-wider block mb-1">Username</span><span class="text-white font-mono font-bold" id="resUser">-</span></div>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <div><span class="text-slate-500 text-[11px] uppercase tracking-wider block mb-1">Password</span><span class="text-white font-mono" id="resPass">-</span></div>
+                    </div>
+                </div>
+            </div>
+            <button onclick="copyServerDetails()" id="btnCopy" class="w-full bg-freeze-main text-black font-bold py-3.5 px-4 rounded-xl transition-all flex items-center justify-center gap-2 text-sm mb-4"><i class="fa-regular fa-copy"></i> Salin Detail Login</button>
+            <div class="text-center"><a href="index.html" class="text-slate-400 hover:text-white text-sm">Kembali ke Beranda</a></div>
+        </div>
+
+        <div id="errorState" class="hidden">
+            <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-amber-500/20 text-amber-400 mb-4 text-2xl"><i class="fa-solid fa-triangle-exclamation"></i></div>
+            <h2 class="font-display text-2xl font-bold text-white mb-2" id="errorTitle">Pembayaran Belum Selesai</h2>
+            <p class="text-slate-400 text-sm mb-6" id="errorDesc">Sepertinya kamu belum menyelesaikan pembayaran, atau pembayaran dibatalkan.</p>
+            <a href="order-panel.html" class="bg-white/10 hover:bg-white/20 text-white font-bold py-3 px-6 rounded-xl transition-all border border-white/10 text-sm inline-block">Coba Order Lagi</a>
+        </div>
+    </div>
+
+    <script>
+        async function checkPaymentStatus() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const orderId = urlParams.get('order_id');
+
+            if(!orderId) {
+                showError("Akses Tidak Valid", "ID Pesanan tidak ditemukan.");
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/verify?order_id=${orderId}`);
+                const data = await response.json();
+
+                if(data.status === 'success') {
+                    // Berhasil lunas & Server terbuat
+                    document.getElementById('loadingState').classList.add('hidden');
+                    document.getElementById('errorState').classList.add('hidden');
+                    document.getElementById('successState').classList.remove('hidden');
+                    
+                    document.getElementById('resUser').innerText = data.credentials.username;
+                    document.getElementById('resPass').innerText = data.credentials.password;
+                    document.getElementById('resPanel').innerText = data.credentials.panel_url;
+                } else if(data.status === 'pending') {
+                    // Masih pending, cek lagi dalam 5 detik
+                    console.log("Pembayaran masih pending, mengecek kembali dalam 5 detik...");
+                    setTimeout(checkPaymentStatus, 5000);
+                } else {
+                    // Error asli dari backend
+                    showError("Terjadi Kesalahan", data.message);
+                }
+            } catch (error) {
+                console.error("Polling Error:", error);
+                // Jika error koneksi, coba lagi nanti
+                setTimeout(checkPaymentStatus, 5000);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', checkPaymentStatus);
+
+        function showError(title, desc) {
+            document.getElementById('loadingState').classList.add('hidden');
+            document.getElementById('successState').classList.add('hidden');
+            document.getElementById('errorState').classList.remove('hidden');
+            document.getElementById('errorTitle').innerText = title;
+            document.getElementById('errorDesc').innerText = desc;
+        }
+
+        function copyServerDetails() {
+            const text = `Panel: ${document.getElementById('resPanel').innerText}\nUser: ${document.getElementById('resUser').innerText}\nPass: ${document.getElementById('resPass').innerText}`;
+            navigator.clipboard.writeText(text).then(() => { 
+                document.getElementById('btnCopy').innerText = "BERHASIL DISALIN!"; 
+                setTimeout(()=>document.getElementById('btnCopy').innerHTML='<i class="fa-regular fa-copy"></i> Salin Detail Login', 2000); 
+            });
+        }
+    </script>
+</body>
+</html>

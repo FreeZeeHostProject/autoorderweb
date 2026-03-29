@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | FreeZeeHosting</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        display: ['"Space Grotesk"', 'sans-serif'],
+                    },
+                    colors: { brand: '#00f2fe', dark: '#000000' }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #000000; color: #ffffff; overflow-x: hidden; }
+        .grid-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-image: linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px); background-size: 60px 60px; mask-image: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), black 0%, transparent 40%); -webkit-mask-image: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), black 0%, transparent 40%); z-index: -1; }
+        .grid-bg-static { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-image: linear-gradient(to right, rgba(255, 255, 255, 0.01) 1px, transparent 1px), linear-gradient(to bottom, rgba(255, 255, 255, 0.01) 1px, transparent 1px); background-size: 60px 60px; z-index: -2; }
+        .glow-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 50% 0%, rgba(0, 242, 254, 0.05) 0%, transparent 50%); z-index: -1; }
+        .ultra-glass { background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px); border: 1px solid rgba(255, 255, 255, 0.05); }
+        .custom-input { background: transparent; border: none; border-bottom: 1px solid rgba(255,255,255,0.1); color: white; border-radius: 0; padding: 0.75rem 0; transition: all 0.3s; }
+        .custom-input:focus { border-bottom-color: #00f2fe; outline: none; }
+        .btn-brand { background: #fff; color: #000; font-weight: 900; transition: all 0.3s; }
+        .btn-brand:hover { box-shadow: 0 0 30px rgba(0, 242, 254, 0.4); transform: scale(1.02); }
+        .tab-btn { opacity: 0.4; transition: all 0.3s; }
+        .tab-btn.active { opacity: 1; color: #00f2fe; border-bottom: 2px solid #00f2fe; }
+        body::before { content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-image: url("https://grainy-gradients.vercel.app/noise.svg"); opacity: 0.03; pointer-events: none; z-index: 99; }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div class="grid-bg-static"></div>
+    <div class="grid-bg"></div>
+    <div class="glow-overlay"></div>
+
+    <!-- LOGIN SCREEN -->
+    <div id="loginScreen" class="min-h-screen flex items-center justify-center px-6 relative z-50">
+        <div class="w-full max-w-md p-10 ultra-glass rounded-[2.5rem] text-center" data-aos="zoom-in">
+            <div class="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center mx-auto mb-8 border border-white/10">
+                <i class="fa-solid fa-snowflake text-brand text-2xl"></i>
+            </div>
+            <h1 class="font-display text-2xl font-bold mb-2">Admin Panel</h1>
+            <p class="text-white/40 text-sm mb-10 text-center">Unlock system controls.</p>
+            <div class="space-y-6 text-left">
+                <div><label class="text-[10px] font-black text-white/30 uppercase tracking-widest ml-1">Username</label><input type="text" id="devUser" class="custom-input w-full" placeholder="Enter username"></div>
+                <div><label class="text-[10px] font-black text-white/30 uppercase tracking-widest ml-1">Password</label><input type="password" id="devPassword" class="custom-input w-full" placeholder="••••••••"></div>
+                <button onclick="loginDev()" id="btnLogin" class="w-full btn-brand py-4 rounded-2xl text-xs uppercase tracking-widest mt-4">Unlock Access</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ADMIN CONTENT -->
+    <div id="adminContentWrapper" class="hidden opacity-0 transition-all duration-700 pt-32 pb-32 px-6">
+        <div class="max-w-4xl mx-auto">
+            <header class="text-center mb-16">
+                <h1 class="text-5xl font-extrabold tracking-tighter mb-8">System Control.</h1>
+                <div class="flex justify-center gap-8 border-b border-white/5 pb-4 mb-12">
+                    <button onclick="switchTab('settings')" id="tab-settings" class="tab-btn active text-[10px] font-black uppercase tracking-widest py-2">General Settings</button>
+                    <button onclick="switchTab('blacklist')" id="tab-blacklist" class="tab-btn text-[10px] font-black uppercase tracking-widest py-2">IP Blacklist</button>
+                    <button onclick="logoutDev()" class="text-[10px] font-black uppercase tracking-widest py-2 text-red-500/50 hover:text-red-500">Logout</button>
+                </div>
+            </header>
+
+            <!-- TAB: SETTINGS -->
+            <div id="content-settings" class="space-y-32">
+                <section>
+                    <div class="flex items-center justify-center gap-4 mb-12"><div class="w-10 h-10 rounded-xl bg-brand/10 text-brand flex items-center justify-center border border-brand/20"><i class="fa-solid fa-chart-line text-sm"></i></div><h2 class="text-2xl font-bold tracking-tight">Business Statistics</h2></div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-16 text-center">
+                        <div><label class="text-[10px] font-black text-white/30 uppercase tracking-widest block mb-1">Total Buyers</label><input type="number" id="stats_buyers" class="custom-input w-full font-bold text-3xl text-center"></div>
+                        <div><label class="text-[10px] font-black text-white/30 uppercase tracking-widest block mb-1">Total Earnings</label><input type="number" id="stats_earnings" class="custom-input w-full font-bold text-3xl text-center"></div>
+                    </div>
+                </section>
+                <section>
+                    <div class="flex items-center justify-center gap-4 mb-12"><div class="w-10 h-10 rounded-xl bg-brand/10 text-brand flex items-center justify-center border border-brand/20"><i class="fa-solid fa-server text-sm"></i></div><h2 class="text-2xl font-bold tracking-tight">Pterodactyl Node</h2></div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                        <div class="md:col-span-2"><label class="text-[10px] font-black text-white/30 uppercase tracking-widest block mb-1">Panel API URL</label><input type="text" id="ptero_url" class="custom-input w-full font-bold" placeholder="https://panel.example.com"></div>
+                        <div><label class="text-[10px] font-black text-white/30 uppercase tracking-widest block mb-1">Application Token</label><input type="password" id="ptero_token" class="custom-input w-full font-bold" placeholder="ptla_xxxxxxxx"></div>
+                        <div><label class="text-[10px] font-black text-white/30 uppercase tracking-widest block mb-1">Client Token</label><input type="password" id="ptero_client_token" class="custom-input w-full font-bold" placeholder="ptlc_xxxxxxxx"></div>
+                        <div class="grid grid-cols-3 gap-6 md:col-span-2">
+                            <div><label class="text-[9px] text-white/30 uppercase font-bold block mb-1 text-center">Location</label><input type="number" id="ptero_location" class="custom-input w-full text-center"></div>
+                            <div><label class="text-[9px] text-white/30 uppercase font-bold block mb-1 text-center">Nest</label><input type="number" id="ptero_nest" class="custom-input w-full text-center"></div>
+                            <div><label class="text-[9px] text-white/30 uppercase font-bold block mb-1 text-center">Egg</label><input type="number" id="ptero_egg" class="custom-input w-full text-center"></div>
+                        </div>
+                    </div>
+                </section>
+                <section>
+                    <div class="flex items-center justify-center gap-4 mb-12"><div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center border border-emerald-500/20"><i class="fa-solid fa-envelope text-sm"></i></div><h2 class="text-2xl font-bold tracking-tight">SMTP Gateway</h2></div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
+                        <div><label class="text-[10px] font-black text-white/30 uppercase tracking-widest block mb-1 text-center">Gmail Account</label><input type="email" id="smtp_user" class="custom-input w-full font-bold text-center"></div>
+                        <div><label class="text-[10px] font-black text-white/30 uppercase tracking-widest block mb-1 text-center">App Password</label><input type="password" id="smtp_pass" class="custom-input w-full font-bold text-center"></div>
+                        <div><label class="text-[10px] font-black text-white/30 uppercase tracking-widest block mb-1 text-center">Sender Name</label><input type="text" id="smtp_from" class="custom-input w-full font-bold text-center"></div>
+                    </div>
+                </section>
+                <div class="pt-20 border-t border-white/5 text-center"><button onclick="savePteroSettings(event)" id="btnSave" class="w-full md:w-auto btn-brand px-24 py-6 rounded-full text-[10px] font-black uppercase tracking-[0.3em]">Commit All Changes</button></div>
+            </div>
+
+            <!-- TAB: BLACKLIST -->
+            <div id="content-blacklist" class="hidden space-y-12">
+                <div class="text-center">
+                    <h2 class="text-3xl font-bold tracking-tighter mb-4">Blacklisted IPs</h2>
+                    <p class="text-white/40 text-sm">IP yang terdaftar di sini tidak dapat mengakses API order kamu.</p>
+                </div>
+                <div class="max-w-xl mx-auto space-y-4" id="blacklist-list">
+                    <!-- JS Inject -->
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- MODAL -->
+    <div id="customAlertModal" class="fixed inset-0 z-[100] flex items-center justify-center px-6 opacity-0 pointer-events-none transition-all duration-500"><div class="absolute inset-0 bg-black/95 backdrop-blur-md"></div><div class="relative text-center max-w-sm"><h3 id="alertTitle" class="text-3xl font-extrabold mb-4 tracking-tighter text-white"></h3><p id="alertMsg" class="text-white/40 text-sm mb-10 leading-relaxed"></p><button onclick="closeAlert()" class="w-full py-4 border border-white/10 rounded-full text-[10px] font-black uppercase tracking-widest text-white hover:bg-white/5">Close</button></div></div>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({ once: true, duration: 1000 });
+        let GLOBAL_BLACKLIST = [];
+
+        function switchTab(t) {
+            document.getElementById('content-settings').classList.toggle('hidden', t !== 'settings');
+            document.getElementById('content-blacklist').classList.toggle('hidden', t !== 'blacklist');
+            document.getElementById('tab-settings').classList.toggle('active', t === 'settings');
+            document.getElementById('tab-blacklist').classList.toggle('active', t === 'blacklist');
+            if(t === 'blacklist') renderBlacklist();
+        }
+
+        async function loginDev() {
+            const user = document.getElementById('devUser').value;
+            const pass = document.getElementById('devPassword').value;
+            const btn = document.getElementById('btnLogin');
+            btn.disabled = true; btn.innerHTML = "VERIFYING...";
+            try {
+                const res = await fetch('/api/admin/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user, pass }) });
+                const data = await res.json();
+                if (data.status === 'success') { sessionStorage.setItem('admin_token', data.token); showAdminPanel(); }
+                else { showAlert("Gagal", "Username atau Password salah."); }
+            } catch (e) { showAlert("Error", "Server error."); }
+            finally { btn.disabled = false; btn.innerHTML = "Unlock Access"; }
+        }
+
+        async function showAdminPanel() {
+            const token = sessionStorage.getItem('admin_token');
+            if(!token) return;
+            document.getElementById('loginScreen').classList.add('hidden');
+            const wrap = document.getElementById('adminContentWrapper');
+            wrap.classList.remove('hidden');
+            setTimeout(() => wrap.classList.add('opacity-100'), 100);
+            try {
+                const res = await fetch('/api/admin/config', { headers: { 'Authorization': token } });
+                const data = await res.json();
+                if (data.config) {
+                    document.getElementById('ptero_url').value = data.config.url || '';
+                    document.getElementById('ptero_token').value = data.config.key || '';
+                    document.getElementById('ptero_client_token').value = data.config.client_key || '';
+                    document.getElementById('smtp_user').value = data.config.smtp_user || '';
+                    document.getElementById('smtp_pass').value = data.config.smtp_pass || '';
+                    document.getElementById('smtp_from').value = data.config.smtp_from || '';
+                    document.getElementById('ptero_location').value = data.config.location || 1;
+                    document.getElementById('ptero_nest').value = data.config.nest || 1;
+                    document.getElementById('ptero_egg').value = data.config.egg || 15;
+                    document.getElementById('stats_buyers').value = data.stats.totalBuyers || 0;
+                    document.getElementById('stats_earnings').value = data.stats.totalEarnings || 0;
+                    GLOBAL_BLACKLIST = data.config.blacklist || [];
+                }
+            } catch(e) { console.error("Load failed"); }
+        }
+
+        function renderBlacklist() {
+            const container = document.getElementById('blacklist-list');
+            if(GLOBAL_BLACKLIST.length === 0) { container.innerHTML = '<div class="text-center text-white/20 py-10">No blacklisted IPs.</div>'; return; }
+            container.innerHTML = GLOBAL_BLACKLIST.map(ip => `
+                <div class="flex items-center justify-between p-4 ultra-glass rounded-2xl">
+                    <div class="font-mono text-xs">${ip}</div>
+                    <button onclick="removeBlacklist('${ip}')" class="text-[9px] font-black uppercase text-red-500/50 hover:text-red-500 transition-all">Remove</button>
+                </div>
+            `).join('');
+        }
+
+        async function removeBlacklist(ip) {
+            const token = sessionStorage.getItem('admin_token');
+            try {
+                const res = await fetch('/api/admin/blacklist/remove', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': token }, body: JSON.stringify({ ip }) });
+                if(res.ok) { GLOBAL_BLACKLIST = GLOBAL_BLACKLIST.filter(i => i !== ip); renderBlacklist(); }
+            } catch(e) { showAlert("Error", "Gagal hapus."); }
+        }
+
+        async function savePteroSettings(e) {
+            const token = sessionStorage.getItem('admin_token');
+            const btn = document.getElementById('btnSave');
+            btn.disabled = true; btn.innerHTML = "COMMITTING...";
+            const payload = {
+                url: document.getElementById('ptero_url').value, key: document.getElementById('ptero_token').value, client_key: document.getElementById('ptero_client_token').value,
+                smtp_user: document.getElementById('smtp_user').value, smtp_pass: document.getElementById('smtp_pass').value, smtp_from: document.getElementById('smtp_from').value,
+                location: document.getElementById('ptero_location').value, nest: document.getElementById('ptero_nest').value, egg: document.getElementById('ptero_egg').value,
+                stats_buyers: document.getElementById('stats_buyers').value, stats_earnings: document.getElementById('stats_earnings').value,
+                blacklist: GLOBAL_BLACKLIST
+            };
+            try {
+                const res = await fetch('/api/admin/settings', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': token }, body: JSON.stringify(payload) });
+                if (res.ok) { showAlert("Success", "Settings and stats updated."); setTimeout(() => window.location.href = 'index.html', 1500); }
+                else { showAlert("Gagal", "Save failed."); }
+            } catch (err) { showAlert("Error", "Backend down."); }
+            finally { btn.disabled = false; btn.innerHTML = "Commit All Changes"; }
+        }
+
+        function logoutDev() { sessionStorage.removeItem('admin_token'); window.location.reload(); }
+        if (sessionStorage.getItem('admin_token')) { showAdminPanel(); }
+        function showAlert(title, msg) { document.getElementById('alertTitle').innerText = title; document.getElementById('alertMsg').innerText = msg; document.getElementById('customAlertModal').classList.remove('opacity-0', 'pointer-events-none'); }
+        function closeAlert() { document.getElementById('customAlertModal').classList.add('opacity-0', 'pointer-events-none'); }
+        document.addEventListener('mousemove', e => { document.documentElement.style.setProperty('--mouse-x', `${(e.clientX / window.innerWidth) * 100}%`); document.documentElement.style.setProperty('--mouse-y', `${(e.clientY / window.innerHeight) * 100}%`); });
+    </script>
+</body>
+</html>
