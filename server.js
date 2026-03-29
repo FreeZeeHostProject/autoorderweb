@@ -29,11 +29,7 @@ if (MONGODB_URI) {
     mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
         .then(() => console.log("🍃 MongoDB Connected"))
         .catch(e => console.error("DB Connection Error"));
-    
-    const schema = new mongoose.Schema({
-        key: { type: String, default: 'main_config' },
-        data: Object
-    });
+    const schema = new mongoose.Schema({ key: { type: String, default: 'main_config' }, data: Object });
     StatsModel = mongoose.models.Stats || mongoose.model('Stats', schema);
 }
 
@@ -41,31 +37,22 @@ let pteroConfig = { url: '', key: '', client_key: '', smtp_user: '', smtp_pass: 
 
 async function saveAllData() {
     if (MONGODB_URI && StatsModel) {
-        try {
-            await StatsModel.findOneAndUpdate({ key: 'main_config' }, { data: pteroConfig }, { upsert: true });
-        } catch (e) { console.error("DB Save Error"); }
+        try { await StatsModel.findOneAndUpdate({ key: 'main_config' }, { data: pteroConfig }, { upsert: true }); } catch (e) {}
     }
-    try {
-        fs.writeFileSync(CONFIG_FILE, JSON.stringify(pteroConfig, null, 2));
-    } catch (e) { /* Vercel might prevent writing */ }
+    try { fs.writeFileSync(CONFIG_FILE, JSON.stringify(pteroConfig, null, 2)); } catch (e) {}
 }
 
 async function loadAllData() {
     if (MONGODB_URI && StatsModel) {
         try {
             const doc = await StatsModel.findOne({ key: 'main_config' });
-            if (doc) {
-                pteroConfig = { ...pteroConfig, ...doc.data };
-                console.log("✅ Data loaded from MongoDB");
-                return;
-            }
-        } catch (e) { console.error("DB Load Error"); }
+            if (doc) { pteroConfig = { ...pteroConfig, ...doc.data }; return; }
+        } catch (e) {}
     }
     if (fs.existsSync(CONFIG_FILE)) {
         try {
             const saved = JSON.parse(fs.readFileSync(CONFIG_FILE));
             pteroConfig = { ...pteroConfig, ...saved };
-            console.log("✅ Data loaded from File");
         } catch (e) {}
     }
 }
@@ -74,35 +61,27 @@ loadAllData();
 // --- MIDDLEWARES ---
 app.use((req, res, next) => {
     const clientIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
-    if (pteroConfig.blacklist && pteroConfig.blacklist.includes(clientIp)) {
-        return res.status(403).json({ status: 'error', message: 'IP Blocked' });
-    }
+    if (pteroConfig.blacklist && pteroConfig.blacklist.includes(clientIp)) return res.status(403).json({ status: 'error', message: 'Blocked' });
     next();
 });
 
 const globalLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 100 });
 const loginLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 5 });
-
 const orderMemory = new Map();
 
-// --- PTERO HELPERS ---
+// --- HELPERS ---
 async function findPterodactylUserByEmail(email) {
     try {
         const response = await axios.get(`${pteroConfig.url}/api/application/users?filter[email]=${encodeURIComponent(email)}`, {
             headers: { 'Authorization': `Bearer ${pteroConfig.key}`, 'Accept': 'application/json' }
         });
-        if (response.data.data && response.data.data.length > 0) {
-            const u = response.data.data[0].attributes;
-            return { success: true, userId: u.id, username: u.username };
-        }
+        if (response.data.data && response.data.data.length > 0) return { success: true, userId: response.data.data[0].attributes.id, username: response.data.data[0].attributes.username };
         return { success: false };
     } catch (e) { return { success: false }; }
 }
 
 async function createPterodactylUser(email, username, password) {
-    const res = await axios.post(`${pteroConfig.url}/api/application/users`, {
-        email, username: username.toLowerCase(), first_name: "Customer", last_name: username, password
-    }, { headers: { 'Authorization': `Bearer ${pteroConfig.key}`, 'Content-Type': 'application/json', 'Accept': 'application/json' } });
+    const res = await axios.post(`${pteroConfig.url}/api/application/users`, { email, username: username.toLowerCase(), first_name: "Customer", last_name: username, password }, { headers: { 'Authorization': `Bearer ${pteroConfig.key}`, 'Accept': 'application/json' } });
     return { success: true, userId: res.data.attributes.id };
 }
 
@@ -113,6 +92,22 @@ async function processServerDeployment(orderId, orderData) {
     const currentNumber = pteroConfig.customerCounter++;
     pteroConfig.totalEarnings = (pteroConfig.totalEarnings || 0) + orderData.amount;
     await saveAllData();
+
+    // LOGIKA VPS (MANUAL SETUP)
+    if (orderData.nest_id == 0) {
+        if (pteroConfig.smtp_user && pteroConfig.smtp_pass) {
+            const transporter = nodemailer.createTransport({ service: 'gmail', auth: { user: pteroConfig.smtp_user, pass: pteroConfig.smtp_pass } });
+            await transporter.sendMail({
+                from: `"${pteroConfig.smtp_from}" <${pteroConfig.smtp_user}>`,
+                to: orderData.email,
+                subject: 'Pesanan VPS FreeZeeHosting Diterima!',
+                html: `<h2>Halo!</h2><p>Pembayaran untuk <b>${orderData.package}</b> telah kami terima.</p><p>Karena ini adalah layanan Cloud VPS, admin kami akan segera melakukan setup manual dan mengirimkan detail login ke WhatsApp/Email kamu dalam waktu maksimal 1x24 jam.</p>`
+            }).catch(e => console.error("Email Error"));
+        }
+        orderData.status = 'completed';
+        orderData.credentials = { panel_url: "Manual Setup", username: "Pending", password: "Check WA/Email" };
+        return orderData.credentials;
+    }
 
     const username = `FreeZeeHost${currentNumber}`;
     const password = Math.random().toString(36).slice(-10) + '123!';
@@ -146,17 +141,13 @@ async function processServerDeployment(orderId, orderData) {
         const creds = { panel_url: pteroConfig.url, username, password };
         orderData.status = 'completed'; orderData.credentials = creds;
         return creds;
-    } catch (e) {
-        orderData.status = 'pending'; throw e;
-    }
+    } catch (e) { orderData.status = 'pending'; throw e; }
 }
 
 // --- API ROUTES ---
 app.post('/api/admin/login', loginLimiter, (req, res) => {
     const { user, pass } = req.body;
-    if (user === ADMIN_USER && pass === ADMIN_PASS) {
-        return res.json({ status: 'success', token: Buffer.from(ADMIN_PASS).toString('base64') });
-    }
+    if (user === ADMIN_USER && pass === ADMIN_PASS) return res.json({ status: 'success', token: Buffer.from(ADMIN_PASS).toString('base64') });
     res.status(401).json({ status: 'error' });
 });
 
@@ -177,31 +168,15 @@ app.post('/api/admin/settings', async (req, res) => {
     } catch (e) { res.json({ status: 'error' }); }
 });
 
-app.post('/api/admin/blacklist/remove', async (req, res) => {
-    const authHeader = req.headers['authorization'];
-    if (!authHeader || authHeader !== Buffer.from(ADMIN_PASS).toString('base64')) return res.status(401).send();
-    pteroConfig.blacklist = (pteroConfig.blacklist || []).filter(i => i !== req.body.ip);
-    await saveAllData();
-    res.json({ status: 'success' });
-});
-
 app.get('/api/check-ptero', async (req, res) => {
     let status = 'offline';
     try {
         if (pteroConfig.url && pteroConfig.key) {
-            const checkRes = await axios.get(`${pteroConfig.url}/api/application/nodes`, {
-                headers: { 'Authorization': `Bearer ${pteroConfig.key}`, 'Accept': 'application/json' },
-                timeout: 5000 // Maksimal 5 detik nunggu
-            });
+            const checkRes = await axios.get(`${pteroConfig.url}/api/application/nodes`, { headers: { 'Authorization': `Bearer ${pteroConfig.key}`, 'Accept': 'application/json' }, timeout: 5000 });
             if (checkRes.status === 200) status = 'online';
         }
     } catch (error) { status = 'offline'; }
-
-    res.json({ 
-        status: status, 
-        config: { url: pteroConfig.url },
-        stats: { totalBuyers: pteroConfig.customerCounter - 1, totalEarnings: pteroConfig.totalEarnings }
-    });
+    res.json({ status, config: { url: pteroConfig.url }, stats: { totalBuyers: pteroConfig.customerCounter - 1, totalEarnings: pteroConfig.totalEarnings } });
 });
 
 app.post('/api/checkout', (req, res) => {
@@ -230,34 +205,23 @@ app.get('/api/verify', async (req, res) => {
     } catch (e) { res.json({ status: 'error' }); }
 });
 
-// WEBHOOK ENDPOINT (Secure Verification)
 app.post('/api/webhook/pakasir', async (req, res) => {
     const { order_id, status } = req.body;
-    console.log(`📩 Webhook received: ${order_id} - ${status}`);
-
     const orderData = orderMemory.get(order_id);
     if (!orderData) return res.sendStatus(200);
-
     try {
         const checkUrl = `https://app.pakasir.com/api/transactiondetail?project=${PAKASIR_SLUG}&amount=${orderData.amount}&order_id=${order_id}&api_key=${PAKASIR_API_KEY}`;
         const verifyRes = await axios.get(checkUrl);
-        
-        if (verifyRes.data.transaction?.status === 'completed') {
-            await processServerDeployment(order_id, orderData);
-            console.log(`✅ Webhook: Verified and Deployed ${order_id}`);
-        }
-    } catch (e) { console.error("❌ Webhook Error:", e.message); }
-    
+        if (verifyRes.data.transaction?.status === 'completed') await processServerDeployment(order_id, orderData);
+    } catch (e) {}
     res.sendStatus(200);
 });
 
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 app.get('/Dev.html', (req, res) => res.sendFile(path.join(__dirname, 'Dev.html')));
 app.get('/order-panel.html', (req, res) => res.sendFile(path.join(__dirname, 'order-panel.html')));
+app.get('/order-vps.html', (req, res) => res.sendFile(path.join(__dirname, 'order-vps.html')));
 app.get('/status.html', (req, res) => res.sendFile(path.join(__dirname, 'status.html')));
 
-if (process.env.NODE_ENV !== 'production') {
-    app.listen(3000, () => console.log(`🚀 Secure Server Ready`));
-}
-
+if (process.env.NODE_ENV !== 'production') app.listen(3000, () => console.log(`🚀 Ready`));
 module.exports = app;

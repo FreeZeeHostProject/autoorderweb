@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Cloud VPS | FreeZeeHosting</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        display: ['"Space Grotesk"', 'sans-serif'],
+                    },
+                    colors: { brand: '#00f2fe', dark: '#000000' }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #000000; color: #ffffff; overflow-x: hidden; position: relative; }
+        .grid-bg-static { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-image: linear-gradient(to right, rgba(255, 255, 255, 0.01) 1px, transparent 1px), linear-gradient(to bottom, rgba(255, 255, 255, 0.01) 1px, transparent 1px); background-size: 50px 50px; z-index: -2; }
+        .grid-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-image: linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px), linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px); background-size: 50px 50px; mask-image: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), black 0%, transparent 50%); -webkit-mask-image: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), black 0%, transparent 50%); z-index: -1; }
+        .glow-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 50% 0%, rgba(0, 242, 254, 0.05) 0%, transparent 50%); z-index: -1; }
+        .custom-input { background: transparent; border: none; border-bottom: 1px solid rgba(255,255,255,0.1); color: white; border-radius: 0; padding: 0.5rem 0; transition: all 0.3s; }
+        .custom-input:focus { border-bottom-color: #00f2fe; outline: none; }
+        .selection-item { cursor: pointer; transition: all 0.3s ease; opacity: 0.3; filter: grayscale(1); position: relative; z-index: 10; }
+        .selection-item:hover { opacity: 0.6; transform: translateY(-2px); }
+        .radio-hidden:checked + .selection-item { opacity: 1 !important; filter: grayscale(0) !important; transform: scale(1.05); text-shadow: 0 0 15px rgba(0, 242, 254, 0.4); }
+        .radio-hidden:checked + .selection-item i { color: #00f2fe; }
+        .btn-action { background: #fff; color: #000; font-weight: 900; transition: all 0.3s; }
+        .btn-action:hover { box-shadow: 0 0 25px rgba(0, 242, 254, 0.3); transform: scale(1.02); }
+        .step-dot { width: 5px; height: 5px; border-radius: 50%; background: rgba(255,255,255,0.1); transition: all 0.4s; }
+        .step-dot.active { background: #00f2fe; box-shadow: 0 0 10px #00f2fe; transform: scale(1.3); }
+        .section-hidden { opacity: 0; pointer-events: none; height: 0; overflow: hidden; transform: translateY(10px); transition: all 0.5s ease; }
+        .section-visible { opacity: 1; pointer-events: auto; height: auto; transform: translateY(0); transition: all 0.5s ease; }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div class="grid-bg-static"></div>
+    <div class="grid-bg"></div>
+    <div class="glow-overlay"></div>
+
+    <nav class="fixed w-full z-50 py-6 bg-black/40 backdrop-blur-xl border-b border-white/5">
+        <div class="max-w-6xl mx-auto px-8 flex justify-between items-center">
+            <a href="index.html" class="font-display text-lg font-bold tracking-tighter flex items-center gap-2">
+                <i class="fa-solid fa-snowflake text-brand"></i>
+                <span>FreeZee<span class="text-brand">Hosting</span></span>
+            </a>
+            <div class="flex gap-2" id="step-indicator">
+                <div class="step-dot active"></div><div class="step-dot"></div><div class="step-dot"></div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="min-h-screen pt-32 pb-48 px-6">
+        <div class="max-w-3xl mx-auto">
+            <form id="orderForm" class="space-y-24">
+                
+                <!-- STEP 1: VPS PROVIDER -->
+                <section id="step1">
+                    <div class="text-[9px] font-black text-brand uppercase tracking-[0.3em] mb-4">01. Choose Provider</div>
+                    <h2 class="text-3xl md:text-4xl font-extrabold mb-8 tracking-tight">Pilih Provider <br>Cloud VPS.</h2>
+                    <div class="grid grid-cols-3 gap-6 text-center">
+                        <label>
+                            <input type="radio" name="vps_provider" value="do" class="hidden radio-hidden" onchange="selectProvider('do')" checked>
+                            <div class="selection-item">
+                                <i class="fa-brands fa-digital-ocean text-3xl mb-4"></i>
+                                <div class="text-[10px] font-black uppercase tracking-widest">Digital Ocean</div>
+                            </div>
+                        </label>
+                        <label>
+                            <input type="radio" name="vps_provider" value="linode" class="hidden radio-hidden" onchange="selectProvider('linode')">
+                            <div class="selection-item">
+                                <i class="fa-brands fa-linux text-3xl mb-4"></i>
+                                <div class="text-[10px] font-black uppercase tracking-widest">Linode / Akamai</div>
+                            </div>
+                        </label>
+                        <label>
+                            <input type="radio" name="vps_provider" value="nat" class="hidden radio-hidden" onchange="selectProvider('nat')">
+                            <div class="selection-item">
+                                <i class="fa-solid fa-house-signal text-3xl mb-4"></i>
+                                <div class="text-[10px] font-black uppercase tracking-widest">NAT / Home</div>
+                            </div>
+                        </label>
+                    </div>
+                </section>
+
+                <!-- STEP 2: PACKAGES -->
+                <section id="packageSection" class="section-hidden">
+                    <div class="text-[9px] font-black text-brand uppercase tracking-[0.3em] mb-4">02. Resource Plan</div>
+                    <h2 class="text-3xl md:text-4xl font-extrabold mb-8 tracking-tight text-white" id="package-title">Pilih Kapasitas.</h2>
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-6" id="packageContainer">
+                        <!-- JS Inject -->
+                    </div>
+                </section>
+
+                <!-- STEP 3: CONTACT -->
+                <section id="contactSection" class="section-hidden">
+                    <div class="text-[9px] font-black text-brand uppercase tracking-[0.3em] mb-4">03. Final Details</div>
+                    <h2 class="text-3xl md:text-4xl font-extrabold mb-8 tracking-tight">Data Pengiriman.</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <input type="email" id="userEmail" placeholder="Email Laporan" class="custom-input text-xl font-bold" required>
+                        <input type="text" id="userWa" placeholder="WhatsApp (08...)" class="custom-input text-xl font-bold" required>
+                    </div>
+                </section>
+
+            </form>
+        </div>
+    </main>
+
+    <!-- FOOTER BAR -->
+    <div class="fixed bottom-0 left-0 w-full z-[60] py-6 border-t border-white/5 bg-black/90 backdrop-blur-xl">
+        <div class="max-w-6xl mx-auto px-10 flex flex-col md:flex-row items-center justify-between gap-6">
+            <div>
+                <div class="text-[8px] font-black text-white/30 uppercase tracking-[0.2em] mb-1 text-center md:text-left">VPS Subscription</div>
+                <div class="text-3xl font-extrabold tracking-tighter" id="totalPriceDisplay">Rp 0</div>
+            </div>
+            <button id="btnBayar" onclick="processCheckout()" class="btn-action px-12 py-4 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-3">
+                ORDER VPS <i class="fa-solid fa-arrow-right text-[8px]"></i>
+            </button>
+        </div>
+    </div>
+
+    <div id="customAlertModal" class="fixed inset-0 z-[100] flex items-center justify-center px-6 opacity-0 pointer-events-none transition-all duration-500">
+        <div class="absolute inset-0 bg-black/95 backdrop-blur-md"></div>
+        <div class="relative text-center max-w-sm">
+            <h3 id="alertTitle" class="text-2xl font-extrabold mb-2 text-white"></h3>
+            <p id="alertMsg" class="text-white/40 text-xs mb-8"></p>
+            <button onclick="closeAlert()" class="w-full py-3 border border-white/10 rounded-full text-[9px] font-black uppercase tracking-widest text-white">OKE</button>
+        </div>
+    </div>
+
+    <script>
+        const VPS_DATA = {
+            do: [
+                { label: 'DO 1GB RAM', price: 25000 },
+                { label: 'DO 2GB RAM', price: 45000 },
+                { label: 'DO 4GB RAM', price: 85000 }
+            ],
+            linode: [
+                { label: 'Linode 1GB', price: 25000 },
+                { label: 'Linode 2GB', price: 45000 },
+                { label: 'Linode 4GB', price: 85000 }
+            ],
+            nat: [
+                { label: 'NAT 512MB', price: 5000 },
+                { label: 'NAT 1GB', price: 10000 },
+                { label: 'Home 2GB', price: 20000 }
+            ]
+        };
+
+        let currentOrder = { provider: '', package: null };
+
+        window.onload = () => { selectProvider('do'); };
+
+        function selectProvider(id) {
+            currentOrder.provider = id;
+            currentOrder.package = null;
+            const container = document.getElementById('packageContainer');
+            container.innerHTML = VPS_DATA[id].map((pkg, i) => `
+                <label>
+                    <input type="radio" name="vps_pkg" value="${i}" class="hidden radio-hidden" onchange="selectPackage('${id}', ${i})">
+                    <div class="selection-item text-center">
+                        <div class="text-sm font-bold mb-1">${pkg.label}</div>
+                        <div class="text-[9px] text-white/30 font-bold uppercase">Rp ${pkg.price.toLocaleString('id-ID')}</div>
+                    </div>
+                </label>`).join('');
+            
+            const section = document.getElementById('packageSection');
+            section.className = "section-visible";
+            document.getElementById('totalPriceDisplay').innerText = "Rp 0";
+            updateDots(2);
+        }
+
+        function selectPackage(prov, index) {
+            currentOrder.package = VPS_DATA[prov][index];
+            document.getElementById('totalPriceDisplay').innerText = "Rp " + currentOrder.package.price.toLocaleString('id-ID');
+            const section = document.getElementById('contactSection');
+            section.className = "section-visible";
+            updateDots(3);
+            setTimeout(() => section.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
+        }
+
+        function updateDots(step) {
+            const dots = document.querySelectorAll('.step-dot');
+            dots.forEach((d, i) => d.classList.toggle('active', i < step));
+        }
+
+        async function processCheckout() {
+            const email = document.getElementById('userEmail').value;
+            const wa = document.getElementById('userWa').value;
+            if(!currentOrder.package) return showAlert("Opps", "Pilih paket VPS.");
+            if(!email || !wa) return showAlert("Data Kosong", "Isi email & WA.");
+
+            const btn = document.getElementById('btnBayar');
+            btn.disabled = true; btn.innerHTML = "WAIT...";
+
+            try {
+                const response = await fetch('/api/checkout', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        nominal: currentOrder.package.price, email, whatsapp: wa, 
+                        package_name: `CLOUDVPS - ${currentOrder.package.label}`,
+                        nest_id: 0, egg_id: 0 // Penanda VPS
+                    })
+                });
+                const result = await response.json();
+                if(result.status === 'success') window.location.href = result.checkout_url;
+                else showAlert("Gagal", result.message);
+            } catch (e) { showAlert("Error", "Server sibuk."); }
+            finally { btn.disabled = false; btn.innerHTML = "ORDER VPS"; }
+        }
+
+        function showAlert(title, msg) {
+            document.getElementById('alertTitle').innerText = title;
+            document.getElementById('alertMsg').innerText = msg;
+            document.getElementById('customAlertModal').classList.remove('opacity-0', 'pointer-events-none');
+        }
+        function closeAlert() { document.getElementById('customAlertModal').classList.add('opacity-0', 'pointer-events-none'); }
+
+        document.addEventListener('mousemove', e => {
+            document.documentElement.style.setProperty('--mouse-x', `${(e.clientX / window.innerWidth) * 100}%`);
+            document.documentElement.style.setProperty('--mouse-y', `${(e.clientY / window.innerHeight) * 100}%`);
+        });
+    </script>
+</body>
+</html>
