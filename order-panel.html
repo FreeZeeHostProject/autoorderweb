@@ -28,39 +28,24 @@
     </script>
     <style>
         body { background-color: #000000; color: #ffffff; overflow-x: hidden; }
-        
-        .grid-bg-static {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-image: linear-gradient(to right, rgba(255, 255, 255, 0.01) 1px, transparent 1px), linear-gradient(to bottom, rgba(255, 255, 255, 0.01) 1px, transparent 1px);
-            background-size: 50px 50px; z-index: -2;
-        }
-        .grid-bg {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-image: linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px), linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
-            background-size: 50px 50px;
-            mask-image: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), black 0%, transparent 50%);
-            -webkit-mask-image: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), black 0%, transparent 50%);
-            z-index: -1;
-        }
+        .grid-bg-static { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-image: linear-gradient(to right, rgba(255, 255, 255, 0.01) 1px, transparent 1px), linear-gradient(to bottom, rgba(255, 255, 255, 0.01) 1px, transparent 1px); background-size: 50px 50px; z-index: -2; }
+        .grid-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-image: linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px), linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px); background-size: 50px 50px; mask-image: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), black 0%, transparent 50%); -webkit-mask-image: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), black 0%, transparent 50%); z-index: -1; }
         .glow-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 50% 0%, rgba(0, 242, 254, 0.05) 0%, transparent 50%); z-index: -1; }
-
         .custom-input { background: transparent; border: none; border-bottom: 1px solid rgba(255,255,255,0.1); color: white; border-radius: 0; padding: 0.5rem 0; transition: all 0.3s; }
         .custom-input:focus { border-bottom-color: #00f2fe; outline: none; }
-
         .selection-item { cursor: pointer; transition: all 0.3s ease; opacity: 0.3; filter: grayscale(1); position: relative; z-index: 10; }
         .selection-item:hover { opacity: 0.6; transform: translateY(-2px); }
+        .radio-hidden { position: absolute; opacity: 0; width: 0; height: 0; }
         .radio-hidden:checked + .selection-item { opacity: 1 !important; filter: grayscale(0) !important; transform: scale(1.05); text-shadow: 0 0 15px rgba(0, 242, 254, 0.4); }
         .radio-hidden:checked + .selection-item i { color: #00f2fe; }
-
-        .btn-action { background: #fff; color: #000; font-weight: 900; transition: all 0.3s; }
+        .btn-action { background: #fff; color: #000; font-weight: 900; transition: all 0.3s; cursor: pointer; position: relative; z-index: 70; }
         .btn-action:hover { box-shadow: 0 0 25px rgba(0, 242, 254, 0.3); transform: scale(1.02); }
-        .btn-action:disabled { background: #1e293b; color: #475569; }
-
+        .btn-action:disabled { background: #1e293b; color: #475569; pointer-events: none; }
         .step-dot { width: 5px; height: 5px; border-radius: 50%; background: rgba(255,255,255,0.1); transition: all 0.4s; }
         .step-dot.active { background: #00f2fe; box-shadow: 0 0 10px #00f2fe; transform: scale(1.3); }
-
         .section-hidden { opacity: 0; pointer-events: none; height: 0; overflow: hidden; transform: translateY(10px); transition: all 0.5s ease; }
         .section-visible { opacity: 1; pointer-events: auto; height: auto; transform: translateY(0); transition: all 0.5s ease; }
+        body::before { content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-image: url("https://grainy-gradients.vercel.app/noise.svg"); opacity: 0.03; pointer-events: none; z-index: 99; }
     </style>
 </head>
 <body class="antialiased">
@@ -84,22 +69,20 @@
     <main class="min-h-screen pt-32 pb-48 px-6">
         <div class="max-w-3xl mx-auto">
             <form id="orderForm" class="space-y-24">
-                
-                <!-- STEP 1: INFRA -->
                 <section id="step1">
                     <div class="text-[9px] font-black text-brand uppercase tracking-[0.3em] mb-4">01. Infrastructure</div>
                     <h2 class="text-3xl md:text-4xl font-extrabold mb-8 tracking-tight">Pilih Pondasi Server.</h2>
                     <div class="grid grid-cols-2 gap-8">
-                        <label>
-                            <input type="radio" name="infra_type" value="legal" class="hidden radio-hidden" onchange="refreshAll()" checked>
+                        <label class="relative block">
+                            <input type="radio" name="infra_type" value="legal" class="radio-hidden" onchange="refreshAll()" checked>
                             <div class="selection-item">
                                 <i class="fa-solid fa-shield-check text-2xl mb-4"></i>
                                 <div class="text-lg font-bold mb-1">VPS Legal</div>
                                 <p class="text-[10px] text-white/30 uppercase font-bold">Murni & Stabil</p>
                             </div>
                         </label>
-                        <label>
-                            <input type="radio" name="infra_type" value="do" class="hidden radio-hidden" onchange="refreshAll()">
+                        <label class="relative block">
+                            <input type="radio" name="infra_type" value="do" class="radio-hidden" onchange="refreshAll()">
                             <div class="selection-item">
                                 <i class="fa-brands fa-digital-ocean text-2xl mb-4"></i>
                                 <div class="text-lg font-bold mb-1">VPS D.O</div>
@@ -109,28 +92,24 @@
                     </div>
                 </section>
 
-                <!-- STEP 2: CATEGORY -->
                 <section id="step2">
                     <div class="text-[9px] font-black text-brand uppercase tracking-[0.3em] mb-4">02. Category</div>
                     <h2 class="text-3xl md:text-4xl font-extrabold mb-8 tracking-tight">Tentukan Layanan.</h2>
                     <div class="grid grid-cols-3 md:grid-cols-5 gap-6 text-center" id="categoryContainer"></div>
                 </section>
 
-                <!-- STEP 3: EGG -->
                 <section id="eggSection" class="section-hidden">
                     <div class="text-[9px] font-black text-brand uppercase tracking-[0.3em] mb-4">03. Specification</div>
                     <h2 class="text-3xl md:text-4xl font-extrabold mb-8 tracking-tight">Pilih Software.</h2>
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center" id="eggContainer"></div>
                 </section>
 
-                <!-- STEP 4: PACKAGE -->
                 <section id="packageSection" class="section-hidden">
                     <div class="text-[9px] font-black text-brand uppercase tracking-[0.3em] mb-4">04. Capacity</div>
                     <h2 class="text-3xl md:text-4xl font-extrabold mb-8 tracking-tight">Besaran RAM.</h2>
                     <div class="grid grid-cols-3 md:grid-cols-4 gap-6 text-center" id="packageContainer"></div>
                 </section>
 
-                <!-- STEP 5: CONTACT -->
                 <section id="contactSection" class="section-hidden">
                     <div class="text-[9px] font-black text-brand uppercase tracking-[0.3em] mb-4">05. Personal Data</div>
                     <h2 class="text-3xl md:text-4xl font-extrabold mb-8 tracking-tight">Detail Pengiriman.</h2>
@@ -139,7 +118,6 @@
                         <input type="text" id="userWa" placeholder="WhatsApp Number" class="custom-input text-xl font-bold">
                     </div>
                 </section>
-
             </form>
         </div>
     </main>
@@ -151,7 +129,7 @@
                 <div class="text-3xl font-extrabold tracking-tighter" id="totalPriceDisplay">Rp 0</div>
             </div>
             <button id="btnBayar" onclick="processCheckout()" class="btn-action px-12 py-4 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-3">
-                CHECKOUT <i class="fa-solid fa-arrow-right text-[8px]"></i>
+                CHECKOUT NOW <i class="fa-solid fa-arrow-right text-[8px]"></i>
             </button>
         </div>
     </div>
@@ -165,7 +143,6 @@
         </div>
     </div>
 
-    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
         const DATA = {
             categories: [
@@ -185,10 +162,7 @@
             pricing: []
         };
 
-        // Build 1GB - 10GB + Unlimited
-        for(let i=1; i<=10; i++) {
-            DATA.pricing.push({ label: i + 'GB RAM', ram: i, do: i * 1000, legal: i * 1500 });
-        }
+        for(let i=1; i<=10; i++) { DATA.pricing.push({ label: i + 'GB RAM', ram: i, do: i * 1000, legal: i * 1500 }); }
         DATA.pricing.push({ label: 'Unlimited', ram: 0, do: 15000, legal: 15000 });
 
         let currentOrder = { infra: 'legal', category: '', egg: null, package: null };
@@ -198,8 +172,8 @@
         function renderCategories() {
             const container = document.getElementById('categoryContainer');
             container.innerHTML = DATA.categories.map(cat => `
-                <label>
-                    <input type="radio" name="cat" value="${cat.id}" class="hidden radio-hidden" onchange="selectCategory('${cat.id}')">
+                <label class="relative block">
+                    <input type="radio" name="cat" value="${cat.id}" class="radio-hidden" onchange="selectCategory('${cat.id}')">
                     <div class="selection-item text-center">
                         <i class="fa-solid ${cat.icon} text-xl mb-3"></i>
                         <div class="text-[8px] font-black uppercase tracking-widest">${cat.label}</div>
@@ -208,18 +182,15 @@
         }
 
         function selectCategory(id) {
-            currentOrder.category = id;
-            currentOrder.egg = null;
-            currentOrder.package = null;
+            currentOrder.category = id; currentOrder.egg = null; currentOrder.package = null;
             const container = document.getElementById('eggContainer');
             container.innerHTML = DATA.eggs[id].map(egg => `
-                <label>
-                    <input type="radio" name="egg" value="${egg.id}" class="hidden radio-hidden" onchange="selectEgg(${egg.id}, '${egg.label}')">
+                <label class="relative block">
+                    <input type="radio" name="egg" value="${egg.id}" class="radio-hidden" onchange="selectEgg(${egg.id}, '${egg.label}')">
                     <div class="selection-item text-center">
                         <div class="text-[9px] font-black uppercase tracking-widest">${egg.label}</div>
                     </div>
                 </label>`).join('');
-            
             const section = document.getElementById('eggSection');
             section.className = "section-visible";
             updateDots(2);
@@ -227,19 +198,17 @@
         }
 
         function selectEgg(id, label) {
-            currentOrder.egg = { id, label };
-            currentOrder.package = null;
+            currentOrder.egg = { id, label }; currentOrder.package = null;
             const container = document.getElementById('packageContainer');
             const infra = document.querySelector('input[name="infra_type"]:checked').value;
             container.innerHTML = DATA.pricing.map((pkg, i) => `
-                <label>
-                    <input type="radio" name="pkg" value="${i}" class="hidden radio-hidden" onchange="selectPackage(${i})">
+                <label class="relative block">
+                    <input type="radio" name="pkg" value="${i}" class="radio-hidden" onchange="selectPackage(${i})">
                     <div class="selection-item text-center">
                         <div class="text-sm font-bold mb-1">${pkg.label}</div>
                         <div class="text-[8px] text-white/30 font-bold">Rp ${pkg[infra].toLocaleString('id-ID')}</div>
                     </div>
                 </label>`).join('');
-            
             const section = document.getElementById('packageSection');
             section.className = "section-visible";
             updateDots(3);
@@ -252,8 +221,7 @@
             currentOrder.price = currentOrder.package[infra];
             const section = document.getElementById('contactSection');
             section.className = "section-visible";
-            updatePrice();
-            updateDots(4);
+            updatePrice(); updateDots(4);
             setTimeout(() => section.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
         }
 
@@ -268,12 +236,16 @@
             dots.forEach((d, i) => d.classList.toggle('active', i < step));
         }
 
-        function refreshAll() { if(currentOrder.category) selectCategory(currentOrder.category); updatePrice(); }
+        function refreshAll() { 
+            currentOrder.infra = document.querySelector('input[name="infra_type"]:checked').value;
+            if(currentOrder.category) selectCategory(currentOrder.category); 
+            updatePrice(); 
+        }
 
         async function checkServerStatus() {
             const btn = document.getElementById('btnBayar');
             try {
-                const res = await fetch('/api/check-ptero');
+                const res = await fetch('/api/check-services');
                 const data = await res.json();
                 if (data.status !== 'online') btn.disabled = true;
             } catch (e) { btn.disabled = true; }
@@ -303,7 +275,7 @@
                 if(result.status === 'success') window.location.href = result.checkout_url;
                 else showAlert("Gagal", result.message);
             } catch (e) { showAlert("Error", "Server sibuk."); }
-            finally { btn.disabled = false; btn.innerHTML = "CHECKOUT"; }
+            finally { btn.disabled = false; btn.innerHTML = "CHECKOUT NOW"; }
         }
 
         function showAlert(title, msg) {
