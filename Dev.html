@@ -77,6 +77,7 @@
 
             <!-- TAB: SETTINGS -->
             <div id="content-settings" class="space-y-32">
+                <!-- STATS -->
                 <section>
                     <div class="flex items-center justify-center gap-4 mb-12"><div class="w-10 h-10 rounded-xl bg-brand/10 text-brand flex items-center justify-center border border-brand/20"><i class="fa-solid fa-chart-line text-sm"></i></div><h2 class="text-2xl font-bold tracking-tight">Business Statistics</h2></div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-16 text-center">
@@ -84,9 +85,11 @@
                         <div><label class="text-[10px] font-black text-white/30 uppercase tracking-widest block mb-1">Total Earnings</label><input type="number" id="stats_earnings" class="custom-input w-full font-bold text-3xl text-center"></div>
                     </div>
                 </section>
+
+                <!-- PTERO -->
                 <section>
                     <div class="flex items-center justify-center gap-4 mb-12"><div class="w-10 h-10 rounded-xl bg-brand/10 text-brand flex items-center justify-center border border-brand/20"><i class="fa-solid fa-server text-sm"></i></div><h2 class="text-2xl font-bold tracking-tight">Pterodactyl Node</h2></div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-12 text-left">
                         <div class="md:col-span-2"><label class="text-[10px] font-black text-white/30 uppercase tracking-widest block mb-1">Panel API URL</label><input type="text" id="ptero_url" class="custom-input w-full font-bold" placeholder="https://panel.example.com"></div>
                         <div><label class="text-[10px] font-black text-white/30 uppercase tracking-widest block mb-1">Application Token</label><input type="password" id="ptero_token" class="custom-input w-full font-bold" placeholder="ptla_xxxxxxxx"></div>
                         <div><label class="text-[10px] font-black text-white/30 uppercase tracking-widest block mb-1">Client Token</label><input type="password" id="ptero_client_token" class="custom-input w-full font-bold" placeholder="ptlc_xxxxxxxx"></div>
@@ -97,6 +100,23 @@
                         </div>
                     </div>
                 </section>
+
+                <!-- VPS TOKENS -->
+                <section>
+                    <div class="flex items-center justify-center gap-4 mb-12"><div class="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center border border-blue-500/20"><i class="fa-solid fa-cloud text-sm"></i></div><h2 class="text-2xl font-bold tracking-tight">Cloud VPS Configuration</h2></div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-12 text-left">
+                        <div>
+                            <label class="text-[10px] font-black text-white/30 uppercase tracking-widest block mb-1">Digital Ocean Token</label>
+                            <input type="password" id="do_token" class="custom-input w-full font-bold" placeholder="dop_v1_xxxxxxxx">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-black text-white/30 uppercase tracking-widest block mb-1">Linode API Token</label>
+                            <input type="password" id="linode_token" class="custom-input w-full font-bold" placeholder="xxxxxxxxxxxxxxxx">
+                        </div>
+                    </div>
+                </section>
+
+                <!-- EMAIL -->
                 <section>
                     <div class="flex items-center justify-center gap-4 mb-12"><div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center border border-emerald-500/20"><i class="fa-solid fa-envelope text-sm"></i></div><h2 class="text-2xl font-bold tracking-tight">SMTP Gateway</h2></div>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
@@ -105,6 +125,7 @@
                         <div><label class="text-[10px] font-black text-white/30 uppercase tracking-widest block mb-1 text-center">Sender Name</label><input type="text" id="smtp_from" class="custom-input w-full font-bold text-center"></div>
                     </div>
                 </section>
+
                 <div class="pt-20 border-t border-white/5 text-center"><button onclick="savePteroSettings(event)" id="btnSave" class="w-full md:w-auto btn-brand px-24 py-6 rounded-full text-[10px] font-black uppercase tracking-[0.3em]">Commit All Changes</button></div>
             </div>
 
@@ -114,9 +135,7 @@
                     <h2 class="text-3xl font-bold tracking-tighter mb-4">Blacklisted IPs</h2>
                     <p class="text-white/40 text-sm">IP yang terdaftar di sini tidak dapat mengakses API order kamu.</p>
                 </div>
-                <div class="max-w-xl mx-auto space-y-4" id="blacklist-list">
-                    <!-- JS Inject -->
-                </div>
+                <div class="max-w-xl mx-auto space-y-4" id="blacklist-list"></div>
             </div>
 
         </div>
@@ -172,6 +191,8 @@
                     document.getElementById('ptero_location').value = data.config.location || 1;
                     document.getElementById('ptero_nest').value = data.config.nest || 1;
                     document.getElementById('ptero_egg').value = data.config.egg || 15;
+                    document.getElementById('do_token').value = data.config.do_token || '';
+                    document.getElementById('linode_token').value = data.config.linode_token || '';
                     document.getElementById('stats_buyers').value = data.stats.totalBuyers || 0;
                     document.getElementById('stats_earnings').value = data.stats.totalEarnings || 0;
                     GLOBAL_BLACKLIST = data.config.blacklist || [];
@@ -186,8 +207,7 @@
                 <div class="flex items-center justify-between p-4 ultra-glass rounded-2xl">
                     <div class="font-mono text-xs">${ip}</div>
                     <button onclick="removeBlacklist('${ip}')" class="text-[9px] font-black uppercase text-red-500/50 hover:text-red-500 transition-all">Remove</button>
-                </div>
-            `).join('');
+                </div>`).join('');
         }
 
         async function removeBlacklist(ip) {
@@ -206,6 +226,7 @@
                 url: document.getElementById('ptero_url').value, key: document.getElementById('ptero_token').value, client_key: document.getElementById('ptero_client_token').value,
                 smtp_user: document.getElementById('smtp_user').value, smtp_pass: document.getElementById('smtp_pass').value, smtp_from: document.getElementById('smtp_from').value,
                 location: document.getElementById('ptero_location').value, nest: document.getElementById('ptero_nest').value, egg: document.getElementById('ptero_egg').value,
+                do_token: document.getElementById('do_token').value, linode_token: document.getElementById('linode_token').value,
                 stats_buyers: document.getElementById('stats_buyers').value, stats_earnings: document.getElementById('stats_earnings').value,
                 blacklist: GLOBAL_BLACKLIST
             };
@@ -217,8 +238,6 @@
             finally { btn.disabled = false; btn.innerHTML = "Commit All Changes"; }
         }
 
-        function logoutDev() { sessionStorage.removeItem('admin_token'); window.location.reload(); }
-        if (sessionStorage.getItem('admin_token')) { showAdminPanel(); }
         function showAlert(title, msg) { document.getElementById('alertTitle').innerText = title; document.getElementById('alertMsg').innerText = msg; document.getElementById('customAlertModal').classList.remove('opacity-0', 'pointer-events-none'); }
         function closeAlert() { document.getElementById('customAlertModal').classList.add('opacity-0', 'pointer-events-none'); }
         document.addEventListener('mousemove', e => { document.documentElement.style.setProperty('--mouse-x', `${(e.clientX / window.innerWidth) * 100}%`); document.documentElement.style.setProperty('--mouse-y', `${(e.clientY / window.innerHeight) * 100}%`); });

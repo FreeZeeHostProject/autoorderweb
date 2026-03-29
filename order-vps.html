@@ -162,25 +162,34 @@
 
         let currentOrder = { provider: '', package: null };
 
-        window.onload = () => { selectProvider('do'); };
+        window.onload = () => { 
+            checkServiceStatus();
+            selectProvider('do'); 
+        };
 
-        function selectProvider(id) {
-            currentOrder.provider = id;
-            currentOrder.package = null;
-            const container = document.getElementById('packageContainer');
-            container.innerHTML = VPS_DATA[id].map((pkg, i) => `
-                <label>
-                    <input type="radio" name="vps_pkg" value="${i}" class="hidden radio-hidden" onchange="selectPackage('${id}', ${i})">
-                    <div class="selection-item text-center">
-                        <div class="text-sm font-bold mb-1">${pkg.label}</div>
-                        <div class="text-[9px] text-white/30 font-bold uppercase">Rp ${pkg.price.toLocaleString('id-ID')}</div>
-                    </div>
-                </label>`).join('');
-            
-            const section = document.getElementById('packageSection');
-            section.className = "section-visible";
-            document.getElementById('totalPriceDisplay').innerText = "Rp 0";
-            updateDots(2);
+        async function checkServiceStatus() {
+            try {
+                const res = await fetch('/api/check-services');
+                const data = await res.json();
+                
+                // Disable DO if offline
+                if (data.services.do === 'offline') {
+                    const doRadio = document.querySelector('input[value="do"]');
+                    doRadio.disabled = true;
+                    doRadio.nextElementSibling.style.opacity = "0.2";
+                    doRadio.nextElementSibling.style.pointerEvents = "none";
+                    doRadio.nextElementSibling.innerHTML += '<div class="text-[7px] text-red-500 font-black mt-2">OFFLINE</div>';
+                }
+
+                // Disable Linode if offline
+                if (data.services.linode === 'offline') {
+                    const liRadio = document.querySelector('input[value="linode"]');
+                    liRadio.disabled = true;
+                    liRadio.nextElementSibling.style.opacity = "0.2";
+                    liRadio.nextElementSibling.style.pointerEvents = "none";
+                    liRadio.nextElementSibling.innerHTML += '<div class="text-[7px] text-red-500 font-black mt-2">OFFLINE</div>';
+                }
+            } catch (e) { console.error("Health check failed"); }
         }
 
         function selectPackage(prov, index) {

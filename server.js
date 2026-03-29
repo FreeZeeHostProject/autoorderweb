@@ -33,7 +33,13 @@ if (MONGODB_URI) {
     StatsModel = mongoose.models.Stats || mongoose.model('Stats', schema);
 }
 
-let pteroConfig = { url: '', key: '', client_key: '', smtp_user: '', smtp_pass: '', smtp_from: '', location: 1, nest: 1, egg: 15, blacklist: [], customerCounter: 1, totalEarnings: 0 };
+let pteroConfig = { 
+    url: '', key: '', client_key: '', 
+    smtp_user: '', smtp_pass: '', smtp_from: '', 
+    location: 1, nest: 1, egg: 15, 
+    blacklist: [], customerCounter: 1, totalEarnings: 0,
+    do_token: '', linode_token: '' 
+};
 
 async function saveAllData() {
     if (MONGODB_URI && StatsModel) {
@@ -58,7 +64,7 @@ async function loadAllData() {
 }
 loadAllData();
 
-// --- MIDDLEWARES ---
+// --- SECURITY MIDDLEWARES ---
 app.use((req, res, next) => {
     const clientIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
     if (pteroConfig.blacklist && pteroConfig.blacklist.includes(clientIp)) return res.status(403).json({ status: 'error', message: 'Blocked' });
@@ -69,7 +75,7 @@ const globalLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 100 });
 const loginLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 5 });
 const orderMemory = new Map();
 
-// --- HELPERS ---
+// --- PTERO HELPERS ---
 async function findPterodactylUserByEmail(email) {
     try {
         const response = await axios.get(`${pteroConfig.url}/api/application/users?filter[email]=${encodeURIComponent(email)}`, {
@@ -88,12 +94,10 @@ async function createPterodactylUser(email, username, password) {
 async function processServerDeployment(orderId, orderData) {
     if (orderData.status === 'completed' || orderData.status === 'processing') return orderData.credentials;
     orderData.status = 'processing';
-    
     const currentNumber = pteroConfig.customerCounter++;
     pteroConfig.totalEarnings = (pteroConfig.totalEarnings || 0) + orderData.amount;
     await saveAllData();
 
-    // LOGIKA VPS (MANUAL SETUP)
     if (orderData.nest_id == 0) {
         if (pteroConfig.smtp_user && pteroConfig.smtp_pass) {
             const transporter = nodemailer.createTransport({ service: 'gmail', auth: { user: pteroConfig.smtp_user, pass: pteroConfig.smtp_pass } });
@@ -101,11 +105,10 @@ async function processServerDeployment(orderId, orderData) {
                 from: `"${pteroConfig.smtp_from}" <${pteroConfig.smtp_user}>`,
                 to: orderData.email,
                 subject: 'Pesanan VPS FreeZeeHosting Diterima!',
-                html: `<h2>Halo!</h2><p>Pembayaran untuk <b>${orderData.package}</b> telah kami terima.</p><p>Karena ini adalah layanan Cloud VPS, admin kami akan segera melakukan setup manual dan mengirimkan detail login ke WhatsApp/Email kamu dalam waktu maksimal 1x24 jam.</p>`
+                html: `<h2>Halo!</h2><p>Pembayaran untuk <b>${orderData.package}</b> telah kami terima.</p><p>Setup manual segera dilakukan oleh admin.</p>`
             }).catch(e => console.error("Email Error"));
         }
-        orderData.status = 'completed';
-        orderData.credentials = { panel_url: "Manual Setup", username: "Pending", password: "Check WA/Email" };
+        orderData.status = 'completed'; orderData.credentials = { panel_url: "Manual Setup", username: "Pending", password: "Check WA/Email" };
         return orderData.credentials;
     }
 
@@ -121,14 +124,12 @@ async function processServerDeployment(orderId, orderData) {
             const newUser = await createPterodactylUser(pteroEmail, username, password);
             userId = newUser.userId;
         }
-
         let ram = 1024, cpu = 100, disk = 5120;
         if (orderData.package.includes('Unlimited')) { ram = 0; cpu = 0; disk = 0; }
         else {
             const val = parseInt(orderData.package);
             if (!isNaN(val)) { ram = val * 1024; cpu = val * 100; disk = val * 5120; }
         }
-
         await axios.post(`${pteroConfig.url}/api/application/servers`, {
             name: `Server-${username}`, user: userId, nest: parseInt(orderData.nest_id), egg: parseInt(orderData.egg_id),
             docker_image: "ghcr.io/pterodactyl/yolks:nodejs_20", startup: "node .",
@@ -137,10 +138,8 @@ async function processServerDeployment(orderId, orderData) {
             feature_limits: { databases: 1, backups: 1, allocations: 1 },
             deploy: { locations: [pteroConfig.location], dedicated_ip: false, port_range: [] }
         }, { headers: { 'Authorization': `Bearer ${pteroConfig.key}`, 'Accept': 'application/json' } });
-
         const creds = { panel_url: pteroConfig.url, username, password };
-        orderData.status = 'completed'; orderData.credentials = creds;
-        return creds;
+        orderData.status = 'completed'; orderData.credentials = creds; return creds;
     } catch (e) { orderData.status = 'pending'; throw e; }
 }
 
@@ -168,16 +167,42 @@ app.post('/api/admin/settings', async (req, res) => {
     } catch (e) { res.json({ status: 'error' }); }
 });
 
-app.get('/api/check-ptero', async (req, res) => {
-    let status = 'offline';
+app.get('/api/check-services', async (req, res) => {
+    const results = { ptero: 'offline', do: 'offline', linode: 'offline' };
+    
+    // Check Ptero
     try {
         if (pteroConfig.url && pteroConfig.key) {
-            const checkRes = await axios.get(`${pteroConfig.url}/api/application/nodes`, { headers: { 'Authorization': `Bearer ${pteroConfig.key}`, 'Accept': 'application/json' }, timeout: 5000 });
-            if (checkRes.status === 200) status = 'online';
+            const r = await axios.get(`${pteroConfig.url}/api/application/nodes`, { headers: { 'Authorization': `Bearer ${pteroConfig.key}` }, timeout: 3000 });
+            if (r.status === 200) results.ptero = 'online';
         }
-    } catch (error) { status = 'offline'; }
-    res.json({ status, config: { url: pteroConfig.url }, stats: { totalBuyers: pteroConfig.customerCounter - 1, totalEarnings: pteroConfig.totalEarnings } });
+    } catch (e) {}
+
+    // Check Digital Ocean
+    try {
+        if (pteroConfig.do_token) {
+            const r = await axios.get('https://api.digitalocean.com/v2/account', { headers: { 'Authorization': `Bearer ${pteroConfig.do_token}` }, timeout: 3000 });
+            if (r.status === 200) results.do = 'online';
+        }
+    } catch (e) {}
+
+    // Check Linode
+    try {
+        if (pteroConfig.linode_token) {
+            const r = await axios.get('https://api.linode.com/v4/profile', { headers: { 'Authorization': `Bearer ${pteroConfig.linode_token}` }, timeout: 3000 });
+            if (r.status === 200) results.linode = 'online';
+        }
+    } catch (e) {}
+
+    res.json({ 
+        status: results.ptero, // Main status
+        services: results,
+        stats: { totalBuyers: pteroConfig.customerCounter - 1, totalEarnings: pteroConfig.totalEarnings }
+    });
 });
+
+// Alias for old endpoint
+app.get('/api/check-ptero', (req, res) => res.redirect('/api/check-services'));
 
 app.post('/api/checkout', (req, res) => {
     const { nominal, email, whatsapp, package_name, nest_id, egg_id } = req.body;
