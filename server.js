@@ -19,8 +19,6 @@ const CONFIG_FILE = path.join(__dirname, 'config.json');
 // --- PENGATURAN KEAMANAN ---
 const ADMIN_USER = process.env.ADMIN_USER || "FreeZeeHost";
 const ADMIN_PASS = process.env.ADMIN_PASS || "FreeZeeHost12_";
-const PAKASIR_API_KEY = process.env.PAKASIR_API_KEY || 'cp15yjTyKR6ZhXAdizVFc1EvX72XuFfe'; 
-const PAKASIR_SLUG = process.env.PAKASIR_SLUG || 'freezeehost';
 const MONGODB_URI = process.env.MONGODB_URI;
 
 // --- DATABASE CONNECTION ---
@@ -28,7 +26,7 @@ let StatsModel;
 if (MONGODB_URI) {
     mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
         .then(() => console.log("🍃 MongoDB Connected"))
-        .catch(e => console.error("DB Connection Error"));
+        .catch(e => console.error("DB Error"));
     const schema = new mongoose.Schema({ key: { type: String, default: 'main_config' }, data: Object });
     StatsModel = mongoose.models.Stats || mongoose.model('Stats', schema);
 }
@@ -37,9 +35,13 @@ let pteroConfig = {
     url: '', key: '', client_key: '', 
     smtp_user: '', smtp_pass: '', smtp_from: '', 
     location: 1, nest: 1, egg: 15, 
-    blacklist: [], customerCounter: 1, totalEarnings: 0,
-    totalVisitors: 0, // NEW: Visitor Counter
-    do_token: '', linode_token: '' 
+    blacklist: [], customerCounter: 1, totalEarnings: 0, totalVisitors: 0,
+    active_gateway: 'manual', // Default ke manual
+    pakasir_key: 'cp15yjTyKR6ZhXAdizVFc1EvX72XuFfe',
+    pakasir_slug: 'freezeehost',
+    ok_merchant_code: '',
+    ok_api_key: '',
+    wa_admin: '6285102360656'
 };
 
 async function saveAllData() {
@@ -78,7 +80,6 @@ const orderMemory = new Map();
 
 // --- API ROUTES ---
 
-// NEW: Endpoint untuk catat visitor (dipanggil saat index.html load)
 app.get('/api/stats/visit', async (req, res) => {
     pteroConfig.totalVisitors = (pteroConfig.totalVisitors || 0) + 1;
     await saveAllData();
@@ -121,15 +122,10 @@ app.get('/api/check-services', async (req, res) => {
             if (r.status === 200) results.ptero = 'online';
         }
     } catch (e) {}
-    try {
-        if (pteroConfig.do_token) {
-            const r = await axios.get('https://api.digitalocean.com/v2/account', { headers: { 'Authorization': `Bearer ${pteroConfig.do_token}` }, timeout: 3000 });
-            if (r.status === 200) results.do = 'online';
-        }
-    } catch (e) {}
     res.json({ 
         status: results.ptero, services: results,
-        stats: { totalBuyers: pteroConfig.customerCounter - 1, totalEarnings: pteroConfig.totalEarnings, totalVisitors: pteroConfig.totalVisitors }
+        stats: { totalBuyers: pteroConfig.customerCounter - 1, totalEarnings: pteroConfig.totalEarnings, totalVisitors: pteroConfig.totalVisitors },
+        active_gateway: pteroConfig.active_gateway
     });
 });
 
@@ -137,10 +133,28 @@ app.post('/api/checkout', (req, res) => {
     const { nominal, email, whatsapp, package_name, nest_id, egg_id } = req.body;
     const orderId = 'FZH-' + Date.now();
     orderMemory.set(orderId, { amount: nominal, email, whatsapp, package: package_name, nest_id, egg_id, status: 'pending' });
+    
     const host = req.get('host');
     const protocol = req.headers['x-forwarded-proto'] || 'https';
     const returnUrl = `${protocol}://${host}/status.html?order_id=${orderId}`;
-    res.json({ status: 'success', checkout_url: `https://app.pakasir.com/pay/${PAKASIR_SLUG}/${nominal}?order_id=${orderId}&redirect=${encodeURIComponent(returnUrl)}` });
+
+    // LOGIKA GATEWAY SELECTION
+    if (pteroConfig.active_gateway === 'pakasir') {
+        const url = `https://app.pakasir.com/pay/${pteroConfig.pakasir_slug}/${nominal}?order_id=${orderId}&redirect=${encodeURIComponent(returnUrl)}`;
+        return res.json({ status: 'success', checkout_url: url });
+    } 
+    else if (pteroConfig.active_gateway === 'orderkuota') {
+        // Integrasi API OkeConnect
+        const url = `https://app.pakasir.com/pay/${pteroConfig.pakasir_slug}/${nominal}?order_id=${orderId}&redirect=${encodeURIComponent(returnUrl)}`; 
+        // Sementara samakan dulu, nanti kita buatkan UI khusus QRIS jika kamu punya API OkeConnect asli.
+        return res.json({ status: 'success', checkout_url: url });
+    }
+    else {
+        // MANUAL WHATSAPP
+        const text = `Halo Admin, saya ingin beli:\n\n*Paket:* ${package_name}\n*Nominal:* Rp ${nominal.toLocaleString('id-ID')}\n*Order ID:* ${orderId}\n*Email:* ${email}\n\nMohon instruksi pembayarannya.`;
+        const url = `https://wa.me/${pteroConfig.wa_admin}?text=${encodeURIComponent(text)}`;
+        return res.json({ status: 'success', checkout_url: url });
+    }
 });
 
 async function processServerDeployment(orderId, orderData) {
@@ -164,12 +178,6 @@ async function processServerDeployment(orderId, orderData) {
             const res = await axios.post(`${pteroConfig.url}/api/application/users`, { email: pteroEmail, username: username.toLowerCase(), first_name: "Customer", last_name: username, password }, { headers: { 'Authorization': `Bearer ${pteroConfig.key}`, 'Accept': 'application/json' } });
             userId = res.data.attributes.id;
         }
-        let ram = 1024, cpu = 100, disk = 5120;
-        if (orderData.package.includes('Unlimited')) { ram = 0; cpu = 0; disk = 0; }
-        else {
-            const val = parseInt(orderData.package);
-            if (!isNaN(val)) { ram = val * 1024; cpu = val * 100; disk = val * 5120; }
-        }
         await axios.post(`${pteroConfig.url}/api/application/servers`, {
             name: `Server-${username}`, user: userId, nest: parseInt(orderData.nest_id), egg: parseInt(orderData.egg_id),
             docker_image: "ghcr.io/pterodactyl/yolks:nodejs_20", startup: "node .",
@@ -189,7 +197,7 @@ app.get('/api/verify', async (req, res) => {
     if (!orderData) return res.json({ status: 'error' });
     if (orderData.status === 'completed') return res.json({ status: 'success', credentials: orderData.credentials });
     try {
-        const checkUrl = `https://app.pakasir.com/api/transactiondetail?project=${PAKASIR_SLUG}&amount=${orderData.amount}&order_id=${orderId}&api_key=${PAKASIR_API_KEY}`;
+        const checkUrl = `https://app.pakasir.com/api/transactiondetail?project=${pteroConfig.pakasir_slug}&amount=${orderData.amount}&order_id=${orderId}&api_key=${pteroConfig.pakasir_key}`;
         const response = await axios.get(checkUrl);
         if (response.data.transaction?.status === 'completed') {
             const credentials = await processServerDeployment(orderId, orderData);
@@ -204,7 +212,7 @@ app.post('/api/webhook/pakasir', async (req, res) => {
     const orderData = orderMemory.get(order_id);
     if (!orderData) return res.sendStatus(200);
     try {
-        const checkUrl = `https://app.pakasir.com/api/transactiondetail?project=${PAKASIR_SLUG}&amount=${orderData.amount}&order_id=${order_id}&api_key=${PAKASIR_API_KEY}`;
+        const checkUrl = `https://app.pakasir.com/api/transactiondetail?project=${pteroConfig.pakasir_slug}&amount=${orderData.amount}&order_id=${order_id}&api_key=${pteroConfig.pakasir_key}`;
         const verifyRes = await axios.get(checkUrl);
         if (verifyRes.data.transaction?.status === 'completed') await processServerDeployment(order_id, orderData);
     } catch (e) {}
