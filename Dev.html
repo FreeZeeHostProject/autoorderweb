@@ -36,8 +36,14 @@
         .custom-input:focus { border-bottom-color: #00f2fe; outline: none; }
         .btn-brand { background: #fff; color: #000; font-weight: 900; transition: all 0.3s; }
         .btn-brand:hover { box-shadow: 0 0 30px rgba(0, 242, 254, 0.4); transform: scale(1.02); }
-        .tab-btn { opacity: 0.4; transition: all 0.3s; }
+        
+        .tab-btn { opacity: 0.3; transition: all 0.3s; cursor: pointer; white-space: nowrap; }
         .tab-btn.active { opacity: 1; color: #00f2fe; border-bottom: 2px solid #00f2fe; }
+        
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeUp 0.5s ease; }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
         body::before { content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-image: url("https://grainy-gradients.vercel.app/noise.svg"); opacity: 0.03; pointer-events: none; z-index: 99; }
     </style>
 </head>
@@ -65,77 +71,84 @@
 
     <!-- ADMIN CONTENT -->
     <div id="adminContentWrapper" class="hidden opacity-0 transition-all duration-700 pt-32 pb-32 px-6">
-        <div class="max-w-4xl mx-auto">
-            <header class="text-center mb-16">
-                <h1 class="text-5xl font-extrabold tracking-tighter mb-8">System Control.</h1>
-                <div class="flex justify-center gap-8 border-b border-white/5 pb-4 mb-12">
-                    <button onclick="switchTab('settings')" id="tab-settings" class="tab-btn active text-[10px] font-black uppercase tracking-widest py-2">General Settings</button>
-                    <button onclick="switchTab('blacklist')" id="tab-blacklist" class="tab-btn text-[10px] font-black uppercase tracking-widest py-2">IP Blacklist</button>
-                    <button onclick="logoutDev()" class="text-[10px] font-black uppercase tracking-widest py-2 text-red-500/50 hover:text-red-500">Logout</button>
+        <div class="max-w-4xl mx-auto text-center">
+            
+            <header class="mb-16">
+                <h1 class="text-5xl font-extrabold tracking-tighter mb-10">System Control.</h1>
+                
+                <!-- TAB NAVIGATION -->
+                <div class="flex items-center justify-center gap-6 md:gap-10 border-b border-white/5 pb-4 mb-12 overflow-x-auto no-scrollbar">
+                    <button onclick="switchTab('stats')" id="tab-stats" class="tab-btn active text-[9px] font-black uppercase tracking-widest py-2 flex items-center gap-2"><i class="fa-solid fa-chart-pie"></i> Statistics</button>
+                    <button onclick="switchTab('ptero')" id="tab-ptero" class="tab-btn text-[9px] font-black uppercase tracking-widest py-2 flex items-center gap-2"><i class="fa-solid fa-server"></i> Pterodactyl</button>
+                    <button onclick="switchTab('vps')" id="tab-vps" class="tab-btn text-[9px] font-black uppercase tracking-widest py-2 flex items-center gap-2"><i class="fa-solid fa-cloud"></i> Cloud VPS</button>
+                    <button onclick="switchTab('smtp')" id="tab-smtp" class="tab-btn text-[9px] font-black uppercase tracking-widest py-2 flex items-center gap-2"><i class="fa-solid fa-envelope"></i> SMTP Mail</button>
+                    <button onclick="switchTab('blacklist')" id="tab-blacklist" class="tab-btn text-[9px] font-black uppercase tracking-widest py-2 flex items-center gap-2"><i class="fa-solid fa-user-slash"></i> Blacklist</button>
+                    <button onclick="logoutDev()" class="text-[9px] font-black uppercase tracking-widest py-2 text-red-500/50 hover:text-red-500 transition-all ml-4">Logout</button>
                 </div>
             </header>
 
-            <!-- TAB: SETTINGS -->
-            <div id="content-settings" class="space-y-32">
-                <!-- STATS -->
-                <section>
-                    <div class="flex items-center justify-center gap-4 mb-12"><div class="w-10 h-10 rounded-xl bg-brand/10 text-brand flex items-center justify-center border border-brand/20"><i class="fa-solid fa-chart-line text-sm"></i></div><h2 class="text-2xl font-bold tracking-tight">Business Statistics</h2></div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-16 text-center">
-                        <div><label class="text-[10px] font-black text-white/30 uppercase tracking-widest block mb-1">Total Buyers</label><input type="number" id="stats_buyers" class="custom-input w-full font-bold text-3xl text-center"></div>
-                        <div><label class="text-[10px] font-black text-white/30 uppercase tracking-widest block mb-1">Total Earnings</label><input type="number" id="stats_earnings" class="custom-input w-full font-bold text-3xl text-center"></div>
-                    </div>
-                </section>
-
-                <!-- PTERO -->
-                <section>
-                    <div class="flex items-center justify-center gap-4 mb-12"><div class="w-10 h-10 rounded-xl bg-brand/10 text-brand flex items-center justify-center border border-brand/20"><i class="fa-solid fa-server text-sm"></i></div><h2 class="text-2xl font-bold tracking-tight">Pterodactyl Node</h2></div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-12 text-left">
-                        <div class="md:col-span-2"><label class="text-[10px] font-black text-white/30 uppercase tracking-widest block mb-1">Panel API URL</label><input type="text" id="ptero_url" class="custom-input w-full font-bold" placeholder="https://panel.example.com"></div>
-                        <div><label class="text-[10px] font-black text-white/30 uppercase tracking-widest block mb-1">Application Token</label><input type="password" id="ptero_token" class="custom-input w-full font-bold" placeholder="ptla_xxxxxxxx"></div>
-                        <div><label class="text-[10px] font-black text-white/30 uppercase tracking-widest block mb-1">Client Token</label><input type="password" id="ptero_client_token" class="custom-input w-full font-bold" placeholder="ptlc_xxxxxxxx"></div>
-                        <div class="grid grid-cols-3 gap-6 md:col-span-2">
-                            <div><label class="text-[9px] text-white/30 uppercase font-bold block mb-1 text-center">Location</label><input type="number" id="ptero_location" class="custom-input w-full text-center"></div>
-                            <div><label class="text-[9px] text-white/30 uppercase font-bold block mb-1 text-center">Nest</label><input type="number" id="ptero_nest" class="custom-input w-full text-center"></div>
-                            <div><label class="text-[9px] text-white/30 uppercase font-bold block mb-1 text-center">Egg</label><input type="number" id="ptero_egg" class="custom-input w-full text-center"></div>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- VPS TOKENS -->
-                <section>
-                    <div class="flex items-center justify-center gap-4 mb-12"><div class="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center border border-blue-500/20"><i class="fa-solid fa-cloud text-sm"></i></div><h2 class="text-2xl font-bold tracking-tight">Cloud VPS Configuration</h2></div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-12 text-left">
+            <!-- TABS CONTENT -->
+            <div class="min-h-[400px]">
+                
+                <!-- TAB: STATISTICS -->
+                <div id="content-stats" class="tab-content active space-y-16">
+                    <div class="max-w-2xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-16">
                         <div>
-                            <label class="text-[10px] font-black text-white/30 uppercase tracking-widest block mb-1">Digital Ocean Token</label>
-                            <input type="password" id="do_token" class="custom-input w-full font-bold" placeholder="dop_v1_xxxxxxxx">
+                            <label class="text-[10px] font-black text-white/30 uppercase tracking-widest block mb-1">Total Buyers</label>
+                            <input type="number" id="stats_buyers" class="custom-input w-full font-bold text-4xl text-center">
                         </div>
                         <div>
-                            <label class="text-[10px] font-black text-white/30 uppercase tracking-widest block mb-1">Linode API Token</label>
-                            <input type="password" id="linode_token" class="custom-input w-full font-bold" placeholder="xxxxxxxxxxxxxxxx">
+                            <label class="text-[10px] font-black text-white/30 uppercase tracking-widest block mb-1">Total Earnings (IDR)</label>
+                            <input type="number" id="stats_earnings" class="custom-input w-full font-bold text-4xl text-center">
                         </div>
                     </div>
-                </section>
+                    <p class="text-[10px] text-white/20 italic italic">Perubahan angka di sini akan langsung tampil di beranda.</p>
+                </div>
 
-                <!-- EMAIL -->
-                <section>
-                    <div class="flex items-center justify-center gap-4 mb-12"><div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center border border-emerald-500/20"><i class="fa-solid fa-envelope text-sm"></i></div><h2 class="text-2xl font-bold tracking-tight">SMTP Gateway</h2></div>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
-                        <div><label class="text-[10px] font-black text-white/30 uppercase tracking-widest block mb-1 text-center">Gmail Account</label><input type="email" id="smtp_user" class="custom-input w-full font-bold text-center"></div>
-                        <div><label class="text-[10px] font-black text-white/30 uppercase tracking-widest block mb-1 text-center">App Password</label><input type="password" id="smtp_pass" class="custom-input w-full font-bold text-center"></div>
-                        <div><label class="text-[10px] font-black text-white/30 uppercase tracking-widest block mb-1 text-center">Sender Name</label><input type="text" id="smtp_from" class="custom-input w-full font-bold text-center"></div>
+                <!-- TAB: PTERODACTYL -->
+                <div id="content-ptero" class="tab-content space-y-12 text-left max-w-2xl mx-auto">
+                    <div class="space-y-10">
+                        <div><label class="text-[10px] font-black text-white/30 uppercase tracking-widest block mb-1">Panel API URL</label><input type="text" id="ptero_url" class="custom-input w-full font-bold" placeholder="https://panel.example.com"></div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                            <div><label class="text-[10px] font-black text-white/30 uppercase tracking-widest block mb-1">Application Token</label><input type="password" id="ptero_token" class="custom-input w-full font-bold" placeholder="ptla_xxxxxxxx"></div>
+                            <div><label class="text-[10px] font-black text-white/30 uppercase tracking-widest block mb-1">Client Token</label><input type="password" id="ptero_client_token" class="custom-input w-full font-bold" placeholder="ptlc_xxxxxxxx"></div>
+                        </div>
+                        <div class="grid grid-cols-3 gap-6">
+                            <div><label class="text-[9px] text-white/30 uppercase font-bold block mb-1 text-center">Location ID</label><input type="number" id="ptero_location" class="custom-input w-full text-center"></div>
+                            <div><label class="text-[9px] text-white/30 uppercase font-bold block mb-1 text-center">Nest ID</label><input type="number" id="ptero_nest" class="custom-input w-full text-center"></div>
+                            <div><label class="text-[9px] text-white/30 uppercase font-bold block mb-1 text-center">Egg ID</label><input type="number" id="ptero_egg" class="custom-input w-full text-center"></div>
+                        </div>
                     </div>
-                </section>
+                </div>
 
-                <div class="pt-20 border-t border-white/5 text-center"><button onclick="savePteroSettings(event)" id="btnSave" class="w-full md:w-auto btn-brand px-24 py-6 rounded-full text-[10px] font-black uppercase tracking-[0.3em]">Commit All Changes</button></div>
+                <!-- TAB: CLOUD VPS -->
+                <div id="content-vps" class="tab-content space-y-12 text-left max-w-2xl mx-auto">
+                    <div class="space-y-10">
+                        <div><label class="text-[10px] font-black text-white/30 uppercase tracking-widest block mb-1">Digital Ocean API Token</label><input type="password" id="do_token" class="custom-input w-full font-bold" placeholder="dop_v1_xxxxxxxx"></div>
+                        <div><label class="text-[10px] font-black text-white/30 uppercase tracking-widest block mb-1">Linode / Akamai Token</label><input type="password" id="linode_token" class="custom-input w-full font-bold" placeholder="xxxxxxxxxxxxxxxx"></div>
+                    </div>
+                </div>
+
+                <!-- TAB: SMTP -->
+                <div id="content-smtp" class="tab-content space-y-12 text-left max-w-2xl mx-auto">
+                    <div class="space-y-10">
+                        <div><label class="text-[10px] font-black text-white/30 uppercase tracking-widest block mb-1">Gmail Account</label><input type="email" id="smtp_user" class="custom-input w-full font-bold" placeholder="example@gmail.com"></div>
+                        <div><label class="text-[10px] font-black text-white/30 uppercase tracking-widest block mb-1">App Password</label><input type="password" id="smtp_pass" class="custom-input w-full font-bold" placeholder="xxxx xxxx xxxx xxxx"></div>
+                        <div><label class="text-[10px] font-black text-white/30 uppercase tracking-widest block mb-1">Sender Name</label><input type="text" id="smtp_from" class="custom-input w-full font-bold" placeholder="FreeZeeHost Botz"></div>
+                    </div>
+                </div>
+
+                <!-- TAB: BLACKLIST -->
+                <div id="content-blacklist" class="tab-content space-y-8">
+                    <p class="text-white/40 text-sm">IP yang terdaftar tidak dapat melakukan transaksi.</p>
+                    <div class="max-w-xl mx-auto space-y-3" id="blacklist-list"></div>
+                </div>
+
             </div>
 
-            <!-- TAB: BLACKLIST -->
-            <div id="content-blacklist" class="hidden space-y-12">
-                <div class="text-center">
-                    <h2 class="text-3xl font-bold tracking-tighter mb-4">Blacklisted IPs</h2>
-                    <p class="text-white/40 text-sm">IP yang terdaftar di sini tidak dapat mengakses API order kamu.</p>
-                </div>
-                <div class="max-w-xl mx-auto space-y-4" id="blacklist-list"></div>
+            <!-- GLOBAL SAVE BUTTON -->
+            <div class="mt-24 pt-10 border-t border-white/5">
+                <button onclick="savePteroSettings(event)" id="btnSave" class="w-full md:w-auto btn-brand px-32 py-6 rounded-full text-[10px] font-black uppercase tracking-[0.3em]">Commit Changes</button>
             </div>
 
         </div>
@@ -150,10 +163,12 @@
         let GLOBAL_BLACKLIST = [];
 
         function switchTab(t) {
-            document.getElementById('content-settings').classList.toggle('hidden', t !== 'settings');
-            document.getElementById('content-blacklist').classList.toggle('hidden', t !== 'blacklist');
-            document.getElementById('tab-settings').classList.toggle('active', t === 'settings');
-            document.getElementById('tab-blacklist').classList.toggle('active', t === 'blacklist');
+            // Hide all
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            // Show target
+            document.getElementById('content-' + t).classList.add('active');
+            document.getElementById('tab-' + t).classList.add('active');
             if(t === 'blacklist') renderBlacklist();
         }
 
@@ -235,9 +250,11 @@
                 if (res.ok) { showAlert("Success", "Settings and stats updated."); setTimeout(() => window.location.href = 'index.html', 1500); }
                 else { showAlert("Gagal", "Save failed."); }
             } catch (err) { showAlert("Error", "Backend down."); }
-            finally { btn.disabled = false; btn.innerHTML = "Commit All Changes"; }
+            finally { btn.disabled = false; btn.innerHTML = "Commit Changes"; }
         }
 
+        function logoutDev() { sessionStorage.removeItem('admin_token'); window.location.reload(); }
+        if (sessionStorage.getItem('admin_token')) { showAdminPanel(); }
         function showAlert(title, msg) { document.getElementById('alertTitle').innerText = title; document.getElementById('alertMsg').innerText = msg; document.getElementById('customAlertModal').classList.remove('opacity-0', 'pointer-events-none'); }
         function closeAlert() { document.getElementById('customAlertModal').classList.add('opacity-0', 'pointer-events-none'); }
         document.addEventListener('mousemove', e => { document.documentElement.style.setProperty('--mouse-x', `${(e.clientX / window.innerWidth) * 100}%`); document.documentElement.style.setProperty('--mouse-y', `${(e.clientY / window.innerHeight) * 100}%`); });
