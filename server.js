@@ -13,6 +13,9 @@ app.use(helmet({ contentSecurityPolicy: false }));
 app.use(cors());
 app.use(express.json());
 
+// Serve static files from root
+app.use(express.static(__dirname));
+
 // --- PENGATURAN KEAMANAN ---
 const ADMIN_USER = process.env.ADMIN_USER || "FreeZeeHost";
 const ADMIN_PASS = process.env.ADMIN_PASS || "FreeZeeHost12_";
@@ -67,6 +70,63 @@ app.use((req, res, next) => {
 const globalLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 100 });
 const loginLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 5 });
 const orderMemory = new Map();
+
+// --- PTERO HELPERS ---
+async function findPterodactylUserByEmail(email) {
+    try {
+        const response = await axios.get(`${pteroConfig.url}/api/application/users?filter[email]=${encodeURIComponent(email)}`, {
+            headers: { 'Authorization': `Bearer ${pteroConfig.key}`, 'Accept': 'application/json' }
+        });
+        if (response.data.data && response.data.data.length > 0) return { success: true, userId: response.data.data[0].attributes.id };
+        return { success: false };
+    } catch (e) { return { success: false }; }
+}
+
+async function processServerDeployment(orderId, orderData) {
+    if (orderData.status === 'completed' || orderData.status === 'processing') return orderData.credentials;
+    orderData.status = 'processing';
+    const currentNumber = pteroConfig.customerCounter++;
+    pteroConfig.totalEarnings = (pteroConfig.totalEarnings || 0) + orderData.amount;
+    await saveAllData();
+
+    if (orderData.nest_id == 0) {
+        orderData.status = 'completed'; orderData.credentials = { panel_url: "Manual Setup", username: "Pending", password: "Check WA/Email" };
+        return orderData.credentials;
+    }
+
+    const username = `FreeZeeHost${currentNumber}`;
+    const password = Math.random().toString(36).slice(-10) + '123!';
+    const pteroEmail = `freezeehost${currentNumber}@gmail.com`;
+
+    try {
+        let userId;
+        const existing = await findPterodactylUserByEmail(orderData.email);
+        if (existing.success) userId = existing.userId;
+        else {
+            const res = await axios.post(`${pteroConfig.url}/api/application/users`, { email: pteroEmail, username: username.toLowerCase(), first_name: "Customer", last_name: username, password }, { headers: { 'Authorization': `Bearer ${pteroConfig.key}`, 'Accept': 'application/json' } });
+            userId = res.data.attributes.id;
+        }
+        
+        let ram = 1024, cpu = 100, disk = 5120;
+        if (orderData.package_name.includes('Unlimited')) { ram = 0; cpu = 0; disk = 0; }
+        else {
+            const val = parseInt(orderData.package_name);
+            if (!isNaN(val)) { ram = val * 1024; cpu = val * 100; disk = val * 5120; }
+        }
+
+        await axios.post(`${pteroConfig.url}/api/application/servers`, {
+            name: `Server-${username}`, user: userId, nest: parseInt(orderData.nest_id), egg: parseInt(orderData.egg_id),
+            docker_image: "ghcr.io/pterodactyl/yolks:nodejs_20", startup: "node .",
+            environment: { "P_SERVER_ALLOCATION_LIMIT": "0", "COMMAND_RUN": "node index.js" },
+            limits: { memory: ram, swap: 0, disk: disk, io: 500, cpu: cpu },
+            feature_limits: { databases: 1, backups: 1, allocations: 1 },
+            deploy: { locations: [pteroConfig.location], dedicated_ip: false, port_range: [] }
+        }, { headers: { 'Authorization': `Bearer ${pteroConfig.key}`, 'Accept': 'application/json' } });
+
+        const creds = { panel_url: pteroConfig.url, username, password };
+        orderData.status = 'completed'; orderData.credentials = creds; return creds;
+    } catch (e) { orderData.status = 'pending'; throw e; }
+}
 
 // --- API ROUTES ---
 
@@ -139,19 +199,41 @@ app.post('/api/checkout', (req, res) => {
     }
 });
 
-// Explicit Static File Delivery for Vercel
-const serveFile = (file) => (req, res) => res.sendFile(path.join(process.cwd(), file));
+app.get('/api/verify', async (req, res) => {
+    const orderId = req.query.order_id;
+    const orderData = orderMemory.get(orderId);
+    if (!orderData) return res.json({ status: 'error' });
+    if (orderData.status === 'completed') return res.json({ status: 'success', credentials: orderData.credentials });
+    try {
+        const checkUrl = `https://app.pakasir.com/api/transactiondetail?project=${pteroConfig.pakasir_slug}&amount=${orderData.amount}&order_id=${orderId}&api_key=${pteroConfig.pakasir_key}`;
+        const response = await axios.get(checkUrl);
+        if (response.data.transaction?.status === 'completed') {
+            const credentials = await processServerDeployment(orderId, orderData);
+            return res.json({ status: 'success', credentials });
+        }
+        res.json({ status: 'pending' });
+    } catch (e) { res.json({ status: 'error' }); }
+});
 
-app.get('/', serveFile('index.html'));
-app.get('/index.html', serveFile('index.html'));
-app.get('/Dev.html', serveFile('Dev.html'));
-app.get('/dev.html', serveFile('Dev.html')); // Case insensitive alias
-app.get('/order-panel.html', serveFile('order-panel.html'));
-app.get('/order-vps.html', serveFile('order-vps.html'));
-app.get('/status.html', serveFile('status.html'));
+app.post('/api/webhook/pakasir', async (req, res) => {
+    const { order_id } = req.body;
+    const orderData = orderMemory.get(order_id);
+    if (!orderData) return res.sendStatus(200);
+    try {
+        const checkUrl = `https://app.pakasir.com/api/transactiondetail?project=${pteroConfig.pakasir_slug}&amount=${orderData.amount}&order_id=${order_id}&api_key=${pteroConfig.pakasir_key}`;
+        const verifyRes = await axios.get(checkUrl);
+        if (verifyRes.data.transaction?.status === 'completed') await processServerDeployment(order_id, orderData);
+    } catch (e) {}
+    res.sendStatus(200);
+});
 
-// Fallback static
-app.use(express.static(path.join(__dirname)));
+// Explicit Static Routes
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
+app.get('/Dev.html', (req, res) => res.sendFile(path.join(__dirname, 'Dev.html')));
+app.get('/dev.html', (req, res) => res.sendFile(path.join(__dirname, 'Dev.html')));
+app.get('/order-panel.html', (req, res) => res.sendFile(path.join(__dirname, 'order-panel.html')));
+app.get('/order-vps.html', (req, res) => res.sendFile(path.join(__dirname, 'order-vps.html')));
+app.get('/status.html', (req, res) => res.sendFile(path.join(__dirname, 'status.html')));
 
 if (process.env.NODE_ENV !== 'production') app.listen(3000, () => console.log(`🚀 Ready`));
 module.exports = app;
