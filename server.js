@@ -33,7 +33,11 @@ let pteroConfig = {
     active_gateway: 'manual',
     pakasir_key: 'cp15yjTyKR6ZhXAdizVFc1EvX72XuFfe',
     pakasir_slug: 'freezeehost',
-    wa_admin: '6285102360656'
+    ok_merchant_code: '',
+    ok_api_key: '',
+    wa_admin: '6285102360656',
+    do_token: '', // Jangan sampai tertinggal
+    linode_token: '' // Jangan sampai tertinggal
 };
 
 async function saveAllData() {
@@ -118,20 +122,29 @@ app.post('/api/admin/login', (req, res) => {
 });
 
 app.get('/api/admin/config', (req, res) => {
+    const authHeader = req.headers['authorization'];
+    if (!authHeader || authHeader !== Buffer.from(ADMIN_PASS).toString('base64')) return res.status(401).send();
     res.json({ config: pteroConfig, stats: { totalBuyers: pteroConfig.customerCounter - 1, totalEarnings: pteroConfig.totalEarnings, totalVisitors: pteroConfig.totalVisitors } });
 });
 
 app.post('/api/admin/settings', async (req, res) => {
-    const { stats_buyers, stats_earnings, stats_visitors, ...config } = req.body;
-    pteroConfig = { ...pteroConfig, ...config, customerCounter: parseInt(stats_buyers) + 1, totalEarnings: parseInt(stats_earnings), totalVisitors: parseInt(stats_visitors) };
-    await saveAllData(); res.json({ status: 'success' });
+    const authHeader = req.headers['authorization'];
+    if (!authHeader || authHeader !== Buffer.from(ADMIN_PASS).toString('base64')) return res.status(401).send();
+    try {
+        const { stats_buyers, stats_earnings, stats_visitors, ...config } = req.body;
+        pteroConfig = { ...pteroConfig, ...config, customerCounter: parseInt(stats_buyers) + 1, totalEarnings: parseInt(stats_earnings), totalVisitors: parseInt(stats_visitors) };
+        await saveAllData(); 
+        res.json({ status: 'success' });
+    } catch (e) { res.json({ status: 'error' }); }
 });
 
 app.get('/api/check-services', async (req, res) => {
     let status = 'offline';
     try {
-        const r = await axios.get(`${pteroConfig.url}/api/application/nodes`, { headers: { 'Authorization': `Bearer ${pteroConfig.key}` }, timeout: 2000 });
-        if (r.status === 200) status = 'online';
+        if (pteroConfig.url && pteroConfig.key) {
+            const r = await axios.get(`${pteroConfig.url}/api/application/nodes`, { headers: { 'Authorization': `Bearer ${pteroConfig.key}` }, timeout: 2000 });
+            if (r.status === 200) status = 'online';
+        }
     } catch (e) {}
     res.json({ status, stats: { totalBuyers: pteroConfig.customerCounter - 1, totalEarnings: pteroConfig.totalEarnings, totalVisitors: pteroConfig.totalVisitors }, active_gateway: pteroConfig.active_gateway });
 });

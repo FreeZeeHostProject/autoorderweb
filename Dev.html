@@ -4,93 +4,179 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Command Center | FreeZeeHosting</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
-        tailwind.config = { theme: { extend: { fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'], display: ['"Space Grotesk"', 'sans-serif'] }, colors: { brand: '#00f2fe' } } } }
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        display: ['"Space Grotesk"', 'sans-serif'],
+                    },
+                    colors: { brand: '#00f2fe', dark: '#000000' }
+                }
+            }
+        }
     </script>
     <style>
-        body { background-color: #000; color: #fff; overflow-x: hidden; }
-        .grid-bg { position: fixed; inset: 0; background-image: linear-gradient(to right, rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.02) 1px, transparent 1px); background-size: 50px 50px; z-index: -1; }
-        .glass-card { background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(40px); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 2.5rem; }
-        .custom-input { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); color: white; border-radius: 1.25rem; padding: 1.25rem; transition: all 0.3s; width: 100%; }
-        .custom-input:focus { border-color: #00f2fe; outline: none; }
-        .tab-btn { opacity: 0.3; transition: all 0.3s; cursor: pointer; padding: 0.75rem 1.5rem; border-radius: 1rem; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; }
-        .tab-btn.active { opacity: 1; background: rgba(0, 242, 254, 0.1); color: #00f2fe; }
+        body { background-color: #000000; color: #ffffff; overflow-x: hidden; position: relative; }
+        .grid-bg-static { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-image: linear-gradient(to right, rgba(255, 255, 255, 0.01) 1px, transparent 1px), linear-gradient(to bottom, rgba(255, 255, 255, 0.01) 1px, transparent 1px); background-size: 60px 60px; z-index: -2; }
+        .grid-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-image: linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px); background-size: 60px 60px; mask-image: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), black 0%, transparent 50%); -webkit-mask-image: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), black 0%, transparent 50%); z-index: -1; }
+        .glow-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 50% 0%, rgba(0, 242, 254, 0.05) 0%, transparent 50%); z-index: -1; }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(40px) saturate(180%);
+            -webkit-backdrop-filter: blur(40px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.05); border-top: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 2.5rem; box-shadow: 0 25px 80px rgba(0,0,0,0.8);
+        }
+
+        .custom-input {
+            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
+            color: white; border-radius: 1.25rem; padding: 1.25rem; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 0.95rem;
+        }
+        .custom-input:focus { border-color: #00f2fe; background: rgba(0, 242, 254, 0.05); outline: none; box-shadow: 0 0 25px rgba(0, 242, 254, 0.15); }
+
+        .btn-brand {
+            background: #fff; color: #000; font-weight: 800; transition: all 0.4s ease;
+            box-shadow: 0 4px 20px rgba(255,255,255,0.1);
+        }
+        .btn-brand:hover { box-shadow: 0 0 40px rgba(0, 242, 254, 0.5); transform: translateY(-3px); }
+
+        .tab-btn {
+            opacity: 0.3; transition: all 0.4s; cursor: pointer; padding: 0.85rem 1.75rem; border-radius: 1.25rem;
+            font-weight: 700; letter-spacing: 0.05em; font-size: 0.7rem; text-transform: uppercase;
+        }
+        .tab-btn.active { opacity: 1; background: rgba(255, 255, 255, 0.05); color: #00f2fe; border: 1px solid rgba(255, 255, 255, 0.1); }
+        
         .tab-content { display: none; }
-        .tab-content.active { display: block; }
-        .btn-deploy { background: #fff; color: #000; font-weight: 900; padding: 1.25rem 2.5rem; border-radius: 1.5rem; transition: all 0.3s; }
-        .btn-deploy:hover { box-shadow: 0 0 30px rgba(0, 242, 254, 0.4); transform: translateY(-2px); }
+        .tab-content.active { display: block; animation: fadeSlide 0.6s cubic-bezier(0.23, 1, 0.32, 1); }
+        @keyframes fadeSlide { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+        .gateway-card { border: 1px solid rgba(255,255,255,0.05); background: rgba(255,255,255,0.02); transition: all 0.3s ease; cursor: pointer; }
+        .gateway-radio:checked + .gateway-card { border-color: #00f2fe; background: rgba(0, 242, 254, 0.1); }
+
+        body::before { content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-image: url("https://grainy-gradients.vercel.app/noise.svg"); opacity: 0.03; pointer-events: none; z-index: 99; }
     </style>
 </head>
-<body class="antialiased p-6">
+<body class="antialiased">
+
+    <div class="grid-bg-static"></div>
     <div class="grid-bg"></div>
+    <div class="glow-overlay"></div>
 
-    <!-- LOGIN -->
-    <div id="loginScreen" class="min-h-screen flex items-center justify-center">
-        <div class="max-w-md w-full p-12 glass-card text-center">
-            <i class="fa-solid fa-snowflake text-brand text-4xl mb-8"></i>
-            <h1 class="text-3xl font-extrabold mb-8 tracking-tighter">Command Center</h1>
-            <input type="text" id="devUser" class="custom-input mb-4" placeholder="Username">
-            <input type="password" id="devPassword" class="custom-input mb-8" placeholder="Password">
-            <button onclick="loginDev()" class="btn-deploy w-full">AUTHORIZE</button>
+    <!-- LOGIN SCREEN -->
+    <div id="loginScreen" class="min-h-screen flex items-center justify-center px-6 relative z-50">
+        <div class="w-full max-w-md p-12 glass-card text-center" data-aos="zoom-in">
+            <div class="w-20 h-20 bg-white/5 rounded-3xl flex items-center justify-center mx-auto mb-10 border border-white/10 shadow-inner">
+                <i class="fa-solid fa-snowflake text-brand text-3xl animate-spin-slow"></i>
+            </div>
+            <h1 class="font-display text-3xl font-extrabold mb-3 text-white tracking-tight text-center">Command Center</h1>
+            <div class="space-y-6 text-left mt-10">
+                <input type="text" id="devUser" class="custom-input w-full" placeholder="Admin ID">
+                <input type="password" id="devPassword" class="custom-input w-full" placeholder="Access Key">
+                <button onclick="loginDev()" id="btnLogin" class="w-full btn-brand py-5 rounded-2xl text-[10px] uppercase tracking-[0.2em] mt-6">Authorize Session</button>
+            </div>
         </div>
     </div>
 
-    <!-- MAIN -->
-    <div id="adminContentWrapper" class="hidden max-w-5xl mx-auto pt-20">
-        <header class="text-center mb-16">
-            <h1 class="text-6xl font-black tracking-tighter mb-12">Core <span class="text-brand">Console.</span></h1>
-            <div class="flex flex-wrap justify-center gap-4 bg-white/5 p-2 rounded-3xl w-fit mx-auto border border-white/5">
-                <button onclick="switchTab('stats')" id="tab-stats" class="tab-btn active">Analytics</button>
-                <button onclick="switchTab('ptero')" id="tab-ptero" class="tab-btn">Nodes</button>
-                <button onclick="switchTab('gateway')" id="tab-gateway" class="tab-btn">Gateway</button>
-                <button onclick="switchTab('smtp')" id="tab-smtp" class="tab-btn">Mail</button>
-                <button onclick="logoutDev()" class="tab-btn text-red-500">Exit</button>
-            </div>
-        </header>
+    <!-- ADMIN CONTENT -->
+    <div id="adminContentWrapper" class="hidden opacity-0 transition-all duration-700 pt-32 pb-48 px-6">
+        <div class="max-w-5xl mx-auto">
+            
+            <header class="text-center mb-20">
+                <h1 class="text-5xl md:text-7xl font-extrabold tracking-tighter mb-12 text-white text-center">Central <span class="text-brand">Core.</span></h1>
+                
+                <!-- TAB NAVIGATION -->
+                <div class="flex flex-wrap items-center justify-center gap-3 md:gap-4 mb-16 px-4 py-2 bg-white/5 rounded-[1.5rem] w-fit mx-auto border border-white/5">
+                    <button onclick="switchTab('stats')" id="tab-stats" class="tab-btn active">Analytics</button>
+                    <button onclick="switchTab('ptero')" id="tab-ptero" class="tab-btn">Nodes</button>
+                    <button onclick="switchTab('gateway')" id="tab-gateway" class="tab-btn">Gateway</button>
+                    <button onclick="switchTab('vps')" id="tab-vps" class="tab-btn">Cloud VPS</button>
+                    <button onclick="switchTab('smtp')" id="tab-smtp" class="tab-btn">Email</button>
+                    <button onclick="logoutDev()" class="ml-4 text-[10px] font-bold text-white/20 hover:text-red-500 transition-all uppercase px-2">Exit</button>
+                </div>
+            </header>
 
-        <div class="glass-card p-12 mb-12">
-            <div id="content-stats" class="tab-content active grid grid-cols-1 md:grid-cols-2 gap-12">
-                <div><label class="text-[10px] font-black text-brand uppercase block mb-4">Buyers</label><input type="number" id="stats_buyers" class="custom-input text-4xl font-black"></div>
-                <div><label class="text-[10px] font-black text-brand uppercase block mb-4">Revenue</label><input type="number" id="stats_earnings" class="custom-input text-4xl font-black"></div>
-                <div class="md:col-span-2 text-center"><label class="text-[10px] font-black text-brand uppercase block mb-4">Visitors</label><input type="number" id="stats_visitors" class="custom-input text-4xl font-black max-w-xs mx-auto text-center"></div>
-            </div>
+            <div class="glass-card p-10 md:p-16 mb-16 relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-brand/30 to-transparent"></div>
 
-            <div id="content-ptero" class="tab-content space-y-8">
-                <div><label class="text-[10px] font-black text-white/30 uppercase block mb-2">Panel URL</label><input type="text" id="ptero_url" class="custom-input"></div>
-                <div class="grid grid-cols-2 gap-8">
-                    <div><label class="text-[10px] font-black text-white/30 uppercase block mb-2">PTLA Token</label><input type="password" id="ptero_token" class="custom-input"></div>
-                    <div><label class="text-[10px] font-black text-white/30 uppercase block mb-2">PTLC Token</label><input type="password" id="ptero_client_token" class="custom-input"></div>
+                <!-- TABS CONTENT -->
+                <div id="content-stats" class="tab-content active space-y-12">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-12 text-center">
+                        <div class="space-y-4"><label class="text-[10px] font-black text-brand uppercase tracking-widest block">Active Buyers</label><input type="number" id="stats_buyers" class="custom-input w-full font-extrabold text-4xl text-center"></div>
+                        <div class="space-y-4"><label class="text-[10px] font-black text-brand uppercase tracking-widest block">Net Revenue</label><input type="number" id="stats_earnings" class="custom-input w-full font-extrabold text-4xl text-center"></div>
+                    </div>
+                    <div class="space-y-4 text-center"><label class="text-[10px] font-black text-brand uppercase tracking-widest block">Global Visitors</label><input type="number" id="stats_visitors" class="custom-input w-full max-w-xs mx-auto font-extrabold text-4xl text-center"></div>
+                </div>
+
+                <div id="content-ptero" class="tab-content space-y-10 text-left">
+                    <div class="space-y-6">
+                        <div><label class="text-[10px] font-black text-white/30 uppercase ml-4">API Endpoint</label><input type="text" id="ptero_url" class="custom-input w-full font-bold"></div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div><label class="text-[10px] font-black text-white/30 uppercase ml-4">PTLA Token</label><input type="password" id="ptero_token" class="custom-input w-full"></div>
+                            <div><label class="text-[10px] font-black text-white/30 uppercase ml-4">PTLC Token</label><input type="password" id="ptero_client_token" class="custom-input w-full"></div>
+                        </div>
+                        <div class="grid grid-cols-3 gap-4 bg-white/5 p-8 rounded-[2rem]">
+                            <div class="text-center"><label class="text-[9px] text-white/30 uppercase font-black block mb-3">LOC_ID</label><input type="number" id="ptero_location" class="custom-input w-full text-center text-xl font-black"></div>
+                            <div class="text-center"><label class="text-[9px] text-white/30 uppercase font-black block mb-3">NEST_ID</label><input type="number" id="ptero_nest" class="custom-input w-full text-center text-xl font-black"></div>
+                            <div class="text-center"><label class="text-[9px] text-white/30 uppercase font-black block mb-3">EGG_ID</label><input type="number" id="ptero_egg" class="custom-input w-full text-center text-xl font-black"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="content-gateway" class="tab-content space-y-12">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+                        <label class="block"><input type="radio" name="active_gateway" value="pakasir" class="hidden gateway-radio"><div class="gateway-card p-8 rounded-3xl text-center font-bold">Pakasir Auto</div></label>
+                        <label class="block"><input type="radio" name="active_gateway" value="manual" class="hidden gateway-radio"><div class="gateway-card p-8 rounded-3xl text-center font-bold">WhatsApp Manual</div></label>
+                    </div>
+                    <div class="space-y-8 text-left">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <input type="text" id="pakasir_slug" class="custom-input" placeholder="Pakasir Slug">
+                            <input type="password" id="pakasir_key" class="custom-input" placeholder="Pakasir API Key">
+                        </div>
+                        <input type="text" id="wa_admin" class="custom-input" placeholder="WA Number (6285xxx)">
+                    </div>
+                </div>
+
+                <div id="content-vps" class="tab-content space-y-10 text-left">
+                    <div class="space-y-6">
+                        <div><label class="text-[10px] font-black text-white/30 uppercase ml-4">Digital Ocean Key</label><input type="password" id="do_token" class="custom-input w-full" placeholder="dop_v1_..."></div>
+                        <div><label class="text-[10px] font-black text-white/30 uppercase ml-4">Linode API Token</label><input type="password" id="linode_token" class="custom-input w-full"></div>
+                    </div>
+                </div>
+
+                <div id="content-smtp" class="tab-content space-y-10 text-left">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div><label class="text-[10px] font-black text-white/30 uppercase ml-4">SMTP Email</label><input type="email" id="smtp_user" class="custom-input w-full"></div>
+                        <div><label class="text-[10px] font-black text-white/30 uppercase ml-4">App Password</label><input type="password" id="smtp_pass" class="custom-input w-full"></div>
+                        <div class="md:col-span-2"><label class="text-[10px] font-black text-white/30 uppercase ml-4">Signature Name</label><input type="text" id="smtp_from" class="custom-input w-full"></div>
+                    </div>
                 </div>
             </div>
 
-            <div id="content-gateway" class="tab-content space-y-8">
-                <div class="flex gap-4 mb-8">
-                    <label class="flex-1 cursor-pointer"><input type="radio" name="active_gateway" value="pakasir" class="hidden peer"><div class="p-6 rounded-2xl border border-white/5 peer-checked:border-brand peer-checked:bg-brand/10 text-center font-bold">Pakasir</div></label>
-                    <label class="flex-1 cursor-pointer"><input type="radio" name="active_gateway" value="manual" class="hidden peer"><div class="p-6 rounded-2xl border border-white/5 peer-checked:border-brand peer-checked:bg-brand/10 text-center font-bold">Manual WA</div></label>
-                </div>
-                <div class="grid grid-cols-2 gap-8">
-                    <input type="text" id="pakasir_slug" class="custom-input" placeholder="Pakasir Slug">
-                    <input type="password" id="pakasir_key" class="custom-input" placeholder="Pakasir Key">
-                </div>
-                <input type="text" id="wa_admin" class="custom-input" placeholder="WA Number (6285xxx)">
+            <div class="text-center">
+                <button onclick="savePteroSettings(event)" id="btnSave" class="btn-brand px-24 py-6 rounded-[2rem] text-[11px] font-black uppercase tracking-[0.3em] shadow-2xl">Push Changes to Core</button>
             </div>
 
-            <div id="content-smtp" class="tab-content space-y-8">
-                <div class="grid grid-cols-2 gap-8">
-                    <input type="email" id="smtp_user" class="custom-input" placeholder="Gmail Address">
-                    <input type="password" id="smtp_pass" class="custom-input" placeholder="App Password">
-                </div>
-                <input type="text" id="smtp_from" class="custom-input" placeholder="Sender Signature">
-            </div>
         </div>
-
-        <button onclick="savePteroSettings()" class="btn-deploy w-full">SYNC_TO_CLOUD</button>
     </div>
 
+    <!-- MODAL -->
+    <div id="customAlertModal" class="fixed inset-0 z-[100] flex items-center justify-center px-6 opacity-0 pointer-events-none transition-all duration-500"><div class="absolute inset-0 bg-black/95 backdrop-blur-md"></div><div class="relative text-center max-w-sm glass-card p-12"><h3 id="alertTitle" class="text-3xl font-extrabold mb-4 tracking-tighter text-white uppercase"></h3><p id="alertMsg" class="text-white/40 text-sm mb-10 leading-relaxed"></p><button onclick="closeAlert()" class="w-full py-4 bg-brand text-black font-black rounded-2xl text-[10px] uppercase tracking-widest shadow-xl">Complete Task</button></div></div>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
+        AOS.init({ once: true, duration: 1000 });
         function switchTab(t) {
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -104,32 +190,46 @@
             const res = await fetch('/api/admin/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user, pass }) });
             const data = await res.json();
             if (data.status === 'success') { localStorage.setItem('admin_token', data.token); showAdminPanel(); }
-            else alert("Invalid Access");
+            else alert("Access Denied");
         }
 
         async function showAdminPanel() {
+            const token = localStorage.getItem('admin_token');
+            if(!token) return;
             document.getElementById('loginScreen').classList.add('hidden');
-            document.getElementById('adminContentWrapper').classList.remove('hidden');
-            const res = await fetch('/api/admin/config');
-            const data = await res.json();
-            if (data.config) {
-                document.getElementById('stats_buyers').value = data.stats.totalBuyers;
-                document.getElementById('stats_earnings').value = data.stats.totalEarnings;
-                document.getElementById('stats_visitors').value = data.stats.totalVisitors;
-                document.getElementById('ptero_url').value = data.config.url;
-                document.getElementById('ptero_token').value = data.config.key;
-                document.getElementById('ptero_client_token').value = data.config.client_key;
-                document.querySelector(`input[name="active_gateway"][value="${data.config.active_gateway}"]`).checked = true;
-                document.getElementById('pakasir_slug').value = data.config.pakasir_slug;
-                document.getElementById('pakasir_key').value = data.config.pakasir_key;
-                document.getElementById('wa_admin').value = data.config.wa_admin;
-                document.getElementById('smtp_user').value = data.config.smtp_user;
-                document.getElementById('smtp_pass').value = data.config.smtp_pass;
-                document.getElementById('smtp_from').value = data.config.smtp_from;
-            }
+            const wrap = document.getElementById('adminContentWrapper');
+            wrap.classList.remove('hidden');
+            setTimeout(() => wrap.classList.add('opacity-100'), 100);
+            try {
+                const res = await fetch('/api/admin/config', { headers: { 'Authorization': token } });
+                const data = await res.json();
+                if (data.config) {
+                    document.getElementById('stats_buyers').value = data.stats.totalBuyers;
+                    document.getElementById('stats_earnings').value = data.stats.totalEarnings;
+                    document.getElementById('stats_visitors').value = data.stats.totalVisitors;
+                    document.getElementById('ptero_url').value = data.config.url;
+                    document.getElementById('ptero_token').value = data.config.key;
+                    document.getElementById('ptero_client_token').value = data.config.client_key;
+                    document.getElementById('ptero_location').value = data.config.location;
+                    document.getElementById('ptero_nest').value = data.config.nest;
+                    document.getElementById('ptero_egg').value = data.config.egg;
+                    document.querySelector(`input[name="active_gateway"][value="${data.config.active_gateway}"]`).checked = true;
+                    document.getElementById('pakasir_slug').value = data.config.pakasir_slug;
+                    document.getElementById('pakasir_key').value = data.config.pakasir_key;
+                    document.getElementById('wa_admin').value = data.config.wa_admin;
+                    document.getElementById('do_token').value = data.config.do_token || '';
+                    document.getElementById('linode_token').value = data.config.linode_token || '';
+                    document.getElementById('smtp_user').value = data.config.smtp_user;
+                    document.getElementById('smtp_pass').value = data.config.smtp_pass;
+                    document.getElementById('smtp_from').value = data.config.smtp_from;
+                }
+            } catch(e) {}
         }
 
-        async function savePteroSettings() {
+        async function savePteroSettings(e) {
+            const token = localStorage.getItem('admin_token');
+            const btn = document.getElementById('btnSave');
+            btn.disabled = true; btn.innerHTML = "SYNCHRONIZING...";
             const payload = {
                 stats_buyers: document.getElementById('stats_buyers').value,
                 stats_earnings: document.getElementById('stats_earnings').value,
@@ -137,19 +237,30 @@
                 url: document.getElementById('ptero_url').value,
                 key: document.getElementById('ptero_token').value,
                 client_key: document.getElementById('ptero_client_token').value,
+                location: document.getElementById('ptero_location').value,
+                nest: document.getElementById('ptero_nest').value,
+                egg: document.getElementById('ptero_egg').value,
                 active_gateway: document.querySelector('input[name="active_gateway"]:checked').value,
                 pakasir_slug: document.getElementById('pakasir_slug').value,
                 pakasir_key: document.getElementById('pakasir_key').value,
                 wa_admin: document.getElementById('wa_admin').value,
+                do_token: document.getElementById('do_token').value,
+                linode_token: document.getElementById('linode_token').value,
                 smtp_user: document.getElementById('smtp_user').value,
                 smtp_pass: document.getElementById('smtp_pass').value,
                 smtp_from: document.getElementById('smtp_from').value
             };
-            const res = await fetch('/api/admin/settings', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': localStorage.getItem('admin_token') }, body: JSON.stringify(payload) });
-            if (res.ok) alert("Synchronized!");
+            try {
+                const res = await fetch('/api/admin/settings', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': token }, body: JSON.stringify(payload) });
+                if (res.ok) showAlert("CORE_SYNCED", "Administrative registries have been updated.");
+                else showAlert("SYNC_ERROR", "Unauthorized session.");
+            } catch (err) { showAlert("SYSTEM_FAIL", "Connection lost."); }
+            finally { btn.disabled = false; btn.innerHTML = "Push Changes to Core"; }
         }
 
-        function logoutDev() { localStorage.removeItem('admin_token'); location.reload(); }
+        function showAlert(title, msg) { document.getElementById('alertTitle').innerText = title; document.getElementById('alertMsg').innerText = msg; document.getElementById('customAlertModal').classList.remove('opacity-0', 'pointer-events-none'); }
+        function closeAlert() { document.getElementById('customAlertModal').classList.add('opacity-0', 'pointer-events-none'); }
+        document.addEventListener('mousemove', e => { document.documentElement.style.setProperty('--mouse-x', `${(e.clientX / window.innerWidth) * 100}%`); document.documentElement.style.setProperty('--mouse-y', `${(e.clientY / window.innerHeight) * 100}%`); });
         if (localStorage.getItem('admin_token')) showAdminPanel();
     </script>
 </body>
