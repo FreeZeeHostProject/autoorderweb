@@ -1,7 +1,6 @@
 const express = require('express');
 const cors = require('cors');
 const axios = require('axios');
-const fs = require('fs');
 const path = require('path');
 const nodemailer = require('nodemailer');
 const helmet = require('helmet');
@@ -12,9 +11,6 @@ const app = express();
 app.use(helmet({ contentSecurityPolicy: false }));
 app.use(cors());
 app.use(express.json());
-
-// Serve static files from root
-app.use(express.static(__dirname));
 
 // --- PENGATURAN KEAMANAN ---
 const ADMIN_USER = process.env.ADMIN_USER || "FreeZeeHost";
@@ -39,8 +35,6 @@ let pteroConfig = {
     active_gateway: 'manual',
     pakasir_key: 'cp15yjTyKR6ZhXAdizVFc1EvX72XuFfe',
     pakasir_slug: 'freezeehost',
-    ok_merchant_code: '',
-    ok_api_key: '',
     wa_admin: '6285102360656'
 };
 
@@ -60,74 +54,6 @@ async function loadAllData() {
 }
 loadAllData();
 
-// --- MIDDLEWARES ---
-app.use((req, res, next) => {
-    const clientIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
-    if (pteroConfig.blacklist && pteroConfig.blacklist.includes(clientIp)) return res.status(403).json({ status: 'error', message: 'Blocked' });
-    next();
-});
-
-const globalLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 100 });
-const loginLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 5 });
-const orderMemory = new Map();
-
-// --- PTERO HELPERS ---
-async function findPterodactylUserByEmail(email) {
-    try {
-        const response = await axios.get(`${pteroConfig.url}/api/application/users?filter[email]=${encodeURIComponent(email)}`, {
-            headers: { 'Authorization': `Bearer ${pteroConfig.key}`, 'Accept': 'application/json' }
-        });
-        if (response.data.data && response.data.data.length > 0) return { success: true, userId: response.data.data[0].attributes.id };
-        return { success: false };
-    } catch (e) { return { success: false }; }
-}
-
-async function processServerDeployment(orderId, orderData) {
-    if (orderData.status === 'completed' || orderData.status === 'processing') return orderData.credentials;
-    orderData.status = 'processing';
-    const currentNumber = pteroConfig.customerCounter++;
-    pteroConfig.totalEarnings = (pteroConfig.totalEarnings || 0) + orderData.amount;
-    await saveAllData();
-
-    if (orderData.nest_id == 0) {
-        orderData.status = 'completed'; orderData.credentials = { panel_url: "Manual Setup", username: "Pending", password: "Check WA/Email" };
-        return orderData.credentials;
-    }
-
-    const username = `FreeZeeHost${currentNumber}`;
-    const password = Math.random().toString(36).slice(-10) + '123!';
-    const pteroEmail = `freezeehost${currentNumber}@gmail.com`;
-
-    try {
-        let userId;
-        const existing = await findPterodactylUserByEmail(orderData.email);
-        if (existing.success) userId = existing.userId;
-        else {
-            const res = await axios.post(`${pteroConfig.url}/api/application/users`, { email: pteroEmail, username: username.toLowerCase(), first_name: "Customer", last_name: username, password }, { headers: { 'Authorization': `Bearer ${pteroConfig.key}`, 'Accept': 'application/json' } });
-            userId = res.data.attributes.id;
-        }
-        
-        let ram = 1024, cpu = 100, disk = 5120;
-        if (orderData.package_name.includes('Unlimited')) { ram = 0; cpu = 0; disk = 0; }
-        else {
-            const val = parseInt(orderData.package_name);
-            if (!isNaN(val)) { ram = val * 1024; cpu = val * 100; disk = val * 5120; }
-        }
-
-        await axios.post(`${pteroConfig.url}/api/application/servers`, {
-            name: `Server-${username}`, user: userId, nest: parseInt(orderData.nest_id), egg: parseInt(orderData.egg_id),
-            docker_image: "ghcr.io/pterodactyl/yolks:nodejs_20", startup: "node .",
-            environment: { "P_SERVER_ALLOCATION_LIMIT": "0", "COMMAND_RUN": "node index.js" },
-            limits: { memory: ram, swap: 0, disk: disk, io: 500, cpu: cpu },
-            feature_limits: { databases: 1, backups: 1, allocations: 1 },
-            deploy: { locations: [pteroConfig.location], dedicated_ip: false, port_range: [] }
-        }, { headers: { 'Authorization': `Bearer ${pteroConfig.key}`, 'Accept': 'application/json' } });
-
-        const creds = { panel_url: pteroConfig.url, username, password };
-        orderData.status = 'completed'; orderData.credentials = creds; return creds;
-    } catch (e) { orderData.status = 'pending'; throw e; }
-}
-
 // --- API ROUTES ---
 
 app.get('/api/stats/visit', async (req, res) => {
@@ -136,7 +62,7 @@ app.get('/api/stats/visit', async (req, res) => {
     res.json({ total: pteroConfig.totalVisitors });
 });
 
-app.post('/api/admin/login', loginLimiter, (req, res) => {
+app.post('/api/admin/login', (req, res) => {
     const { user, pass } = req.body;
     if (user === ADMIN_USER && pass === ADMIN_PASS) return res.json({ status: 'success', token: Buffer.from(ADMIN_PASS).toString('base64') });
     res.status(401).json({ status: 'error' });
@@ -165,7 +91,7 @@ app.post('/api/admin/settings', async (req, res) => {
 });
 
 app.get('/api/check-services', async (req, res) => {
-    const results = { ptero: 'offline', do: 'offline', linode: 'offline' };
+    const results = { ptero: 'offline' };
     try {
         if (pteroConfig.url && pteroConfig.key) {
             const r = await axios.get(`${pteroConfig.url}/api/application/nodes`, { headers: { 'Authorization': `Bearer ${pteroConfig.key}` }, timeout: 3000 });
@@ -180,60 +106,34 @@ app.get('/api/check-services', async (req, res) => {
 });
 
 app.post('/api/checkout', (req, res) => {
-    const { nominal, email, whatsapp, package_name, nest_id, egg_id } = req.body;
+    const { nominal, email, whatsapp, package_name } = req.body;
     const orderId = 'FZH-' + Date.now();
-    orderMemory.set(orderId, { amount: nominal, email, whatsapp, package: package_name, nest_id, egg_id, status: 'pending' });
-    
-    const host = req.get('host');
-    const protocol = req.headers['x-forwarded-proto'] || 'https';
-    const returnUrl = `${protocol}://${host}/status.html?order_id=${orderId}`;
+    const returnUrl = `https://${req.get('host')}/status.html?order_id=${orderId}`;
 
     if (pteroConfig.active_gateway === 'pakasir') {
         const url = `https://app.pakasir.com/pay/${pteroConfig.pakasir_slug}/${nominal}?order_id=${orderId}&redirect=${encodeURIComponent(returnUrl)}`;
         return res.json({ status: 'success', checkout_url: url });
     } 
     else {
-        const text = `Halo Admin, saya ingin beli:\n\n*Paket:* ${package_name}\n*Nominal:* Rp ${nominal.toLocaleString('id-ID')}\n*Order ID:* ${orderId}\n*Email:* ${email}\n\nMohon instruksi pembayarannya.`;
+        const text = `Halo Admin, beli: ${package_name} - Rp ${nominal.toLocaleString('id-ID')}`;
         const url = `https://wa.me/${pteroConfig.wa_admin}?text=${encodeURIComponent(text)}`;
         return res.json({ status: 'success', checkout_url: url });
     }
 });
 
-app.get('/api/verify', async (req, res) => {
-    const orderId = req.query.order_id;
-    const orderData = orderMemory.get(orderId);
-    if (!orderData) return res.json({ status: 'error' });
-    if (orderData.status === 'completed') return res.json({ status: 'success', credentials: orderData.credentials });
-    try {
-        const checkUrl = `https://app.pakasir.com/api/transactiondetail?project=${pteroConfig.pakasir_slug}&amount=${orderData.amount}&order_id=${orderId}&api_key=${pteroConfig.pakasir_key}`;
-        const response = await axios.get(checkUrl);
-        if (response.data.transaction?.status === 'completed') {
-            const credentials = await processServerDeployment(orderId, orderData);
-            return res.json({ status: 'success', credentials });
-        }
-        res.json({ status: 'pending' });
-    } catch (e) { res.json({ status: 'error' }); }
-});
+// STATIC FILE SERVING
+const sendFile = (file) => (req, res) => res.sendFile(path.join(__dirname, file));
 
-app.post('/api/webhook/pakasir', async (req, res) => {
-    const { order_id } = req.body;
-    const orderData = orderMemory.get(order_id);
-    if (!orderData) return res.sendStatus(200);
-    try {
-        const checkUrl = `https://app.pakasir.com/api/transactiondetail?project=${pteroConfig.pakasir_slug}&amount=${orderData.amount}&order_id=${order_id}&api_key=${pteroConfig.pakasir_key}`;
-        const verifyRes = await axios.get(checkUrl);
-        if (verifyRes.data.transaction?.status === 'completed') await processServerDeployment(order_id, orderData);
-    } catch (e) {}
-    res.sendStatus(200);
-});
+app.get('/', sendFile('index.html'));
+app.get('/index.html', sendFile('index.html'));
+app.get('/Dev.html', sendFile('Dev.html'));
+app.get('/dev', sendFile('Dev.html'));
+app.get('/order-panel.html', sendFile('order-panel.html'));
+app.get('/order-vps.html', sendFile('order-vps.html'));
+app.get('/status.html', sendFile('status.html'));
 
-// Explicit Static Routes
-app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
-app.get('/Dev.html', (req, res) => res.sendFile(path.join(__dirname, 'Dev.html')));
-app.get('/dev.html', (req, res) => res.sendFile(path.join(__dirname, 'Dev.html')));
-app.get('/order-panel.html', (req, res) => res.sendFile(path.join(__dirname, 'order-panel.html')));
-app.get('/order-vps.html', (req, res) => res.sendFile(path.join(__dirname, 'order-vps.html')));
-app.get('/status.html', (req, res) => res.sendFile(path.join(__dirname, 'status.html')));
-
-if (process.env.NODE_ENV !== 'production') app.listen(3000, () => console.log(`🚀 Ready`));
+// EXPORT FOR VERCEL
+if (process.env.NODE_ENV !== 'production') {
+    app.listen(3000, () => console.log('🚀 Local: http://localhost:3000'));
+}
 module.exports = app;
