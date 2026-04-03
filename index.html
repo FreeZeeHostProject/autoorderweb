@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FREEZEEHOSTING | CYBER INFRASTRUCTURE</title>
+    <title>FREEZEEHOST | SYSTEM OVERDRIVE</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@800&family=Space+Grotesk:wght@700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
@@ -23,223 +23,261 @@
                         display: ['"Space Grotesk"', 'sans-serif'],
                         mono: ['"JetBrains Mono"', 'monospace'],
                     },
-                    colors: { brand: '#00f2fe', dark: '#000000', neon: '#bcfe00' }
+                    colors: { brand: '#00f2fe', dark: '#000000', neon: '#bcfe00', danger: '#ff003c' }
                 }
             }
         }
     </script>
     <style>
-        body { background-color: #000000; color: #ffffff; overflow-x: hidden; position: relative; }
+        body { background-color: #000000; color: #ffffff; overflow-x: hidden; position: relative; cursor: crosshair; }
         
-        /* BACKGROUND PARTICLES */
-        #bg-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -3; opacity: 0.4; }
+        /* MATRIX RAIN */
+        #matrix-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -5; opacity: 0.15; }
         
-        /* GLITCH EFFECT */
-        .glitch { position: relative; color: white; animation: glitch 1s linear infinite; }
-        @keyframes glitch {
-            2%, 64% { transform: translate(2px,0) skew(0deg); }
-            4%, 60% { transform: translate(-2px,0) skew(0deg); }
-            62% { transform: translate(0,0) skew(5deg); }
-        }
-        .glitch:before, .glitch:after { content: attr(title); position: absolute; left: 0; }
-        .glitch:before { animation: glitchTop 1s linear infinite; clip-path: polygon(0 0, 100% 0, 100% 33%, 0 33%); -webkit-clip-path: polygon(0 0, 100% 0, 100% 33%, 0 33%); }
-        @keyframes glitchTop { 2%, 64% { transform: translate(2px,-2px); } 4%, 60% { transform: translate(-2px,2px); } 62% { transform: translate(13px,-1px) skew(-13deg); } }
+        /* SCANNER LINE */
+        .scanner { position: fixed; top: 0; left: 0; width: 100%; height: 2px; background: rgba(0, 242, 254, 0.5); box-shadow: 0 0 20px #00f2fe; z-index: 1000; pointer-events: none; animation: scanMove 4s linear infinite; }
+        @keyframes scanMove { from { top: -10%; } to { top: 110%; } }
 
-        /* RGB GLOW CARD */
+        /* HUD CORNERS */
+        .hud-corner { position: fixed; width: 40px; height: 40px; border: 2px solid #00f2fe; z-index: 1001; pointer-events: none; opacity: 0.5; }
+        .top-left { top: 20px; left: 20px; border-right: 0; border-bottom: 0; }
+        .top-right { top: 20px; right: 20px; border-left: 0; border-bottom: 0; }
+        .bottom-left { bottom: 20px; left: 20px; border-right: 0; border-top: 0; }
+        .bottom-right { bottom: 20px; right: 20px; border-left: 0; border-top: 0; }
+
+        /* GLITCH */
+        .glitch { position: relative; animation: glitch 0.5s infinite; text-shadow: 2px 0 red, -2px 0 blue; }
+        @keyframes glitch {
+            0% { transform: translate(0); }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(-2px, -2px); }
+            60% { transform: translate(2px, 2px); }
+            80% { transform: translate(2px, -2px); }
+            100% { transform: translate(0); }
+        }
+
+        /* RGB ROTATING CARD */
         .rgb-card {
-            position: relative; background: rgba(255, 255, 255, 0.02);
-            border-radius: 2rem; overflow: hidden;
+            position: relative; background: #050505; border-radius: 1.5rem; overflow: hidden;
+            transition: transform 0.1s ease-out; transform-style: preserve-3d;
         }
         .rgb-card::before {
             content: ""; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
-            background: conic-gradient(transparent, #00f2fe, transparent, #ff00c8, transparent);
-            animation: rotate 4s linear infinite; z-index: -1;
+            background: conic-gradient(transparent, #00f2fe, transparent, #ff00c8, transparent, #bcfe00, transparent);
+            animation: rotate 3s linear infinite; z-index: 0;
         }
-        .rgb-card-inner { background: #050505; margin: 2px; border-radius: 2rem; height: calc(100% - 4px); padding: 2rem; z-index: 1; }
+        .inner-content { position: relative; background: #080808; margin: 3px; border-radius: 1.4rem; padding: 2.5rem; z-index: 1; height: calc(100% - 6px); }
         @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
-        /* TOP TICKER */
-        .ticker-wrap { position: fixed; top: 0; left: 0; width: 100%; background: #00f2fe; color: #000; font-weight: 900; font-size: 10px; z-index: 1000; padding: 4px 0; overflow: hidden; font-family: 'JetBrains Mono'; }
-        .ticker-content { display: inline-block; white-space: nowrap; animation: ticker 20s linear infinite; }
-        @keyframes ticker { from { transform: translateX(100%); } to { transform: translateX(-100%); } }
+        /* TICKER */
+        .ticker { position: fixed; top: 0; left: 0; width: 100%; background: #ff003c; color: white; font-family: 'JetBrains Mono'; font-size: 10px; font-weight: 900; z-index: 2000; padding: 5px 0; overflow: hidden; border-bottom: 2px solid white; }
+        .ticker-move { display: inline-block; white-space: nowrap; animation: tickerMove 15s linear infinite; }
+        @keyframes tickerMove { from { transform: translateX(100%); } to { transform: translateX(-100%); } }
 
-        /* FLOATING ICONS */
-        .float-icon { position: fixed; opacity: 0.1; pointer-events: none; z-index: -1; animation: floating 10s infinite ease-in-out; }
-        @keyframes floating { 0%, 100% { transform: translate(0,0) rotate(0deg); } 50% { transform: translate(20px, 30px) rotate(10deg); } }
+        /* BUTTON NORAK */
+        .cyber-btn {
+            background: #00f2fe; color: #000; font-weight: 900; padding: 1.2rem 3rem; border-radius: 0.5rem;
+            box-shadow: 0 0 30px #00f2fe, inset 0 0 10px white; border: none; cursor: pointer;
+            text-transform: uppercase; letter-spacing: 2px; transition: all 0.2s;
+        }
+        .cyber-btn:hover { background: #ff00c8; box-shadow: 0 0 60px #ff00c8; transform: scale(1.1) skew(-5deg); color: white; }
 
-        /* CUSTOM CSS */
-        #click-ripple { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: -1; opacity: 0; background: radial-gradient(circle at var(--click-x, 50%) var(--click-y, 50%), rgba(0, 242, 254, 0.5) 0%, transparent 50%); transition: opacity 0.4s ease-out; }
-        .btn-norak { background: #00f2fe; color: #000; font-weight: 900; box-shadow: 0 0 40px #00f2fe; transition: all 0.3s; }
-        .btn-norak:hover { box-shadow: 0 0 80px #00f2fe; transform: scale(1.1) rotate(-2deg); }
-        
-        #purchase-toast { position: fixed; top: 80px; right: 20px; background: #00f2fe; color: #000; padding: 15px 25px; border-radius: 4px; font-weight: 900; font-family: 'JetBrains Mono'; transform: translateX(200%); transition: all 0.5s; z-index: 999; border-left: 10px solid #000; }
-        #purchase-toast.show { transform: translateX(0); }
+        /* STATS GLOW */
+        .stat-box { background: rgba(0, 242, 254, 0.05); border: 1px solid rgba(0, 242, 254, 0.2); box-shadow: inset 0 0 20px rgba(0, 242, 254, 0.1); }
 
-        body::before { content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-image: url("https://grainy-gradients.vercel.app/noise.svg"); opacity: 0.05; pointer-events: none; z-index: 99; }
+        #purchase-toast { position: fixed; bottom: 100px; left: 30px; background: #bcfe00; color: #000; padding: 15px 25px; border-radius: 0; font-weight: 900; font-family: 'JetBrains Mono'; transform: skew(-10deg) translateX(-200%); transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 9999; border: 4px solid black; }
+        #purchase-toast.show { transform: skew(-10deg) translateX(0); }
+
+        body::before { content: ""; position: fixed; inset: 0; background-image: url("https://grainy-gradients.vercel.app/noise.svg"); opacity: 0.07; pointer-events: none; z-index: 999; }
     </style>
 </head>
 <body class="antialiased">
 
-    <div class="ticker-wrap"><div class="ticker-content">SYSTEM STATUS: ALL NODES OPTIMIZED // NEW STOCK: UNLIMITED RAM NOW ONLY RP 15.000 // JOIN OUR TELEGRAM @FREEZEEHOST // PROTECTING 420+ AGENTS GLOBALLY // </div></div>
+    <div class="ticker"><div class="ticker-move">CRITICAL ALERT: SYSTEM STABILITY 100% // NEW SECURITY PROTOCOLS ENGAGED // UNLIMITED RAM PLAN DEPLOYED // JOIN THE UNDERGROUND @FREEZEEHOST // </div></div>
 
-    <canvas id="bg-canvas"></canvas>
-    <div id="click-ripple"></div>
+    <canvas id="matrix-canvas"></canvas>
+    <div class="scanner"></div>
     
-    <!-- FLOATING BACKGROUND ICONS -->
-    <i class="fa-solid fa-microchip float-icon text-brand text-6xl" style="top: 20%; left: 10%;"></i>
-    <i class="fa-solid fa-robot float-icon text-brand text-8xl" style="bottom: 10%; right: 15%; animation-delay: -2s;"></i>
-    <i class="fa-solid fa-cloud float-icon text-brand text-5xl" style="top: 15%; right: 20%; animation-delay: -5s;"></i>
-    <i class="fa-solid fa-shield-halved float-icon text-brand text-7xl" style="bottom: 25%; left: 15%; animation-delay: -7s;"></i>
+    <!-- HUD ELEMENTS -->
+    <div class="hud-corner top-left"></div><div class="hud-corner top-right"></div>
+    <div class="hud-corner bottom-left"></div><div class="hud-corner bottom-right"></div>
 
-    <nav class="fixed w-full z-50 py-10" id="navbar">
-        <div class="max-w-7xl mx-auto px-6">
-            <div class="flex items-center justify-between h-16 bg-black/80 backdrop-blur-3xl border border-brand/20 rounded-2xl px-8 shadow-[0_0_30px_rgba(0,242,254,0.2)]">
-                <a href="#" class="font-display text-2xl font-black flex items-center gap-3 tracking-tighter">
-                    <i class="fa-solid fa-snowflake text-brand animate-spin-slow"></i>
-                    <span>FREEZEE<span class="text-brand">HOST</span></span>
-                </a>
-                <div class="hidden md:flex items-center gap-8 font-mono">
-                    <a href="#products" class="text-[9px] font-bold uppercase tracking-widest text-white/60 hover:text-brand">Nodes</a>
-                    <a href="Dev.html" class="text-[9px] font-bold uppercase tracking-widest text-white/60 hover:text-brand">Admin</a>
-                    <a href="order-panel.html" class="btn-norak px-6 py-2 rounded-lg text-[9px] uppercase tracking-tighter">BUY NOW</a>
-                </div>
+    <nav class="fixed w-full z-[1500] py-10 px-6">
+        <div class="max-w-7xl mx-auto flex items-center justify-between h-16 bg-black/60 backdrop-blur-2xl border-b-2 border-brand/30 px-8">
+            <a href="#" class="font-display text-2xl font-black tracking-tighter flex items-center gap-3">
+                <i class="fa-solid fa-skull-crossbones text-brand animate-bounce"></i>
+                <span>FREEZEE<span class="text-brand">HOST</span></span>
+            </a>
+            <div class="hidden md:flex items-center gap-8 font-mono text-[10px] font-bold">
+                <a href="#products" class="hover:text-brand transition-colors text-white/50">SYSTEMS</a>
+                <a href="Dev.html" class="hover:text-brand transition-colors text-white/50">CONSOLE</a>
+                <button onclick="window.location.href='order-panel.html'" class="bg-brand text-black px-6 py-2 skew-x-[-15deg] hover:bg-white transition-all font-black">ACCESS_NOW</button>
             </div>
         </div>
     </nav>
 
     <section id="home" class="min-h-screen flex flex-col items-center justify-center pt-20 px-6 text-center">
-        <div class="max-w-5xl mx-auto" data-aos="zoom-in" data-aos-duration="1000">
-            <div class="inline-block px-6 py-2 rounded-lg bg-brand text-black text-[10px] font-black uppercase tracking-[0.5em] mb-12 shadow-[0_0_20px_#00f2fe]">CORE INITIALIZED</div>
-            <h1 class="hero-title glitch text-6xl md:text-9xl font-black leading-none mb-10 tracking-tighter" title="CYBER INFRA.">CYBER <br><span class="text-brand">INFRA.</span></h1>
-            <p class="text-brand/60 font-mono text-xs md:text-sm max-w-xl mb-16 leading-relaxed bg-brand/5 p-4 border border-brand/10 inline-block">>> SECURITY PROTOCOL: ACTIVE<br>>> PERFORMANCE: MAXIMIZED<br>>> COST: RP 1.000 / GB</p>
-            <div class="flex flex-col md:flex-row justify-center gap-8 w-full">
-                <a href="#products" id="btn-magnetic" class="btn-norak px-16 py-5 rounded-xl text-xs uppercase tracking-widest">DEPLOY SYSTEM</a>
-                <a href="https://wa.me/6285102360656" class="px-16 py-5 rounded-xl text-xs font-black uppercase tracking-widest border-2 border-brand/20 bg-black hover:bg-brand/10 transition-all text-brand">GET SUPPORT</a>
+        <div class="max-w-5xl mx-auto relative">
+            <!-- DECORATION -->
+            <div class="absolute -top-20 -left-20 opacity-20 animate-spin-slow"><i class="fa-solid fa-gear text-[150px] text-brand"></i></div>
+            
+            <div class="inline-block px-4 py-1 border-2 border-brand text-brand font-mono text-[10px] mb-8 bg-brand/10">PROTOCOL_V.4.8.0_ACTIVE</div>
+            <h1 class="text-7xl md:text-9xl font-black leading-none mb-10 tracking-tighter glitch" id="main-title">CORE <br><span class="text-brand">OVERRIDE</span></h1>
+            
+            <div class="bg-white/5 border border-white/10 p-6 backdrop-blur-md mb-16 inline-block transform skew-x-[-10deg]">
+                <p class="font-mono text-xs md:text-sm text-brand/80" id="typewriter"></p>
+            </div>
+
+            <div class="flex flex-col md:flex-row justify-center gap-10">
+                <button onclick="location.href='#products'" class="cyber-btn">INITIALIZE_DEPLOY</button>
+                <button onclick="location.href='https://wa.me/6285102360656'" class="px-12 py-4 border-2 border-white/20 hover:border-brand hover:text-brand transition-all font-black uppercase text-xs tracking-widest bg-black/50">CONTACT_OPERATOR</button>
             </div>
         </div>
     </section>
 
-    <section class="py-24 bg-brand/[0.03] border-y border-brand/20 overflow-hidden">
-        <div class="flex animate-marquee whitespace-nowrap gap-32">
-            <span class="text-brand font-black text-4xl italic opacity-50 tracking-tighter">ULTRA LOW LATENCY //</span>
-            <span class="text-white font-black text-4xl italic opacity-50 tracking-tighter">99.9% UPTIME GUARANTEED //</span>
-            <span class="text-brand font-black text-4xl italic opacity-50 tracking-tighter">ENTERPRISE HARDWARE //</span>
-            <span class="text-white font-black text-4xl italic opacity-50 tracking-tighter">INSTANT PROVISIONING //</span>
-        </div>
-    </section>
-
-    <section class="py-20">
-        <div class="max-w-6xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-8">
-            <div class="p-8 border border-brand/10 bg-brand/5 rounded-3xl text-center shadow-inner">
+    <!-- LIVE DATA -->
+    <section class="py-20 px-6 relative">
+        <div class="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div class="stat-box p-8 rounded-xl text-center relative overflow-hidden group">
+                <div class="absolute top-0 left-0 w-full h-1 bg-brand animate-pulse"></div>
                 <div class="text-5xl font-black text-brand mb-2" id="stat-buyers">0</div>
-                <div class="text-[8px] font-mono text-white/40 uppercase tracking-widest">Global Customers</div>
+                <div class="text-[9px] font-mono text-white/40 uppercase tracking-[0.3em]">Agents_Verified</div>
             </div>
-            <div class="p-8 border border-brand/10 bg-brand/5 rounded-3xl text-center shadow-inner">
+            <div class="stat-box p-8 rounded-xl text-center relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-full h-1 bg-brand animate-pulse"></div>
                 <div class="text-5xl font-black text-brand mb-2" id="stat-visitors">0</div>
-                <div class="text-[8px] font-mono text-white/40 uppercase tracking-widest">Live Visitors</div>
+                <div class="text-[9px] font-mono text-white/40 uppercase tracking-[0.3em]">Live_Intrusions</div>
             </div>
-            <div class="p-8 border border-brand/10 bg-brand/5 rounded-3xl text-center shadow-inner">
-                <div class="text-5xl font-black text-brand mb-2">14ms</div>
-                <div class="text-[8px] font-mono text-white/40 uppercase tracking-widest">Cloud Latency</div>
+            <div class="stat-box p-8 rounded-xl text-center relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-full h-1 bg-brand animate-pulse"></div>
+                <div class="text-5xl font-black text-white mb-2">14<span class="text-brand text-2xl">ms</span></div>
+                <div class="text-[9px] font-mono text-white/40 uppercase tracking-[0.3em]">Sync_Latency</div>
             </div>
-            <div class="p-8 border border-brand/10 bg-brand/5 rounded-3xl text-center shadow-inner">
-                <div class="text-5xl font-black text-emerald-400 mb-2" id="stat-status">STABLE</div>
-                <div class="text-[8px] font-mono text-white/40 uppercase tracking-widest">Network Health</div>
+            <div class="stat-box p-8 rounded-xl text-center relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-full h-1 bg-emerald-500"></div>
+                <div class="text-5xl font-black text-emerald-400 mb-2" id="stat-status">ACTIVE</div>
+                <div class="text-[9px] font-mono text-white/40 uppercase tracking-[0.3em]">System_Integrity</div>
             </div>
         </div>
     </section>
 
-    <section id="products" class="py-32 px-6 bg-black">
+    <!-- PRODUCT HUD -->
+    <section id="products" class="py-32 px-6">
         <div class="max-w-7xl mx-auto">
-            <div class="mb-24 text-center">
-                <h2 class="text-5xl md:text-8xl font-black tracking-tighter uppercase italic">The <span class="text-brand">Vault.</span></h2>
+            <div class="mb-32 flex flex-col items-center">
+                <div class="w-20 h-1 bg-brand mb-6"></div>
+                <h2 class="text-6xl md:text-8xl font-black tracking-tighter uppercase italic">The <span class="text-brand">Hardware.</span></h2>
             </div>
+            
             <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
-                <!-- PTERO -->
-                <div class="rgb-card" id="card-ptero" data-aos="flip-left">
-                    <div class="rgb-card-inner">
-                        <div id="badge-ptero" class="hidden bg-red-500 text-white text-[8px] font-black px-4 py-1 rounded mb-6 w-fit">OFFLINE_ERR</div>
-                        <i class="fa-solid fa-gamepad text-6xl mb-10 text-brand"></i>
-                        <h3 class="text-3xl font-black mb-4 uppercase italic">Panel Ptero</h3>
-                        <p class="text-white/40 text-[11px] mb-12 font-mono">>> ALLOCATING RAM: 1-16GB<br>>> CPU: INTEL XEON GOLD<br>>> DDOS: MITIGATED</p>
-                        <a href="order-panel.html" id="btn-ptero" class="btn-norak w-full py-4 rounded-xl text-[10px] uppercase block text-center">ACCESS_PANEL</a>
+                <!-- PANEL -->
+                <div class="rgb-card tilt-card" id="card-ptero">
+                    <div class="inner-content">
+                        <div id="badge-ptero" class="hidden bg-danger text-white text-[9px] font-black px-4 py-1 mb-6 inline-block">SYSTEM_LOCK_DOWN</div>
+                        <i class="fa-solid fa-microchip text-6xl mb-10 text-brand"></i>
+                        <h3 class="text-3xl font-black mb-4 italic">PTERO_HUB</h3>
+                        <p class="text-white/40 text-[11px] font-mono mb-12">>> KERNEL: OPTIMIZED<br>>> RAM: AUTO_SCALING<br>>> DEFENSE: ACTIVE</p>
+                        <button onclick="location.href='order-panel.html'" id="btn-ptero" class="cyber-btn w-full !py-3 !text-[10px]">EXECUTE_ORDER</button>
                     </div>
                 </div>
-                <!-- AKUN DO -->
-                <div class="rgb-card" id="card-do" data-aos="flip-left" data-aos-delay="100">
-                    <div class="rgb-card-inner">
-                        <div id="badge-do" class="hidden bg-red-500 text-white text-[8px] font-black px-4 py-1 rounded mb-6 w-fit">MAINTENANCE</div>
+                <!-- DO -->
+                <div class="rgb-card tilt-card" id="card-do">
+                    <div class="inner-content">
+                        <div id="badge-do" class="hidden bg-danger text-white text-[9px] font-black px-4 py-1 mb-6 inline-block">MAINTENANCE_LOG</div>
                         <i class="fa-brands fa-digital-ocean text-6xl mb-10 text-blue-500"></i>
-                        <h3 class="text-3xl font-black mb-4 uppercase italic">DO Cloud</h3>
-                        <p class="text-white/40 text-[11px] mb-12 font-mono">>> BALANCE: $200 CREDIT<br>>> REGION: GLOBAL<br>>> STOCK: FRESH_READY</p>
-                        <a href="https://wa.me/6285102360656?text=Beli_Akun_DO" id="btn-do" class="btn-norak w-full py-4 rounded-xl text-[10px] uppercase block text-center">ORDER_ACCOUNT</a>
+                        <h3 class="text-3xl font-black mb-4 italic">DO_CLOUD</h3>
+                        <p class="text-white/40 text-[11px] font-mono mb-12">>> CREDIT: $200 READY<br>>> DROPS: 10 ACTIVE<br>>> AUTH: GUARANTEED</p>
+                        <button onclick="location.href='https://wa.me/6285102360656?text=Beli_DO'" id="btn-do" class="cyber-btn w-full !py-3 !text-[10px]">CONNECT_ADMIN</button>
                     </div>
                 </div>
                 <!-- SCRIPT -->
-                <div class="rgb-card" data-aos="flip-left" data-aos-delay="200">
-                    <div class="rgb-card-inner">
-                        <i class="fa-solid fa-code text-6xl mb-10 text-emerald-400"></i>
-                        <h3 class="text-3xl font-black mb-4 uppercase italic">Source Code</h3>
-                        <p class="text-white/40 text-[11px] mb-12 font-mono">>> TYPE: BOT_WHATSAPP<br>>> FEATURES: AI_SYNC<br>>> VERSION: 4.8.0</p>
-                        <a href="https://freezeehostbot.vercel.app" target="_blank" class="btn-norak w-full py-4 rounded-xl text-[10px] uppercase block text-center">VIEW_REPOS</a>
+                <div class="rgb-card tilt-card">
+                    <div class="inner-content">
+                        <i class="fa-solid fa-code-merge text-6xl mb-10 text-emerald-400"></i>
+                        <h3 class="text-3xl font-black mb-4 italic">GEN_CODES</h3>
+                        <p class="text-white/40 text-[11px] font-mono mb-12">>> TYPE: BOT_SOURCE<br>>> LANG: NODE_JS<br>>> AI: INTEGRATED</p>
+                        <button onclick="window.open('https://freezeehostbot.vercel.app')" class="cyber-btn w-full !py-3 !text-[10px]">EXTRACT_SOURCE</button>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <footer class="py-20 border-t-4 border-brand bg-brand/5 text-center">
-        <div class="max-w-6xl mx-auto px-6">
-            <h2 class="text-4xl font-black tracking-tighter mb-8 italic">FREEZEEHOSTING NETWORK.</h2>
-            <div class="flex justify-center gap-12 mb-12">
-                <a href="https://wa.me/6285102360656" class="text-brand text-4xl hover:scale-125 transition-all"><i class="fa-brands fa-whatsapp"></i></a>
-                <a href="https://t.me/FreeZeeHost" class="text-brand text-4xl hover:scale-125 transition-all"><i class="fa-brands fa-telegram"></i></a>
+    <!-- TERMINAL VIEW -->
+    <section class="py-32 px-6">
+        <div class="max-w-5xl mx-auto bg-black border-2 border-brand/20 p-8 rounded-xl font-mono text-[10px] relative shadow-[0_0_50px_rgba(0,242,254,0.1)]">
+            <div class="flex items-center gap-2 mb-6 border-b border-white/10 pb-4">
+                <div class="w-3 h-3 bg-red-500 rounded-full"></div><div class="w-3 h-3 bg-yellow-500 rounded-full"></div><div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                <span class="ml-4 text-white/40 uppercase">System_Live_Logs.sh</span>
             </div>
-            <div class="text-[10px] font-mono text-brand font-black tracking-[0.5em]">COPYRIGHT_2026_EST_NODE_JS</div>
+            <div id="live-feed" class="space-y-2 h-48 overflow-hidden text-white/30"></div>
         </div>
+    </section>
+
+    <footer class="py-32 border-t-4 border-brand bg-brand/5 text-center px-6 relative">
+        <div class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-black border-2 border-brand px-10 py-2 font-black italic">END_OF_LINE.</div>
+        <h2 class="text-5xl md:text-8xl font-black tracking-tighter mb-12 italic opacity-20">FREEZEEHOSTING.</h2>
+        <div class="flex justify-center gap-16 mb-16">
+            <a href="https://wa.me/6285102360656" class="text-brand text-5xl hover:text-white transition-all"><i class="fa-brands fa-whatsapp"></i></a>
+            <a href="https://t.me/FreeZeeHost" class="text-brand text-5xl hover:text-white transition-all"><i class="fa-brands fa-telegram"></i></a>
+        </div>
+        <p class="font-mono text-[10px] text-brand opacity-50 tracking-[1em]">ENCRYPTED_2026</p>
     </footer>
 
-    <div id="purchase-toast">NEW_ORDER: SOMEONE BOUGHT 8GB RAM</div>
-
-    <!-- CS BUTTON -->
-    <a href="https://wa.me/6285102360656" target="_blank" class="fixed bottom-10 right-10 z-[1000]">
-        <div class="w-20 h-20 bg-brand text-black flex items-center justify-center rounded-full shadow-[0_0_50px_#00f2fe] hover:scale-110 transition-all border-4 border-black">
-            <i class="fa-brands fa-whatsapp text-4xl"></i>
-        </div>
-    </a>
+    <div id="purchase-toast">INCOMING_TRANSACTION: AGENT_092 BOUGHT UNLIMITED_RAM</div>
 
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
         AOS.init();
-        
-        // BACKGROUND CANVAS (NORAK PARTICLES)
-        const canvas = document.getElementById('bg-canvas');
-        const ctx = canvas.getContext('2d');
-        let particles = [];
-        canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-        class Particle {
-            constructor() {
-                this.x = Math.random() * canvas.width;
-                this.y = Math.random() * canvas.height;
-                this.size = Math.random() * 2;
-                this.speedX = Math.random() * 3 - 1.5;
-                this.speedY = Math.random() * 3 - 1.5;
-            }
-            update() { this.x += this.speedX; this.y += this.speedY; if(this.x > canvas.width) this.x = 0; if(this.y > canvas.height) this.y = 0; }
-            draw() { ctx.fillStyle = '#00f2fe'; ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill(); }
+
+        // MATRIX RAIN
+        const mCanvas = document.getElementById('matrix-canvas');
+        const mCtx = mCanvas.getContext('2d');
+        mCanvas.width = window.innerWidth; mCanvas.height = window.innerHeight;
+        const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*()*&^%";
+        const fontSize = 10;
+        const columns = mCanvas.width / fontSize;
+        const drops = Array(Math.floor(columns)).fill(1);
+        function drawMatrix() {
+            mCtx.fillStyle = "rgba(0, 0, 0, 0.05)"; mCtx.fillRect(0, 0, mCanvas.width, mCanvas.height);
+            mCtx.fillStyle = "#00f2fe"; mCtx.font = fontSize + "px monospace";
+            drops.forEach((y, i) => {
+                const text = letters.charAt(Math.floor(Math.random() * letters.length));
+                mCtx.fillText(text, i * fontSize, y * fontSize);
+                if (y * fontSize > mCanvas.height && Math.random() > 0.975) drops[i] = 0;
+                drops[i]++;
+            });
         }
-        function init() { for(let i=0; i<100; i++) particles.push(new Particle()); }
-        function animate() { ctx.clearRect(0,0,canvas.width, canvas.height); particles.forEach(p => { p.update(); p.draw(); }); requestAnimationFrame(animate); }
-        init(); animate();
+        setInterval(drawMatrix, 33);
+
+        // TYPEWRITER
+        const text = ">> ACCESSING SECURE CORE... SUCCESS.\n>> NODE STATUS: STABLE.\n>> READY TO DEPLOY INFRASTRUCTURE.";
+        let i = 0;
+        function type() {
+            if (i < text.length) {
+                document.getElementById('typewriter').innerHTML += text.charAt(i);
+                i++; setTimeout(type, 50);
+            }
+        }
+        window.onload = () => { type(); fetchStats(); };
+
+        // 3D TILT EFFECT
+        document.querySelectorAll('.tilt-card').forEach(card => {
+            card.addEventListener('mousemove', e => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left - rect.width/2;
+                const y = e.clientY - rect.top - rect.height/2;
+                card.style.transform = `perspective(1000px) rotateX(${-y/10}deg) rotateY(${x/10}deg)`;
+            });
+            card.addEventListener('mouseleave', () => card.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg)`);
+        });
 
         // TOAST
         setInterval(() => {
-            const toast = document.getElementById('purchase-toast');
-            toast.classList.add('show');
-            setTimeout(() => toast.classList.remove('show'), 4000);
-        }, 15000);
+            const t = document.getElementById('purchase-toast');
+            t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 4000);
+        }, 12000);
 
-        // STATS
         async function fetchStats() {
             try {
                 await fetch('/api/stats/visit');
@@ -248,27 +286,23 @@
                 document.getElementById('stat-buyers').innerText = data.stats.totalBuyers;
                 document.getElementById('stat-visitors').innerText = data.stats.totalVisitors;
                 if (data.services.ptero === 'offline') {
-                    document.getElementById('card-ptero').style.filter = 'grayscale(1)';
+                    document.getElementById('card-ptero').style.filter = 'hue-rotate(150deg) brightness(0.5)';
                     document.getElementById('badge-ptero').classList.remove('hidden');
-                    document.getElementById('btn-ptero').innerHTML = 'SYSTEM_LOCKED';
-                    document.getElementById('btn-ptero').style.background = '#333';
-                    document.getElementById('stat-status').innerText = 'ERROR';
-                    document.getElementById('stat-status').style.color = '#ef4444';
+                    document.getElementById('btn-ptero').innerHTML = 'LOCKED';
+                    document.getElementById('stat-status').innerText = 'CRITICAL';
+                    document.getElementById('stat-status').style.color = '#ff003c';
                 }
             } catch (e) {}
         }
-        window.onload = fetchStats;
 
-        document.addEventListener('mousemove', e => {
-            document.documentElement.style.setProperty('--mouse-x', `${(e.clientX/window.innerWidth)*100}%`);
-            document.documentElement.style.setProperty('--mouse-y', `${(e.clientY/window.innerHeight)*100}%`);
-        });
-
-        document.addEventListener('mousedown', e => {
-            const rip = document.getElementById('click-ripple');
-            rip.style.setProperty('--click-x', `${e.clientX}px`); rip.style.setProperty('--click-y', `${e.clientY}px`);
-            rip.style.opacity = "1"; setTimeout(() => rip.style.opacity = "0", 400);
-        });
+        const feed = document.getElementById('live-feed');
+        const logs = ["Brute Force Blocked.", "Neural Sync Complete.", "Encrypted Packet Received.", "Core Temperature Optimal.", "Allocating Virtual Cell.", "Handshake with SG-Node-1.", "Bypassing Proxy...", "Connection Secure."];
+        setInterval(() => {
+            if(!feed) return;
+            const d = document.createElement('div');
+            d.innerHTML = `<span style="color:#00f2fe">[${new Date().toLocaleTimeString()}]</span> system@freezeehost: ${logs[Math.floor(Math.random()*logs.length)]}`;
+            feed.prepend(d); if (feed.children.length > 10) feed.lastChild.remove();
+        }, 2000);
     </script>
 </body>
 </html>
