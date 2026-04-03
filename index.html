@@ -3,245 +3,158 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FreeZeeHosting | Hosting Terpercaya & Cepat</title>
-    
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Space+Grotesk:wght@700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-    
+    <title>FreeZeeHosting | Solusi Cloud Terpercaya</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
-                        display: ['"Space Grotesk"', 'sans-serif'],
-                        mono: ['"JetBrains Mono"', 'monospace'],
-                    },
-                    colors: { brand: '#00f2fe', pink: '#ff00c8', neon: '#bcfe00' }
-                }
-            }
-        }
+        tailwind.config = { theme: { extend: { fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'], display: ['"Space Grotesk"', 'sans-serif'] }, colors: { brand: '#00f2fe' } } } }
     </script>
     <style>
-        body { background-color: #000000; color: #ffffff; overflow-x: hidden; position: relative; }
-        
-        /* DECORATIONS - NO INTERACTION */
-        #bg-canvas, .scanlines, .orb, #mouse-hud, .ticker-bar { pointer-events: none !important; }
-
-        #bg-canvas { position: fixed; inset: 0; z-index: -10; opacity: 0.4; }
-        .orb { position: fixed; width: 500px; height: 500px; border-radius: 50%; filter: blur(120px); opacity: 0.2; z-index: -9; }
+        body { background-color: #000; color: #fff; overflow-x: hidden; position: relative; }
+        #bg-canvas { position: fixed; inset: 0; z-index: -10; opacity: 0.4; pointer-events: none; }
+        .orb { position: fixed; width: 500px; height: 500px; border-radius: 50%; filter: blur(120px); opacity: 0.2; z-index: -9; pointer-events: none; }
         .orb-1 { background: #00f2fe; top: -10%; left: -10%; }
         .orb-2 { background: #ff00c8; bottom: -10%; right: -10%; }
-        .scanlines { position: fixed; inset: 0; background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%); z-index: 100; background-size: 100% 2px; opacity: 0.1; }
-
-        /* RAINBOW TEXT */
-        .rainbow-text {
-            background: linear-gradient(to right, #00f2fe, #ff00c8, #bcfe00, #00f2fe);
-            background-size: 300% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            animation: rainbowFlow 4s linear infinite;
-        }
-        @keyframes rainbowFlow { to { background-position: 300% center; } }
-
-        /* COMPACT CARDS */
-        .compact-card {
-            background: rgba(15, 15, 15, 0.8); border: 1px solid rgba(255,255,255,0.05);
-            border-radius: 2rem; padding: 2.5rem; backdrop-filter: blur(20px);
-            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
-        }
-        .compact-card:hover { border-color: #00f2fe; transform: translateY(-10px); box-shadow: 0 20px 40px rgba(0, 242, 254, 0.15); }
-
-        /* BUTTONS */
-        .action-btn {
-            background: #fff; color: #000; font-weight: 800; padding: 1rem 3rem; border-radius: 999px;
-            transition: all 0.3s; text-transform: uppercase; letter-spacing: 1px; font-size: 11px;
-            cursor: pointer !important; border: none;
-        }
-        .action-btn:hover { background: #00f2fe; box-shadow: 0 0 30px #00f2fe; transform: scale(1.05); }
-
-        .ticker-bar { position: fixed; width: 100%; background: #000; color: #00f2fe; font-family: 'JetBrains Mono'; font-size: 8px; z-index: 2000; padding: 6px 0; overflow: hidden; border-bottom: 1px solid rgba(0, 242, 254, 0.2); }
+        .glass-nav { background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 999px; }
+        .service-card { background: rgba(15, 15, 15, 0.8); border: 1px solid rgba(255,255,255,0.05); border-radius: 2.5rem; padding: 2.5rem; backdrop-filter: blur(20px); transition: all 0.4s; position: relative; overflow: hidden; }
+        .service-card:hover { border-color: #00f2fe; transform: translateY(-10px); box-shadow: 0 20px 50px rgba(0, 242, 254, 0.15); }
+        .btn-action { background: #fff; color: #000; font-weight: 800; padding: 1rem 2.5rem; border-radius: 999px; transition: all 0.3s; text-transform: uppercase; font-size: 10px; cursor: pointer !important; }
+        .btn-action:hover { background: #00f2fe; box-shadow: 0 0 30px #00f2fe; transform: scale(1.05); }
+        .btn-action:disabled, .service-card.locked { opacity: 0.4; filter: grayscale(1); pointer-events: none !important; cursor: not-allowed !important; }
+        .status-badge { position: absolute; top: 20px; right: 20px; font-size: 8px; font-weight: 900; padding: 4px 12px; rounded-full: 999px; text-transform: uppercase; }
         @keyframes tickerMove { from { transform: translateX(100%); } to { transform: translateX(-100%); } }
-
-        #mouse-hud { position: fixed; width: 60px; height: 60px; border: 1px solid rgba(0, 242, 254, 0.3); border-radius: 50%; z-index: 10000; transform: translate(-50%, -50%); display: flex; align-items: center; justify-content: center; }
-        #mouse-hud::after { content: ""; width: 4px; height: 4px; background: #00f2fe; border-radius: 50%; }
     </style>
 </head>
 <body class="antialiased">
 
-    <div class="ticker-bar" style="top:0;"><div style="display: inline-block; white-space: nowrap; animation: tickerMove 20s linear infinite;">FREEZEEHOST: SOLUSI HOSTING TERPERCAYA // UPTIME 99.9% // PROTEKSI DDOS L7 // AKTIVASI INSTAN // </div></div>
+    <div style="position: fixed; top:0; width:100%; background:#000; color:#00f2fe; font-family:monospace; font-size:9px; z-index:2000; padding:6px 0; overflow:hidden; border-bottom:1px solid rgba(0,242,254,0.2);">
+        <div style="display:inline-block; white-space:nowrap; animation:tickerMove 20s linear infinite;">QUALITY CLOUD INFRASTRUCTURE // DDoS PROTECTION ACTIVE // AUTOMATED PROVISIONING // FreeZeeHosting 2026 // </div>
+    </div>
 
     <canvas id="bg-canvas"></canvas>
-    <div class="scanlines"></div>
     <div class="orb orb-1"></div>
     <div class="orb orb-2"></div>
-    <div id="mouse-hud"></div>
 
-    <nav class="fixed w-full z-[1500] py-8 px-6">
-        <div class="max-w-6xl mx-auto flex items-center justify-between h-16 bg-black/60 backdrop-blur-2xl border border-white/10 rounded-full px-8">
+    <nav class="fixed w-full z-[1500] py-10 px-6">
+        <div class="max-w-6xl mx-auto flex items-center justify-between h-16 glass-nav px-8 shadow-2xl">
             <a href="#" class="font-display text-xl font-bold flex items-center gap-3 tracking-tighter">
                 <i class="fa-solid fa-snowflake text-brand animate-pulse"></i>
                 <span>FreeZee<span class="text-brand">Hosting</span></span>
             </a>
-            <div class="hidden md:flex items-center gap-8 font-sans text-[10px] font-black uppercase tracking-widest">
+            <div class="hidden md:flex items-center gap-8 text-[10px] font-black uppercase">
                 <a href="#products" class="hover:text-brand transition-all">Layanan</a>
                 <a href="Dev.html" class="hover:text-brand transition-all">Admin</a>
-                <button onclick="window.location.href='order-panel.html'" class="bg-white text-black px-6 py-2 rounded-full font-black text-[9px]">ORDER_NOW</button>
+                <button onclick="location.href='order-panel.html'" class="bg-white text-black px-6 py-2 rounded-full hover:bg-brand transition-all">ORDER_NOW</button>
             </div>
         </div>
     </nav>
 
-    <section id="home" class="min-h-screen flex flex-col items-center justify-center pt-20 px-6 text-center">
-        <div class="max-w-4xl mx-auto" data-aos="zoom-in">
-            <div class="inline-block px-6 py-1.5 rounded-full border border-brand/30 bg-brand/5 text-brand font-black text-[10px] mb-8 tracking-[0.3em]">QUALITY & SPEED</div>
-            <h1 class="text-6xl md:text-8xl font-black leading-tight mb-8 tracking-tighter">Hosting <br><span class="rainbow-text">Terpercaya.</span></h1>
-            <p class="text-white/40 text-lg md:text-xl max-w-2xl mx-auto mb-16 font-medium leading-relaxed italic">Infrastructure cloud berperforma tinggi dengan sistem aktivasi otomatis terbaik di Indonesia.</p>
+    <section id="home" class="min-h-screen flex flex-col items-center justify-center pt-24 px-6 text-center">
+        <div class="max-w-4xl mx-auto">
+            <div class="inline-block px-6 py-1.5 rounded-full border border-brand/30 bg-brand/5 text-brand font-black text-[9px] mb-8 tracking-[0.3em]">RELIABLE & SECURE</div>
+            <h1 class="text-6xl md:text-8xl font-black leading-tight mb-8 tracking-tighter">Hosting <br><span class="text-brand">Terpercaya.</span></h1>
+            <p class="text-white/40 text-lg md:text-xl max-w-2xl mx-auto mb-16 font-medium italic">Solusi infrastruktur cloud terbaik dengan kestabilan node 100% dan aktivasi instan.</p>
             <div class="flex flex-col md:flex-row justify-center gap-6">
-                <button onclick="location.href='#products'" class="action-btn">Lihat Paket</button>
-                <button onclick="location.href='https://wa.me/6285102360656'" class="px-10 py-3 rounded-full border border-white/10 hover:bg-white/5 transition-all font-black text-xs uppercase tracking-widest bg-black/50">Hubungi Kami</button>
+                <button onclick="location.href='#products'" class="btn-action">Mulai Sekarang</button>
+                <button onclick="location.href='https://wa.me/6285102360656'" class="px-10 py-3 rounded-full border border-white/10 hover:bg-white/5 transition-all font-black text-xs uppercase bg-black/50">Support</button>
             </div>
         </div>
     </section>
 
-    <!-- COMPACT STATS -->
-    <section class="py-16 px-6">
-        <div class="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div class="bg-white/[0.02] border border-white/5 p-8 rounded-[2rem] text-center">
-                <div class="text-4xl font-black text-brand mb-1" id="stat-buyers">0</div>
-                <div class="text-[8px] font-black text-white/20 uppercase tracking-widest">Pelanggan</div>
-            </div>
-            <div class="bg-white/[0.02] border border-white/5 p-8 rounded-[2rem] text-center">
-                <div class="text-4xl font-black text-pink mb-1" id="stat-visitors">0</div>
-                <div class="text-[8px] font-black text-white/20 uppercase tracking-widest">Pengunjung</div>
-            </div>
-            <div class="bg-white/[0.02] border border-white/5 p-8 rounded-[2rem] text-center">
-                <div class="text-4xl font-black text-white mb-1">24/7</div>
-                <div class="text-[8px] font-black text-white/20 uppercase tracking-widest">Uptime</div>
-            </div>
-            <div class="bg-white/[0.02] border border-white/5 p-8 rounded-[2rem] text-center">
-                <div class="text-4xl font-black text-emerald-400 mb-1">ONLINE</div>
-                <div class="text-[8px] font-black text-white/20 uppercase tracking-widest">Node Status</div>
-            </div>
+    <section class="py-16 px-6 bg-white/[0.01] border-y border-white/5">
+        <div class="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+            <div><div class="text-4xl font-black text-brand mb-1" id="stat-buyers">0</div><div class="text-[9px] font-bold text-white/20 uppercase">Pelanggan</div></div>
+            <div><div class="text-4xl font-black text-white mb-1" id="stat-visitors">0</div><div class="text-[9px] font-bold text-white/20 uppercase">Pengunjung</div></div>
+            <div><div class="text-4xl font-black text-white mb-1">24/7</div><div class="text-[9px] font-bold text-white/20 uppercase">Uptime</div></div>
+            <div><div class="text-4xl font-black text-emerald-400 mb-1" id="node-status">STABLE</div><div class="text-[9px] font-bold text-white/20 uppercase">Node Status</div></div>
         </div>
     </section>
 
-    <!-- PRODUCTS COMPACT -->
     <section id="products" class="py-32 px-6">
         <div class="max-w-6xl mx-auto">
-            <h2 class="text-4xl md:text-6xl font-black text-center mb-24 tracking-tighter">Layanan <span class="text-brand">Kami.</span></h2>
+            <h2 class="text-4xl md:text-6xl font-black text-center mb-24 tracking-tighter">Layanan <span class="text-brand">Unggulan.</span></h2>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <!-- PTERO -->
-                <div class="compact-card group" id="card-ptero" data-aos="fade-up">
-                    <div id="badge-ptero" class="hidden bg-red-500 text-white font-black text-[8px] px-4 py-1 rounded-full mb-6 mx-auto w-fit">MAINTENANCE</div>
-                    <div class="w-16 h-16 bg-brand/10 rounded-full flex items-center justify-center mx-auto mb-8 transition-transform group-hover:scale-110"><i class="fa-solid fa-gamepad text-2xl text-brand"></i></div>
-                    <h3 class="text-xl font-bold mb-4 text-center">Panel Pterodactyl</h3>
-                    <p class="text-white/30 text-xs text-center mb-10 leading-relaxed">Manajemen server bot dan game dengan performa prosesor tinggi.</p>
-                    <button onclick="location.href='order-panel.html'" class="action-btn w-full !text-[9px]">Order Sekarang</button>
+                <div class="service-card group" id="card-ptero">
+                    <div id="badge-ptero" class="status-badge bg-brand/10 text-brand">Checking...</div>
+                    <div class="w-16 h-16 bg-brand/10 rounded-full flex items-center justify-center mx-auto mb-8"><i class="fa-solid fa-gamepad text-2xl text-brand"></i></div>
+                    <h3 class="text-xl font-bold mb-4 text-center uppercase">Panel Pterodactyl</h3>
+                    <p class="text-white/30 text-xs text-center mb-10 leading-relaxed">Server game & bot berperforma tinggi dengan sistem aktivasi otomatis.</p>
+                    <button id="btn-ptero" onclick="location.href='order-panel.html'" class="btn-action w-full">Order Now</button>
                 </div>
                 <!-- DO -->
-                <div class="compact-card group" id="card-do" data-aos="fade-up" data-aos-delay="100">
-                    <div id="badge-do" class="hidden bg-red-500 text-white font-black text-[8px] px-4 py-1 rounded-full mb-6 mx-auto w-fit">OFFLINE</div>
-                    <div class="w-16 h-16 bg-blue-500/10 rounded-full flex items-center justify-center mx-auto mb-8 transition-transform group-hover:scale-110"><i class="fa-brands fa-digital-ocean text-2xl text-blue-500"></i></div>
-                    <h3 class="text-xl font-bold mb-4 text-center">Akun Digital Ocean</h3>
-                    <p class="text-white/30 text-xs text-center mb-10 leading-relaxed">Akun fresh saldo $200 dengan limit droplet tinggi. Ready stock.</p>
-                    <button onclick="location.href='https://wa.me/6285102360656?text=Beli_Akun_DO'" class="action-btn w-full !bg-blue-600 !text-white !text-[9px]">Hubungi Admin</button>
+                <div class="service-card group" id="card-do">
+                    <div id="badge-do" class="status-badge bg-brand/10 text-brand">Checking...</div>
+                    <div class="w-16 h-16 bg-blue-500/10 rounded-full flex items-center justify-center mx-auto mb-8"><i class="fa-brands fa-digital-ocean text-2xl text-blue-500"></i></div>
+                    <h3 class="text-xl font-bold mb-4 text-center uppercase">Cloud VPS D.O</h3>
+                    <p class="text-white/30 text-xs text-center mb-10 leading-relaxed">Akun Digital Ocean limit $200 dengan kestabilan jaringan global.</p>
+                    <button id="btn-do" onclick="location.href='https://wa.me/6285102360656?text=Beli_DO'" class="btn-action w-full !bg-blue-600 !text-white">Contact Sales</button>
                 </div>
-                <!-- SCRIPT -->
-                <div class="compact-card group" data-aos="fade-up" data-aos-delay="200">
-                    <div class="w-16 h-16 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto mb-8 transition-transform group-hover:scale-110"><i class="fa-solid fa-code text-2xl text-emerald-400"></i></div>
-                    <h3 class="text-xl font-bold mb-4 text-center">Source Script</h3>
-                    <p class="text-white/30 text-xs text-center mb-10 leading-relaxed">Script bot WhatsApp premium siap pakai dengan fitur AI terbaru.</p>
-                    <button onclick="window.open('https://freezeehostbot.vercel.app')" class="action-btn w-full !bg-emerald-600 !text-white !text-[9px]">Lihat Katalog</button>
+                <!-- LINODE -->
+                <div class="service-card group" id="card-linode">
+                    <div id="badge-linode" class="status-badge bg-brand/10 text-brand">Checking...</div>
+                    <div class="w-16 h-16 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto mb-8"><i class="fa-solid fa-server text-2xl text-emerald-400"></i></div>
+                    <h3 class="text-xl font-bold mb-4 text-center uppercase">Linode / Akamai</h3>
+                    <p class="text-white/30 text-xs text-center mb-10 leading-relaxed">Infrastruktur cloud premium dengan latensi terendah untuk Asia.</p>
+                    <button id="btn-linode" onclick="location.href='https://wa.me/6285102360656?text=Beli_Linode'" class="btn-action w-full !bg-emerald-600 !text-white">Contact Sales</button>
                 </div>
             </div>
-        </div>
-    </section>
-
-    <!-- LIVE TERMINAL COMPACT -->
-    <section class="py-32 px-6">
-        <div class="max-w-4xl mx-auto bg-black border border-white/10 p-10 rounded-[2.5rem] shadow-2xl">
-            <div class="flex items-center gap-3 mb-8">
-                <div class="w-2 h-2 rounded-full bg-brand animate-ping"></div>
-                <span class="font-mono text-[9px] text-white/30 uppercase tracking-[0.3em]">Live_Status_Monitor</span>
-            </div>
-            <div id="live-feed" class="space-y-2 font-mono text-[11px] text-white/20 h-48 overflow-hidden"></div>
         </div>
     </section>
 
     <footer class="py-24 border-t border-white/5 text-center">
         <div class="font-bold text-lg tracking-tighter mb-8 italic">FREEZEEHOSTING <span class="text-brand">NETWORK</span></div>
-        <div class="flex justify-center gap-10 mb-12">
+        <div class="flex justify-center gap-10">
             <a href="https://wa.me/6285102360656" class="text-white/20 hover:text-brand transition-all text-3xl"><i class="fa-brands fa-whatsapp"></i></a>
             <a href="https://t.me/FreeZeeHost" class="text-white/20 hover:text-brand transition-all text-3xl"><i class="fa-brands fa-telegram"></i></a>
         </div>
-        <p class="text-[8px] font-black text-white/10 uppercase tracking-[0.5em]">&copy; 2026 FreeZeeHosting Professional Infrastructure</p>
     </footer>
 
-    <!-- CS BUTTON -->
+    <!-- CS -->
     <a href="https://wa.me/6285102360656" target="_blank" class="fixed bottom-10 right-10 z-[10000] group">
         <div class="absolute inset-0 bg-brand rounded-full blur-xl opacity-20 animate-pulse"></div>
-        <div class="relative w-16 h-16 bg-white text-black flex items-center justify-center rounded-full shadow-2xl transition-all group-hover:scale-110 group-active:scale-90">
+        <div class="relative w-16 h-16 bg-white text-black flex items-center justify-center rounded-full shadow-2xl transition-all group-hover:scale-110">
             <i class="fa-brands fa-whatsapp text-3xl"></i>
         </div>
     </a>
 
-    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
-        AOS.init();
-
-        // MATRIX COMPACT
-        const mCanvas = document.getElementById('bg-canvas');
-        const mCtx = mCanvas.getContext('2d');
-        mCanvas.width = window.innerWidth; mCanvas.height = window.innerHeight;
-        const drops = Array(Math.floor(mCanvas.width / 25)).fill(1);
-        function drawMatrix() {
-            mCtx.fillStyle = "rgba(0, 0, 0, 0.1)"; mCtx.fillRect(0, 0, mCanvas.width, mCanvas.height);
-            mCtx.fillStyle = "rgba(0, 242, 254, 0.3)"; mCtx.font = "12px monospace";
-            drops.forEach((y, i) => {
-                mCtx.fillText(Math.floor(Math.random()*2), i * 25, y * 25);
-                if (y * 25 > mCanvas.height && Math.random() > 0.975) drops[i] = 0;
-                drops[i]++;
-            });
-        }
-        setInterval(drawMatrix, 60);
-
-        // TYPEWRITER
-        const text = ">> MENGHUBUNGKAN KE CORE TERPERCAYA... BERHASIL.\n>> STATUS NODE: STABIL & CEPAT.\n>> SISTEM SIAP DIGUNAKAN.";
-        let i = 0;
-        function type() { if (i < text.length) { document.getElementById('typewriter').innerHTML += text.charAt(i); i++; setTimeout(type, 30); } }
-        window.onload = () => { type(); fetchStats(); };
-
-        // HUD
-        document.addEventListener('mousemove', e => {
-            const hud = document.getElementById('mouse-hud');
-            hud.style.left = e.clientX + 'px'; hud.style.top = e.clientY + 'px';
-        });
-
         async function fetchStats() {
             try {
+                await fetch('/api/stats/visit');
                 const res = await fetch('/api/check-services');
                 const data = await res.json();
+                
                 document.getElementById('stat-buyers').innerText = data.stats.totalBuyers;
                 document.getElementById('stat-visitors').innerText = data.stats.totalVisitors;
-                if (data.services.ptero === 'offline') {
-                    document.getElementById('card-ptero').style.opacity = '0.5';
-                    document.getElementById('badge-ptero').classList.remove('hidden');
-                }
-            } catch (e) {}
-        }
 
-        const feed = document.getElementById('live-feed');
-        const logs = ["BYPASSING_GATEWAY...", "ENCRYPTING_SSL...", "DDoS_FILTER_ACTIVE.", "NODE_SG_STABLE.", "CLOUD_SYNC_OK."];
-        setInterval(() => {
-            if(!feed) return;
-            const d = document.createElement('div');
-            d.innerHTML = `[${new Date().toLocaleTimeString()}] system@core: ${logs[Math.floor(Math.random()*logs.length)]}`;
-            feed.prepend(d); if (feed.children.length > 8) feed.lastChild.remove();
-        }, 2000);
+                // 1. PTERO CHECK
+                const pB = document.getElementById('badge-ptero');
+                const pC = document.getElementById('card-ptero');
+                const pBtn = document.getElementById('btn-ptero');
+                if (data.services.ptero === 'online') { pB.innerText = 'ONLINE'; pB.className = 'status-badge text-emerald-400 bg-emerald-400/10'; }
+                else { pB.innerText = 'OFFLINE'; pB.className = 'status-badge text-red-500 bg-red-500/10'; pC.classList.add('locked'); pBtn.disabled = true; pBtn.innerText = 'SYSTEM_LOCKED'; }
+
+                // 2. DO CHECK
+                const dB = document.getElementById('badge-do');
+                const dC = document.getElementById('card-do');
+                const dBtn = document.getElementById('btn-do');
+                if (data.services.do === 'online') { dB.innerText = 'READY'; dB.className = 'status-badge text-emerald-400 bg-emerald-400/10'; }
+                else { dB.innerText = 'MAINTENANCE'; dB.className = 'status-badge text-red-500 bg-red-500/10'; dC.classList.add('locked'); dBtn.disabled = true; }
+
+                // 3. LINODE CHECK
+                const lB = document.getElementById('badge-linode');
+                const lC = document.getElementById('card-linode');
+                const lBtn = document.getElementById('btn-linode');
+                if (data.services.linode === 'online') { lB.innerText = 'READY'; lB.className = 'status-badge text-emerald-400 bg-emerald-400/10'; }
+                else { lB.innerText = 'MAINTENANCE'; lB.className = 'status-badge text-red-500 bg-red-500/10'; lC.classList.add('locked'); lBtn.disabled = true; }
+
+                if(data.services.ptero === 'offline') { document.getElementById('node-status').innerText = 'ERROR'; document.getElementById('node-status').className = 'text-4xl font-black text-red-500 mb-1'; }
+
+            } catch (e) { console.error("Sync Error"); }
+        }
+        window.onload = fetchStats;
     </script>
 </body>
 </html>
