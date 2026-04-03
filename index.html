@@ -4,86 +4,172 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FreeZeeHosting | Premium Infrastructure</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script src="https://cdn.tailwindcss.com"></script>
     <script>
-        tailwind.config = { theme: { extend: { fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'], display: ['"Space Grotesk"', 'sans-serif'] }, colors: { brand: '#00f2fe' } } } }
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        display: ['"Space Grotesk"', 'sans-serif'],
+                    },
+                    colors: { brand: '#00f2fe', dark: '#000000' }
+                }
+            }
+        }
     </script>
     <style>
-        body { background-color: #000; color: #fff; overflow-x: hidden; }
-        .grid-bg { position: fixed; inset: 0; background-image: linear-gradient(to right, rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.02) 1px, transparent 1px); background-size: 80px 80px; z-index: -1; }
-        .glass-nav { background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 1.5rem; }
-        .service-item { transition: all 0.4s ease; padding: 2.5rem; border-radius: 2.5rem; border: 1px solid transparent; background: rgba(255,255,255,0.01); }
+        body { background-color: #000000; color: #ffffff; overflow-x: hidden; position: relative; }
+        #click-ripple { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: -1; opacity: 0; background: radial-gradient(circle at var(--click-x, 50%) var(--click-y, 50%), rgba(0, 242, 254, 0.3) 0%, transparent 50%); transition: opacity 0.6s ease-out; }
+        #scroll-progress { position: fixed; top: 0; left: 0; width: 0%; height: 2px; background: linear-gradient(90deg, #00f2fe, #4facfe); z-index: 100; transition: width 0.1s ease-out; }
+        .grid-bg-static { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-image: linear-gradient(to right, rgba(255, 255, 255, 0.01) 1px, transparent 1px), linear-gradient(to bottom, rgba(255, 255, 255, 0.01) 1px, transparent 1px); background-size: 80px 80px; z-index: -2; }
+        .grid-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-image: linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px), linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px); background-size: 80px 80px; mask-image: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), black 0%, transparent 60%); -webkit-mask-image: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), black 0%, transparent 60%); z-index: -1; }
+        .glow-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 50% -10%, rgba(0, 242, 254, 0.08) 0%, transparent 50%), radial-gradient(circle at 100% 100%, rgba(0, 242, 254, 0.03) 0%, transparent 40%); z-index: -1; }
+        .hero-title { letter-spacing: -0.05em; background: linear-gradient(180deg, #FFFFFF 0%, rgba(255, 255, 255, 0.6) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .glass-nav { background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.05); }
+        .service-item { transition: all 0.4s ease; padding: 2.5rem 2rem; border-radius: 32px; border: 1px solid transparent; }
         .service-item:hover { background: rgba(255, 255, 255, 0.02); border-color: rgba(0, 242, 254, 0.1); transform: translateY(-5px); }
-        .maintenance { opacity: 0.4; filter: grayscale(1); pointer-events: none !important; cursor: not-allowed; }
-        .btn-glow { transition: all 0.3s; }
-        .btn-glow:hover { box-shadow: 0 0 30px rgba(0, 242, 254, 0.4); transform: scale(1.02); }
+        .maintenance { opacity: 0.4; filter: grayscale(1); pointer-events: none !important; }
+        .animate-marquee { animation: marquee 40s linear infinite; }
         @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
-        .animate-marquee { animation: marquee 30s linear infinite; }
+        body::before { content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-image: url("https://grainy-gradients.vercel.app/noise.svg"); opacity: 0.03; pointer-events: none; z-index: 99; }
     </style>
 </head>
 <body class="antialiased">
-    <div class="grid-bg"></div>
 
-    <nav class="fixed w-full z-50 py-6 px-6">
-        <div class="max-w-7xl mx-auto flex items-center justify-between h-16 glass-nav px-8">
-            <a href="#" class="font-display text-xl font-bold flex items-center gap-3">
-                <i class="fa-solid fa-snowflake text-brand"></i>
-                <span>FreeZee<span class="text-brand">Hosting</span></span>
-            </a>
-            <div class="hidden md:flex items-center gap-10">
-                <a href="#home" class="text-[10px] font-black uppercase tracking-widest text-white/40 hover:text-white">Home</a>
-                <a href="#products" class="text-[10px] font-black uppercase tracking-widest text-white/40 hover:text-white">Services</a>
-                <a href="Dev.html" class="text-[10px] font-black uppercase tracking-widest text-white/40 hover:text-brand">Admin</a>
-                <a href="order-panel.html" class="bg-white text-black text-[10px] font-black px-8 py-3 rounded-xl btn-glow">ORDER NOW</a>
+    <div id="click-ripple"></div>
+    <div id="scroll-progress"></div>
+    <div class="grid-bg-static"></div>
+    <div class="grid-bg"></div>
+    <div class="glow-overlay"></div>
+
+    <nav class="fixed w-full z-50 py-6" id="navbar">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="flex items-center justify-between h-16 glass-nav rounded-2xl px-8 shadow-2xl">
+                <div class="flex items-center gap-6">
+                    <a href="#" class="font-display text-xl font-bold flex items-center gap-3 tracking-tighter">
+                        <i class="fa-solid fa-snowflake text-brand"></i>
+                        <span>FreeZee<span class="text-brand">Hosting</span></span>
+                    </a>
+                </div>
+                <div class="hidden md:flex items-center gap-10">
+                    <a href="#home" class="text-[10px] font-black uppercase tracking-widest text-white/40 hover:text-white transition-all">Beranda</a>
+                    <a href="#products" class="text-[10px] font-black uppercase tracking-widest text-white/40 hover:text-white transition-all">Layanan</a>
+                    <a href="Dev.html" class="text-[10px] font-black uppercase tracking-widest text-white/40 hover:text-brand transition-all flex items-center gap-2">Admin</a>
+                    <a href="order-panel.html" id="nav-order-btn" class="bg-white text-black text-[10px] font-black px-8 py-3 rounded-xl hover:scale-105 transition-all">ORDER NOW</a>
+                </div>
             </div>
         </div>
     </nav>
 
-    <section id="home" class="min-h-screen flex flex-col items-center justify-center pt-20 text-center px-6">
-        <div class="inline-block px-4 py-1.5 rounded-full border border-brand/20 bg-brand/5 text-brand text-[9px] font-black uppercase tracking-[0.3em] mb-10">Premium Infrastructure</div>
-        <h1 class="text-6xl md:text-8xl font-black leading-tight mb-8 tracking-tighter">Powering <br>The <span class="text-brand">Future.</span></h1>
-        <p class="text-white/40 text-lg md:text-xl max-w-2xl mb-12 font-medium">Hosting super dingin dengan performa tanpa batas. Aktivasi instan untuk server game, bot, dan cloud vps.</p>
-        <div class="flex flex-col md:flex-row gap-6">
-            <a href="#products" class="bg-white text-black px-12 py-4 rounded-full text-xs font-black uppercase tracking-widest btn-glow">Get Started</a>
-            <a href="https://wa.me/6285102360656" class="px-12 py-4 rounded-full text-xs font-black uppercase tracking-widest border border-white/10 hover:bg-white/5 transition-all">Contact Us</a>
+    <section id="home" class="min-h-screen flex flex-col items-start justify-center pt-20">
+        <div class="max-w-5xl mx-auto px-6 text-left w-full" data-aos="fade-up" data-aos-duration="1500">
+            <div class="inline-block px-4 py-1.5 rounded-full border border-brand/20 bg-brand/5 text-brand text-[9px] font-black uppercase tracking-[0.3em] mb-10" id="cyber-greeting">SELAMAT DATANG, SIR</div>
+            <h1 class="hero-title text-6xl md:text-7xl lg:text-[7.5rem] font-extrabold leading-[1.1] md:leading-[0.9] mb-8 tracking-tight md:tracking-tighter">Powering <br>The <span class="text-brand">Future.</span></h1>
+            <p class="text-white/40 text-lg md:text-xl max-w-2xl mb-12 font-medium leading-relaxed">Hosting super dingin dengan performa tanpa batas. <br> Aktivasi instan untuk server game, bot, dan cloud vps.</p>
+            <div class="flex flex-col md:flex-row justify-start gap-4 md:gap-6 w-full md:w-auto">
+                <a href="#products" class="bg-white text-black px-12 py-4 rounded-full text-xs font-black uppercase tracking-widest shadow-2xl hover:scale-105 transition-all text-center">Mulai Sekarang</a>
+                <a href="https://wa.me/6285102360656" class="px-12 py-4 rounded-full text-xs font-black uppercase tracking-widest border border-white/10 hover:bg-white/5 transition-all text-center">Hubungi Kami</a>
+            </div>
         </div>
     </section>
 
-    <section class="py-20 bg-white/[0.01] border-y border-white/5">
-        <div class="max-w-5xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-12 text-center">
-            <div><div class="text-4xl font-black mb-2 tracking-tighter text-brand" id="stat-buyers">0</div><div class="text-[9px] font-black text-white/30 uppercase tracking-widest">Buyers</div></div>
-            <div><div class="text-4xl font-black mb-2 tracking-tighter" id="stat-visitors">0</div><div class="text-[9px] font-black text-white/30 uppercase tracking-widest">Visitors</div></div>
-            <div><div class="text-4xl font-black mb-2 tracking-tighter" id="stat-uptime">24/7</div><div class="text-[9px] font-black text-white/30 uppercase tracking-widest">Uptime</div></div>
-            <div><div class="text-4xl font-black mb-2 tracking-tighter text-emerald-400" id="stat-status">ONLINE</div><div class="text-[9px] font-black text-white/30 uppercase tracking-widest">Node Status</div></div>
+    <section class="py-20">
+        <div class="max-w-5xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-12 text-left">
+            <div data-aos="fade-up">
+                <div class="text-3xl md:text-4xl font-bold mb-2 tracking-tighter" id="stat-buyers">0</div>
+                <div class="text-[8px] md:text-[9px] font-black text-white/30 uppercase tracking-[0.2em]">Pelanggan</div>
+            </div>
+            <div data-aos="fade-up" data-aos-delay="100">
+                <div class="text-3xl md:text-4xl font-bold mb-2 tracking-tighter text-brand" id="stat-visitors">0</div>
+                <div class="text-[8px] md:text-[9px] font-black text-white/30 uppercase tracking-[0.2em]">Pengunjung</div>
+            </div>
+            <div data-aos="fade-up" data-aos-delay="200">
+                <div class="text-3xl md:text-4xl font-bold mb-2 tracking-tighter" id="stat-uptime">24/7</div>
+                <div class="text-[8px] md:text-[9px] font-black text-white/30 uppercase tracking-[0.2em]">Uptime</div>
+            </div>
+            <div data-aos="fade-up" data-aos-delay="300">
+                <div class="text-3xl md:text-4xl font-bold mb-2 tracking-tighter text-emerald-400" id="stat-status">ONLINE</div>
+                <div class="text-[8px] md:text-[9px] font-black text-white/30 uppercase tracking-[0.2em]">Koneksi</div>
+            </div>
         </div>
     </section>
 
-    <section id="products" class="py-32 px-6">
-        <div class="max-w-7xl mx-auto text-center">
-            <h2 class="text-4xl md:text-6xl font-black tracking-tighter mb-20">Layanan <span class="text-brand">Unggulan.</span></h2>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
-                <div class="service-item group relative" id="card-ptero">
-                    <div id="badge-ptero" class="hidden absolute top-6 right-6 bg-red-500 text-white text-[8px] font-black px-3 py-1 rounded-full">OFFLINE</div>
-                    <i class="fa-solid fa-gamepad text-5xl mb-8 text-white/10 group-hover:text-brand transition-all"></i>
-                    <h3 class="text-2xl font-bold mb-4">Pterodactyl Panel</h3>
-                    <p class="text-white/40 text-sm mb-10">Manajemen server game & bot dengan panel tercanggih di kelasnya.</p>
-                    <a href="order-panel.html" id="btn-ptero" class="text-brand text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-3">Order Now <i class="fa-solid fa-arrow-right"></i></a>
+    <section class="py-20" data-aos="fade-up">
+        <div class="max-w-5xl mx-auto px-6">
+            <div class="text-[10px] font-black text-brand uppercase tracking-[0.4em] mb-6">Analytical Intelligence</div>
+            <h2 class="text-3xl md:text-5xl font-bold mb-12 tracking-tighter text-white">Performance <br>Metrics.</h2>
+            <div class="w-full p-8 rounded-[2.5rem] bg-white/[0.02] border border-white/5 relative overflow-hidden shadow-2xl">
+                <canvas id="performanceChart" style="max-height: 300px; width: 100%;"></canvas>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-20 md:py-32 overflow-hidden">
+        <div class="max-w-6xl mx-auto px-6 text-left">
+            <div class="flex flex-col md:flex-row items-start gap-12 md:gap-24">
+                <div class="md:w-1/2" data-aos="fade-right">
+                    <div class="text-brand text-[10px] font-black uppercase tracking-widest mb-4">Real-Time Activity</div>
+                    <h2 class="text-3xl md:text-5xl font-bold mb-6 tracking-tighter text-white">Global Deployment <br>Stream.</h2>
+                    <div class="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-white/5 border border-white/5 mt-8"><div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div><span class="text-[10px] text-white/50 font-black uppercase tracking-widest">+142 Online Now</span></div>
                 </div>
-                <div class="service-item group" id="card-do">
-                    <div id="badge-do" class="hidden absolute top-6 right-6 bg-red-500 text-white text-[8px] font-black px-3 py-1 rounded-full">MAINTENANCE</div>
-                    <i class="fa-brands fa-digital-ocean text-5xl mb-8 text-white/10 group-hover:text-blue-500 transition-all"></i>
-                    <h3 class="text-2xl font-bold mb-4">Cloud VPS D.O</h3>
-                    <p class="text-white/40 text-sm mb-10">Infrastruktur global Digital Ocean dengan akses root penuh.</p>
-                    <a href="order-vps.html" id="btn-do" class="text-brand text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-3">Order Now <i class="fa-solid fa-arrow-right"></i></a>
+                <div class="md:w-1/2 w-full" data-aos="fade-left">
+                    <div class="p-6 md:p-8 rounded-[2rem] bg-white/[0.02] border border-white/5 font-mono text-[10px] md:text-[11px] h-72 overflow-hidden relative">
+                        <div id="live-feed" class="space-y-3"></div>
+                        <div class="absolute bottom-0 left-0 w-full h-24 bg-gradient-to-t from-black to-transparent"></div>
+                    </div>
                 </div>
-                <div class="service-item group">
-                    <i class="fa-solid fa-code text-5xl mb-8 text-white/10 group-hover:text-emerald-400 transition-all"></i>
-                    <h3 class="text-2xl font-bold mb-4">Source Script</h3>
-                    <p class="text-white/40 text-sm mb-10">Katalog script bot WhatsApp premium yang siap digunakan.</p>
-                    <a href="https://freezeehostbot.vercel.app" class="text-brand text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-3">View Catalog <i class="fa-solid fa-arrow-right"></i></a>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-16 border-y border-white/[0.03] bg-white/[0.01]">
+        <div class="flex overflow-hidden">
+            <div class="flex py-4 animate-marquee whitespace-nowrap gap-16 md:gap-32">
+                <span class="text-white/20 text-xs md:text-sm font-black uppercase tracking-[0.5em] flex items-center gap-4"><i class="fa-solid fa-snowflake text-brand"></i> PTERODACTYL</span>
+                <span class="text-white/20 text-xs md:text-sm font-black uppercase tracking-[0.5em] flex items-center gap-4"><i class="fa-brands fa-digital-ocean text-blue-500"></i> DIGITAL OCEAN</span>
+                <span class="text-white/20 text-xs md:text-sm font-black uppercase tracking-[0.5em] flex items-center gap-4"><i class="fa-solid fa-bolt text-brand"></i> PAKASIR</span>
+            </div>
+            <div class="flex py-4 animate-marquee whitespace-nowrap gap-16 md:gap-32">
+                <span class="text-white/20 text-xs md:text-sm font-black uppercase tracking-[0.5em] flex items-center gap-4"><i class="fa-solid fa-snowflake text-brand"></i> PTERODACTYL</span>
+                <span class="text-white/20 text-xs md:text-sm font-black uppercase tracking-[0.5em] flex items-center gap-4"><i class="fa-brands fa-digital-ocean text-blue-500"></i> DIGITAL OCEAN</span>
+                <span class="text-white/20 text-xs md:text-sm font-black uppercase tracking-[0.5em] flex items-center gap-4"><i class="fa-solid fa-bolt text-brand"></i> PAKASIR</span>
+            </div>
+        </div>
+    </section>
+
+    <section id="products" class="py-32 md:py-48">
+        <div class="max-w-6xl mx-auto px-6">
+            <h2 class="text-4xl md:text-6xl font-extrabold tracking-tighter text-white mb-20">Infrastruktur <br>Pilihan.</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-16">
+                <div class="service-item group relative" id="card-ptero" data-aos="fade-up">
+                    <div id="badge-ptero" class="hidden absolute -top-4 left-0 bg-red-500 text-white text-[7px] font-black uppercase tracking-[0.2em] px-3 py-1 rounded-full shadow-lg">OFFLINE</div>
+                    <i class="fa-solid fa-gamepad text-5xl mb-10 text-white/10 group-hover:text-brand transition-all duration-500"></i>
+                    <h3 class="text-xl font-bold mb-4 text-white">Panel Pterodactyl</h3>
+                    <p class="text-white/40 text-xs leading-relaxed mb-10">Manajemen server game dan bot dengan performa maksimal.</p>
+                    <a href="order-panel.html" id="btn-ptero" class="text-brand text-[10px] font-black uppercase tracking-[0.2em] flex items-center gap-3">ORDER NOW <i class="fa-solid fa-arrow-right"></i></a>
+                </div>
+                <div class="service-item group relative" id="card-do" data-aos="fade-up" data-aos-delay="100">
+                    <div id="badge-do" class="hidden absolute -top-4 left-0 bg-red-500 text-white text-[7px] font-black uppercase tracking-[0.2em] px-3 py-1 rounded-full shadow-lg">OFFLINE</div>
+                    <i class="fa-brands fa-digital-ocean text-5xl mb-10 text-white/10 group-hover:text-blue-500 transition-all duration-500"></i>
+                    <h3 class="text-xl font-bold mb-4 text-white">Cloud VPS</h3>
+                    <p class="text-white/40 text-xs leading-relaxed mb-10">Akses root penuh dengan stabilitas jaringan kelas atas.</p>
+                    <a href="order-vps.html" id="btn-do" class="text-brand text-[10px] font-black uppercase tracking-[0.2em] flex items-center gap-3">ORDER NOW <i class="fa-solid fa-arrow-right"></i></a>
+                </div>
+                <div class="service-item group" data-aos="fade-up" data-aos-delay="200">
+                    <i class="fa-solid fa-code text-5xl mb-10 text-white/10 group-hover:text-emerald-400 transition-all duration-500"></i>
+                    <h3 class="text-xl font-bold mb-4 text-white">Source Script</h3>
+                    <p class="text-white/40 text-xs leading-relaxed mb-10">Katalog script bot WhatsApp premium siap pakai.</p>
+                    <a href="https://freezeehostbot.vercel.app" class="text-brand text-[10px] font-black uppercase tracking-[0.2em] flex items-center gap-3">VIEW CATALOG <i class="fa-solid fa-arrow-right"></i></a>
                 </div>
             </div>
         </div>
@@ -97,8 +183,27 @@
         </div>
     </a>
 
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
-        async function checkStats() {
+        AOS.init({ once: true, duration: 1000 });
+        
+        // PERFORMANCE CHART
+        const ctx = document.getElementById('performanceChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                datasets: [{
+                    label: 'Network Load',
+                    data: [30, 45, 32, 70, 55, 90, 85],
+                    borderColor: '#00f2fe', borderWidth: 3, pointRadius: 0, tension: 0.4, fill: true,
+                    backgroundColor: (c) => { const g = c.chart.ctx.createLinearGradient(0, 0, 0, 300); g.addColorStop(0, 'rgba(0, 242, 254, 0.2)'); g.addColorStop(1, 'rgba(0, 242, 254, 0)'); return g; }
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false }, ticks: { color: 'rgba(255,255,255,0.2)', font: { size: 10 } } }, y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { display: false } } } }
+        });
+
+        async function fetchStats() {
             try {
                 await fetch('/api/stats/visit');
                 const res = await fetch('/api/check-services');
@@ -112,17 +217,34 @@
                     document.getElementById('badge-ptero').classList.remove('hidden');
                     document.getElementById('btn-ptero').innerHTML = 'OFFLINE';
                     document.getElementById('stat-status').innerText = 'MAINTENANCE';
-                    document.getElementById('stat-status').className = 'text-4xl font-black mb-2 text-red-500';
+                    document.getElementById('stat-status').classList.replace('text-emerald-400', 'text-red-500');
+                    document.getElementById('nav-order-btn').classList.add('hidden');
                 }
                 
                 if (data.services.do === 'offline') {
                     document.getElementById('card-do').classList.add('maintenance');
                     document.getElementById('badge-do').classList.remove('hidden');
-                    document.getElementById('btn-do').innerHTML = 'MAINTENANCE';
+                    document.getElementById('btn-do').innerHTML = 'OFFLINE';
                 }
-            } catch (e) { console.error("Health check failed"); }
+            } catch (e) { console.error("Stats Error"); }
         }
-        window.onload = checkStats;
+        window.onload = fetchStats;
+
+        document.addEventListener('mousemove', e => {
+            document.documentElement.style.setProperty('--mouse-x', `${(e.clientX / window.innerWidth) * 100}%`);
+            document.documentElement.style.setProperty('--mouse-y', `${(e.clientY / window.innerHeight) * 100}%`);
+        });
+
+        const feed = document.getElementById('live-feed');
+        const logs = ["Init FreeZeeHost...", "Deploy US-1 Node...", "Verified FZH-992.", "Alloc RAM 8GB.", "Agent joined."];
+        setInterval(() => {
+            if(!feed) return;
+            const div = document.createElement('div');
+            div.className = "text-white/20 border-l-2 border-brand/20 pl-3 py-1";
+            div.innerHTML = `<span class="text-brand/40">[${new Date().toLocaleTimeString()}]</span> ${logs[Math.floor(Math.random()*logs.length)]}`;
+            feed.prepend(div);
+            if (feed.children.length > 8) feed.lastChild.remove();
+        }, 3000);
     </script>
 </body>
 </html>
