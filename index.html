@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FREEZEEHOST | ULTRON CYBER CHAOS</title>
+    <title>FREEZEEHOST | OVERLOAD OMEGA</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -32,133 +32,149 @@
     <style>
         body { background-color: #000000; color: #ffffff; overflow-x: hidden; position: relative; }
         
-        /* OVERLAYS - MUST HAVE POINTER-EVENTS: NONE */
-        #bg-canvas, #mouse-hud, .v-ticker, .scanner, .hud-corner, .orb, .noise, .scanlines { 
+        /* POINTER EVENTS RESET */
+        #bg-canvas, .hud-overlay, .ticker-bar, .scanner, .v-gauge, .orb, .scanlines, .ghost-code { 
             pointer-events: none !important; 
         }
 
-        #bg-canvas { position: fixed; inset: 0; z-index: -5; opacity: 0.6; }
-        .orb { position: fixed; width: 600px; height: 600px; border-radius: 50%; filter: blur(120px); opacity: 0.4; z-index: -4; animation: orbMove 15s infinite alternate; }
-        .orb-1 { background: #00f2fe; top: -10%; left: -10%; }
-        .orb-2 { background: #ff00c8; bottom: -10%; right: -10%; animation-delay: -7s; }
-        @keyframes orbMove { from { transform: translate(0,0) scale(1); } to { transform: translate(100px, 100px) scale(1.5); } }
+        /* BACKGROUND ELEMENTS */
+        #bg-canvas { position: fixed; inset: 0; z-index: -5; opacity: 0.7; }
+        .orb { position: fixed; width: 800px; height: 800px; border-radius: 50%; filter: blur(150px); opacity: 0.3; z-index: -4; animation: orbMove 20s infinite alternate; }
+        .orb-1 { background: #00f2fe; top: -20%; left: -20%; }
+        .orb-2 { background: #ff00c8; bottom: -20%; right: -20%; animation-delay: -5s; }
+        @keyframes orbMove { from { transform: translate(0,0) scale(1); } to { transform: translate(150px, 150px) scale(1.4); } }
 
-        /* SCANLINES EFFECT */
-        .scanlines { position: fixed; inset: 0; background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06)); z-index: 999; background-size: 100% 2px, 3px 100%; }
+        /* GHOST CODE EFFECT */
+        .ghost-code { position: fixed; font-family: 'JetBrains Mono'; font-size: 10px; color: rgba(0, 242, 254, 0.1); white-space: nowrap; z-index: -3; animation: floatCode 15s linear infinite; }
+        @keyframes floatCode { from { transform: translateY(100vh); } to { transform: translateY(-100vh); } }
 
-        /* RAINBOW TEXT */
-        .rainbow-text {
+        /* SCANLINES & DISTORTION */
+        .scanlines { position: fixed; inset: 0; background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03)); z-index: 999; background-size: 100% 3px, 3px 100%; }
+
+        /* RAINBOW GLITCH TEXT */
+        .hyper-text {
             background: linear-gradient(to right, #00f2fe, #ff00c8, #bcfe00, #ff003c, #00f2fe);
             background-size: 400% auto;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            animation: rainbowFlow 5s linear infinite;
+            animation: rainbowFlow 3s linear infinite;
+            filter: drop-shadow(0 0 10px rgba(0, 242, 254, 0.5));
         }
         @keyframes rainbowFlow { to { background-position: 400% center; } }
 
-        /* HUD ELEMENTS */
-        #mouse-hud { position: fixed; width: 120px; height: 120px; border: 1px solid rgba(0, 242, 254, 0.8); border-radius: 50%; z-index: 10000; transform: translate(-50%, -50%); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 20px rgba(0, 242, 254, 0.2); }
-        #mouse-hud::before { content: ""; width: 90%; height: 90%; border: 2px dashed rgba(255, 0, 200, 0.6); border-radius: 50%; animation: spin 5s linear infinite; }
-        #mouse-hud::after { content: ""; width: 10px; height: 10px; border: 1px solid #fff; transform: rotate(45deg); }
+        /* MOUSE HUD */
+        #mouse-hud { position: fixed; width: 150px; height: 120px; z-index: 10000; transform: translate(-50%, -50%); display: flex; align-items: center; justify-content: center; pointer-events: none; }
+        .hud-circle { position: absolute; border: 1px solid rgba(0, 242, 254, 0.5); border-radius: 50%; animation: spin 4s linear infinite; }
+        .c1 { width: 100%; height: 100%; border-top-color: transparent; border-bottom-color: transparent; }
+        .c2 { width: 70%; height: 70%; border-left-color: transparent; border-right-color: transparent; animation-direction: reverse; }
 
-        /* VERTICAL GAUGES */
-        .v-gauge { position: fixed; top: 20%; width: 4px; height: 60%; background: rgba(255,255,255,0.1); z-index: 1000; }
-        .v-gauge-fill { width: 100%; height: 0%; background: #00f2fe; box-shadow: 0 0 15px #00f2fe; animation: gaugePulse 2s infinite ease-in-out; }
-        @keyframes gaugePulse { 0%, 100% { height: 20%; } 50% { height: 80%; } }
-
-        /* PRODUCT CARDS */
-        .cyber-card {
-            background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(20px);
-            border: 2px solid rgba(255, 255, 255, 0.1); border-radius: 2rem;
-            padding: 3rem; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        /* ELECTRIC BORDERS */
+        .electric-card {
+            background: #050505; border-radius: 3rem; padding: 3.5rem;
             position: relative; overflow: hidden; z-index: 10;
+            border: 2px solid rgba(255,255,255,0.05);
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-        .cyber-card:hover { transform: translateY(-15px) scale(1.05) rotate(1deg); border-color: #00f2fe; box-shadow: 0 0 50px rgba(0, 242, 254, 0.4); }
-        .cyber-card::before { content: "LOCKED"; position: absolute; top: 10px; right: 10px; font-family: 'JetBrains Mono'; font-size: 8px; opacity: 0.2; }
+        .electric-card:hover { transform: translateY(-20px) scale(1.05); border-color: #00f2fe; box-shadow: 0 0 60px rgba(0, 242, 254, 0.3); }
+        .electric-card::after {
+            content: ""; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: conic-gradient(transparent, #00f2fe, transparent, #ff00c8, transparent);
+            animation: rotate 4s linear infinite; z-index: -1; opacity: 0.2;
+        }
 
-        /* BUTTONS */
-        .ultra-btn {
-            background: #fff; color: #000; font-weight: 900; padding: 1.2rem 3rem; border-radius: 1rem;
-            box-shadow: 0 0 30px #00f2fe; transition: all 0.3s;
-            text-transform: uppercase; letter-spacing: 2px; position: relative; z-index: 50; cursor: pointer !important;
-        }
-        .ultra-btn:hover { background: #00f2fe; box-shadow: 0 0 60px #00f2fe; transform: scale(1.1); }
+        /* SIDE GAUGES (EQUALIZER) */
+        .gauge-bar { width: 100%; background: #00f2fe; animation: heightPulse 1s infinite ease-in-out; }
+        @keyframes heightPulse { 0%, 100% { height: 10%; } 50% { height: 90%; } }
 
         /* TICKERS */
-        .ticker-bar { position: fixed; width: 100%; background: #ff003c; color: white; font-family: 'Press Start 2P'; font-size: 8px; z-index: 2000; padding: 8px 0; overflow: hidden; border-bottom: 2px solid white; }
+        .ticker-bar { position: fixed; width: 100%; background: #000; color: #bcfe00; font-family: 'Press Start 2P'; font-size: 7px; z-index: 2000; padding: 10px 0; overflow: hidden; border-y: 2px solid #bcfe00; }
         .top-ticker { top: 0; }
-        .bottom-ticker { bottom: 0; background: #bcfe00; color: #000; border-top: 2px solid #000; border-bottom: none; }
+        .bottom-ticker { bottom: 0; border-color: #ff00c8; color: #ff00c8; }
 
-        #purchase-toast { position: fixed; bottom: 80px; left: 30px; background: #00f2fe; color: #000; padding: 15px 30px; border-radius: 0; font-weight: 900; transform: skew(-15deg) translateX(-200%); transition: all 0.5s; z-index: 9999; border: 4px solid #fff; box-shadow: 10px 10px 0 rgba(0,0,0,0.5); }
-        #purchase-toast.show { transform: skew(-15deg) translateX(0); }
+        /* BUTTONS */
+        .mega-btn {
+            background: #00f2fe; color: #000; font-weight: 900; padding: 1.5rem 4rem; border-radius: 999px;
+            box-shadow: 0 0 40px #00f2fe; transition: all 0.3s;
+            text-transform: uppercase; letter-spacing: 4px; font-size: 12px; cursor: pointer !important;
+            border: 4px solid #fff;
+        }
+        .mega-btn:hover { background: #ff00c8; box-shadow: 0 0 100px #ff00c8; transform: scale(1.1) rotate(3deg); color: #fff; }
 
+        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes tickerMove { from { transform: translateX(100%); } to { transform: translateX(-100%); } }
     </style>
 </head>
 <body class="antialiased">
 
-    <div class="ticker-bar top-ticker"><div style="display: inline-block; white-space: nowrap; animation: tickerMove 20s linear infinite;">ALERT: SYSTEM OVERDRIVE ACTIVE // NO LAG DETECTED // UNLIMITED RAM AVAILABLE // FREEZEEHOST CLOUD V4.0 // </div></div>
-    <div class="ticker-bar bottom-ticker"><div style="display: inline-block; white-space: nowrap; animation: tickerMove 25s linear infinite reverse;">ENCRYPTING DATA... 100% // BYPASSING FIREWALL... DONE // ROOT ACCESS GRANTED // WELCOME AGENT_092 // </div></div>
+    <!-- OVERLAYS -->
+    <div class="ticker-bar top-ticker"><div style="display: inline-block; white-space: nowrap; animation: tickerMove 15s linear infinite;">>> SYSTEM STATUS: OVERLOAD_OMEGA_MODE_ACTIVE // NODE_CLUSTER: MAXIMIZED // UNLIMITED_RAM: RP 15.000 // SECURITY: HYPER_ENCRYPTED // </div></div>
+    <div class="ticker-bar bottom-ticker"><div style="display: inline-block; white-space: nowrap; animation: tickerMove 20s linear infinite reverse;">>> WARNING: NEURAL_SYNC_SUCCESSFUL // BYPASSING_LIMITS... // ACCESSING_DEEP_WEB_NODES... // WELCOME_ADMIN // </div></div>
 
     <canvas id="bg-canvas"></canvas>
     <div class="scanlines"></div>
-    <div id="mouse-hud"></div>
+    <div id="mouse-hud"><div class="hud-circle c1"></div><div class="hud-circle c2"></div></div>
     <div class="orb orb-1"></div>
     <div class="orb orb-2"></div>
 
-    <div class="v-gauge v-gauge-left" style="left: 10px;"><div class="v-gauge-fill"></div></div>
-    <div class="v-gauge v-gauge-right" style="right: 10px;"><div class="v-gauge-fill" style="animation-delay: -1s;"></div></div>
+    <!-- SIDE GAUGES -->
+    <div style="position: fixed; left: 15px; top: 30%; height: 40%; width: 10px; display: flex; flex-direction: column; gap: 2px; z-index: 1000; pointer-events: none;">
+        <div class="gauge-bar" style="animation-delay: 0.1s;"></div><div class="gauge-bar" style="animation-delay: 0.3s;"></div><div class="gauge-bar" style="animation-delay: 0.2s;"></div><div class="gauge-bar" style="animation-delay: 0.5s;"></div>
+    </div>
+    <div style="position: fixed; right: 15px; top: 30%; height: 40%; width: 10px; display: flex; flex-direction: column; gap: 2px; z-index: 1000; pointer-events: none;">
+        <div class="gauge-bar" style="background:#ff00c8; animation-delay: 0.4s;"></div><div class="gauge-bar" style="background:#ff00c8; animation-delay: 0.6s;"></div><div class="gauge-bar" style="background:#ff00c8; animation-delay: 0.1s;"></div>
+    </div>
 
-    <nav class="fixed w-full z-[1500] py-10 px-6">
-        <div class="max-w-7xl mx-auto flex items-center justify-between h-20 bg-black/80 backdrop-blur-3xl border-4 border-brand rounded-xl px-10 shadow-[0_0_50px_rgba(0,242,254,0.3)]">
+    <nav class="fixed w-full z-[1500] py-12 px-6">
+        <div class="max-w-7xl mx-auto flex items-center justify-between h-20 bg-black/60 backdrop-blur-3xl border-4 border-white/10 rounded-full px-10 shadow-[0_0_100px_rgba(0,0,0,0.8)]">
             <a href="#" class="font-display text-3xl font-black tracking-tighter flex items-center gap-4">
-                <i class="fa-solid fa-radiation text-neon animate-spin"></i>
-                <span class="rainbow-text">FREEZEEHOST</span>
+                <i class="fa-solid fa-atom text-brand animate-spin"></i>
+                <span class="hyper-text">FREEZEEHOST</span>
             </a>
-            <div class="hidden md:flex items-center gap-8 font-mono text-[10px] font-black">
+            <div class="hidden md:flex items-center gap-10 font-mono text-[10px] font-black tracking-[0.2em]">
                 <a href="#products" class="hover:text-brand transition-all">SYSTEMS</a>
-                <a href="Dev.html" class="hover:text-brand transition-all">CONSOLE</a>
-                <button onclick="window.location.href='order-panel.html'" class="bg-brand text-black px-8 py-2 border-2 border-white shadow-[5px_5px_0_#ff00c8] font-black">LOGIN_CORE</button>
+                <a href="Dev.html" class="hover:text-brand transition-all">ADMIN_V4</a>
+                <button onclick="window.location.href='order-panel.html'" class="bg-brand text-black px-10 py-3 rounded-full hover:bg-white transition-all font-black shadow-[0_0_30px_#00f2fe]">INIT_CORE</button>
             </div>
         </div>
     </nav>
 
     <section id="home" class="min-h-screen flex flex-col items-center justify-center pt-24 px-6 text-center relative">
-        <div class="max-w-6xl mx-auto relative p-12 border-8 border-double border-white/10" data-aos="zoom-out">
-            <div class="absolute -top-10 -left-10 bg-danger text-white font-pixel text-[8px] p-4 -rotate-12 animate-bounce">WARNING: HIGH_LOAD</div>
+        <div class="max-w-6xl mx-auto relative p-16 border-[12px] border-double border-brand/20 rounded-[5rem]" data-aos="zoom-in">
+            <div class="absolute -top-12 left-1/2 -translate-x-1/2 bg-danger text-white font-pixel text-[9px] p-4 rotate-3 animate-pulse shadow-2xl">!! CRITICAL_SYSTEM_OVERLOAD !!</div>
             
-            <h1 class="text-7xl md:text-[12rem] font-black leading-none mb-12 tracking-tighter rainbow-text italic" style="filter: drop-shadow(10px 10px 0px #000);">HYPER <br>DRIVE.</h1>
+            <h1 class="text-7xl md:text-[13rem] font-black leading-none mb-12 tracking-tighter hyper-text italic" style="text-shadow: 10px 10px 0px #000;">ULTRA <br>OMEGA.</h1>
             
-            <div class="bg-white/5 border-2 border-brand p-8 backdrop-blur-2xl mb-16 relative transform skew-x-[-10deg]">
-                <div class="absolute -top-4 left-10 bg-brand text-black text-[9px] px-4 font-black">AI_CORE_LOGS</div>
-                <p class="font-mono text-sm md:text-lg text-brand font-bold" id="typewriter"></p>
+            <div class="bg-white/5 border-2 border-brand p-10 backdrop-blur-3xl mb-20 relative rounded-[3rem] transform skew-x-[-5deg]">
+                <div class="absolute -top-5 left-10 bg-brand text-black text-[10px] px-6 py-1 font-black rounded-full">SYSTEM_CORE_LOGS</div>
+                <p class="font-mono text-sm md:text-xl text-brand font-bold" id="typewriter"></p>
             </div>
 
             <div class="flex flex-col md:flex-row justify-center gap-12 relative z-50">
-                <button onclick="window.location.href='#products'" class="ultra-btn">INITIALIZE_CHAOS</button>
-                <button onclick="window.location.href='https://wa.me/6285102360656'" class="px-16 py-5 border-4 border-brand/20 hover:bg-brand/10 transition-all font-black text-xs uppercase tracking-widest text-brand bg-black">CONTACT_OPERATOR</button>
+                <button onclick="window.location.href='#products'" class="mega-btn">DEPLOY_OVERDRIVE</button>
+                <button onclick="window.location.href='https://wa.me/6285102360656'" class="px-16 py-5 rounded-full border-4 border-white/20 hover:border-brand hover:text-brand transition-all font-black text-xs uppercase tracking-widest bg-black/80">ACCESS_OPERATOR</button>
             </div>
         </div>
     </section>
 
-    <!-- BUSY STATS -->
-    <section class="py-20 px-6 relative z-10">
-        <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div class="bg-brand/10 border-2 border-brand p-10 text-center relative group overflow-hidden">
-                <div class="text-7xl font-black text-brand mb-2" id="stat-buyers">0</div>
-                <div class="text-[9px] font-pixel text-white/40">AGENTS_CONNECTED</div>
+    <!-- MEGA STATS -->
+    <section class="py-24 px-6 relative z-10">
+        <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div class="p-16 rounded-[4rem] bg-brand/10 border-4 border-brand text-center relative group overflow-hidden shadow-[0_0_50px_rgba(0,242,254,0.2)]">
+                <div class="text-8xl font-black text-brand mb-4" id="stat-buyers">0</div>
+                <div class="text-[10px] font-pixel text-white/40">AGENTS_BOOTED</div>
             </div>
-            <div class="bg-pink/10 border-2 border-pink p-10 text-center relative group overflow-hidden">
-                <div class="text-7xl font-black text-pink mb-2" id="stat-visitors">0</div>
-                <div class="text-[9px] font-pixel text-white/40">SYSTEM_HITS</div>
+            <div class="p-16 rounded-[4rem] bg-pink/10 border-4 border-pink text-center relative group overflow-hidden shadow-[0_0_50px_rgba(255,0,200,0.2)]">
+                <div class="text-8xl font-black text-pink mb-4" id="stat-visitors">0</div>
+                <div class="text-[10px] font-pixel text-white/40">SYSTEM_INTRUSIONS</div>
             </div>
-            <div class="bg-neon/10 border-2 border-neon p-10 text-center relative group overflow-hidden">
-                <div class="text-7xl font-black text-neon mb-2">99.9%</div>
-                <div class="text-[9px] font-pixel text-white/40">STABILITY_LOCK</div>
+            <div class="p-16 rounded-[4rem] bg-neon/10 border-4 border-neon text-center relative group overflow-hidden shadow-[0_0_50px_rgba(188,254,0,0.2)]">
+                <div class="text-8xl font-black text-neon mb-4">100%</div>
+                <div class="text-[10px] font-pixel text-white/40">LIQUID_SYNC</div>
             </div>
-            <div class="bg-white/5 border-2 border-white/20 p-10 text-center relative group overflow-hidden">
-                <div class="text-7xl font-black text-white mb-2">0.0ms</div>
-                <div class="text-[9px] font-pixel text-white/40">LATENCY_SYNC</div>
+            <div class="p-16 rounded-[4rem] bg-white/5 border-4 border-white/20 text-center relative group overflow-hidden">
+                <div class="text-8xl font-black text-white mb-4">0.0<span class="text-brand text-3xl">ms</span></div>
+                <div class="text-[10px] font-pixel text-white/40">GLOBAL_LATENCY</div>
             </div>
         </div>
     </section>
@@ -166,30 +182,27 @@
     <!-- PRODUCT HUD -->
     <section id="products" class="py-40 px-6 relative z-10">
         <div class="max-w-7xl mx-auto">
-            <h2 class="text-6xl md:text-[10rem] font-black tracking-tighter text-center mb-32 uppercase rainbow-text">THE_GEAR</h2>
+            <h2 class="text-6xl md:text-[11rem] font-black tracking-tighter text-center mb-40 uppercase hyper-text">THE_VAULT</h2>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-16">
-                <!-- PTERO -->
-                <div class="cyber-card group" id="card-ptero" data-aos="fade-up">
-                    <div id="badge-ptero" class="hidden bg-danger text-white font-black text-[9px] px-6 py-2 rounded mb-8 block text-center shadow-[0_0_20px_red]">LOCKED_BY_ADMIN</div>
-                    <i class="fa-solid fa-microchip text-7xl mb-10 text-brand group-hover:animate-pulse"></i>
-                    <h3 class="text-4xl font-black mb-6 italic">PTERO_V.4</h3>
-                    <p class="text-white/40 text-[11px] font-mono mb-12 border-l-4 border-brand pl-4">CPU: AMD EPYC GEN-3<br>RAM: DYNAMIC_ALLOC<br>SSD: NVME_GEN5</p>
-                    <button onclick="window.location.href='order-panel.html'" id="btn-ptero" class="ultra-btn w-full !py-4 !text-[10px] !shadow-none hover:!shadow-[0_0_50px_#00f2fe]">EXECUTE_ORDER</button>
+                <div class="electric-card group" id="card-ptero" data-aos="fade-up">
+                    <div id="badge-ptero" class="hidden bg-danger text-white font-black text-[10px] px-8 py-3 rounded-full mb-10 block text-center animate-bounce">PANEL_LOCKED</div>
+                    <i class="fa-solid fa-microchip text-8xl mb-12 text-brand group-hover:scale-125 transition-transform"></i>
+                    <h3 class="text-4xl font-black mb-8 italic">PTERO_MAX</h3>
+                    <p class="text-white/40 text-[12px] font-mono mb-16 border-l-8 border-brand pl-6 leading-relaxed">>> CPU: AMD_EPYC_GEN_4<br>>> RAM: DYNAMIC_64GB<br>>> STORAGE: NVME_RAID_0</p>
+                    <button onclick="window.location.href='order-panel.html'" id="btn-ptero" class="mega-btn w-full !py-5 !text-[11px] !shadow-none hover:!shadow-[0_0_80px_#00f2fe]">ORDER_SYSTEM</button>
                 </div>
-                <!-- DO -->
-                <div class="cyber-card group" id="card-do" data-aos="fade-up" data-aos-delay="100">
-                    <div id="badge-do" class="hidden bg-danger text-white font-black text-[9px] px-6 py-2 rounded mb-8 block text-center">MAINTENANCE</div>
-                    <i class="fa-brands fa-digital-ocean text-7xl mb-10 text-blue-500 group-hover:animate-bounce"></i>
-                    <h3 class="text-4xl font-black mb-6 italic">DO_SYSTEM</h3>
-                    <p class="text-white/40 text-[11px] font-mono mb-12 border-l-4 border-blue-500 pl-4">CREDIT: $200 READY<br>DROPS: 10 ACTIVE<br>STATUS: FRESH_BOOT</p>
-                    <button onclick="window.location.href='https://wa.me/6285102360656?text=Beli_DO'" id="btn-do" class="ultra-btn w-full !py-4 !text-[10px] !bg-blue-600 !text-white !shadow-none hover:!shadow-[0_0_50px_#3b82f6]">GET_CREDENTIALS</button>
+                <div class="electric-card group" id="card-do" data-aos="fade-up" data-aos-delay="100">
+                    <div id="badge-do" class="hidden bg-danger text-white font-black text-[10px] px-8 py-3 rounded-full mb-10 block text-center">OFFLINE</div>
+                    <i class="fa-brands fa-digital-ocean text-8xl mb-12 text-blue-500 group-hover:rotate-12 transition-transform"></i>
+                    <h3 class="text-4xl font-black mb-8 italic">DO_CLOUD</h3>
+                    <p class="text-white/40 text-[12px] font-mono mb-16 border-l-8 border-blue-500 pl-6 leading-relaxed">>> CREDIT: $200.00_USD<br>>> STATUS: FRESH_VERIFIED<br>>> SUPPORT: 24/7_LIVE</p>
+                    <button onclick="window.location.href='https://wa.me/6285102360656?text=Beli_DO'" id="btn-do" class="mega-btn w-full !py-5 !text-[11px] !bg-blue-600 !text-white !shadow-none hover:!shadow-[0_0_80px_#3b82f6]">GET_ACCESS</button>
                 </div>
-                <!-- SOURCE -->
-                <div class="cyber-card group" data-aos="fade-up" data-aos-delay="200">
-                    <i class="fa-solid fa-code-merge text-7xl mb-10 text-emerald-400 group-hover:rotate-12"></i>
-                    <h3 class="text-4xl font-black mb-6 italic">RAW_CODES</h3>
-                    <p class="text-white/40 text-[11px] font-mono mb-12 border-l-4 border-emerald-400 pl-4">TYPE: BOT_WHATSAPP<br>LANG: NODE_JS<br>SYNC: AUTO_PATCH</p>
-                    <button onclick="window.open('https://freezeehostbot.vercel.app')" class="ultra-btn w-full !py-4 !text-[10px] !bg-emerald-600 !text-white !shadow-none hover:!shadow-[0_0_50px_#10b981]">EXTRACT_SCRIPTS</button>
+                <div class="electric-card group" data-aos="fade-up" data-aos-delay="200">
+                    <i class="fa-solid fa-code-branch text-8xl mb-12 text-emerald-400 group-hover:scale-110 transition-transform"></i>
+                    <h3 class="text-4xl font-black mb-8 italic">BOT_SCRIPTS</h3>
+                    <p class="text-white/40 text-[12px] font-mono mb-16 border-l-8 border-emerald-400 pl-6 leading-relaxed">>> VERSION: ULTIMATE_V4<br>>> AI: DEEP_LEARNING_SYNC<br>>> PATCH: AUTO_UPDATE</p>
+                    <button onclick="window.open('https://freezeehostbot.vercel.app')" class="mega-btn w-full !py-5 !text-[11px] !bg-emerald-600 !text-white !shadow-none hover:!shadow-[0_0_80px_#10b981]">EXTRACT_CORE</button>
                 </div>
             </div>
         </div>
@@ -197,31 +210,31 @@
 
     <!-- LIVE LOGS -->
     <section class="py-40 px-6 relative z-10">
-        <div class="max-w-5xl mx-auto bg-black border-8 border-double border-brand p-16 rounded-[3rem] relative overflow-hidden shadow-[0_0_100px_rgba(0,242,254,0.2)]">
-            <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-brand via-pink to-neon animate-pulse"></div>
-            <div class="flex items-center gap-4 mb-12">
-                <div class="w-4 h-4 rounded-full bg-brand animate-ping"></div>
-                <span class="font-pixel text-[10px] text-brand uppercase tracking-widest">Global_Live_Traffic</span>
+        <div class="max-w-5xl mx-auto bg-white/5 border-[10px] border-double border-brand p-20 rounded-[5rem] relative overflow-hidden shadow-[0_0_150px_rgba(0,242,254,0.3)]">
+            <div class="flex items-center gap-6 mb-16">
+                <div class="w-6 h-6 rounded-full bg-brand animate-ping"></div>
+                <span class="font-pixel text-[12px] text-brand uppercase tracking-[0.5em]">Global_Satellite_Feed</span>
             </div>
-            <div id="live-feed" class="space-y-4 font-mono text-[12px] text-white/40 h-80 overflow-hidden"></div>
+            <div id="live-feed" class="space-y-6 font-mono text-[14px] text-white/40 h-96 overflow-hidden"></div>
         </div>
     </section>
 
-    <footer class="py-40 bg-brand text-black text-center px-6 relative overflow-hidden z-10">
-        <h2 class="text-7xl md:text-[15rem] font-black tracking-tighter mb-16 italic opacity-20">FREEZEEHOST</h2>
-        <div class="flex justify-center gap-20 mb-20 relative z-10">
-            <a href="https://wa.me/6285102360656" class="hover:scale-150 transition-all text-7xl"><i class="fa-brands fa-whatsapp"></i></a>
-            <a href="https://t.me/FreeZeeHost" class="hover:scale-150 transition-all text-7xl"><i class="fa-brands fa-telegram"></i></a>
+    <footer class="py-60 bg-brand text-black text-center px-6 relative overflow-hidden z-10">
+        <div class="absolute inset-0 opacity-10 flex flex-wrap gap-20 font-black text-[120px] leading-none pointer-events-none">FREEZEEHOST FREEZEEHOST FREEZEEHOST</div>
+        <h2 class="text-8xl md:text-[18rem] font-black tracking-tighter mb-20 italic">ULTIMATE</h2>
+        <div class="flex justify-center gap-24 relative z-10">
+            <a href="https://wa.me/6285102360656" class="hover:scale-150 transition-all text-8xl"><i class="fa-brands fa-whatsapp"></i></a>
+            <a href="https://t.me/FreeZeeHost" class="hover:scale-150 transition-all text-8xl"><i class="fa-brands fa-telegram"></i></a>
         </div>
-        <p class="font-pixel text-[10px] tracking-[1.5em]">SYSTEM_VERSION_2026_V.4.8.0</p>
+        <p class="font-pixel text-[14px] tracking-[1.5em] mt-32">CORE_INFRASTRUCTURE_2026</p>
     </footer>
 
-    <div id="purchase-toast">NEW_AGENT_CONNECTED: AGENT_092 BOUGHT UNLIMITED_RAM</div>
+    <div id="purchase-toast" style="position:fixed; bottom:100px; right:40px; background:#ff00c8; color:white; padding:20px 40px; border-radius:999px; font-weight:900; font-family:'JetBrains Mono'; box-shadow:0 0 50px #ff00c8; transform:translateY(200%); transition:0.5s; z-index:99999;">ALERT: AGENT_X_CONNECTED_SYSTEM</div>
 
     <!-- CS BUTTON -->
     <a href="https://wa.me/6285102360656" target="_blank" class="fixed bottom-12 right-12 z-[20000]">
-        <div class="w-24 h-24 bg-pink text-white flex items-center justify-center rounded-full shadow-[0_0_60px_#ff00c8] hover:scale-125 transition-all border-4 border-white">
-            <i class="fa-brands fa-whatsapp text-4xl"></i>
+        <div class="w-28 h-28 bg-brand text-black flex items-center justify-center rounded-full shadow-[0_0_80px_#00f2fe] hover:scale-125 transition-all border-8 border-black">
+            <i class="fa-brands fa-whatsapp text-5xl"></i>
         </div>
     </a>
 
@@ -229,27 +242,38 @@
     <script>
         AOS.init();
 
+        // GHOST CODE
+        function createGhostCode() {
+            const codes = ["const core = new Overload();", "await sys.sync();", "deploy.cluster('US-1');", "security.encrypt(1024);", "node.status = 'ACTIVE';"];
+            const div = document.createElement('div');
+            div.className = "ghost-code";
+            div.style.left = Math.random() * 100 + "vw";
+            div.style.animationDuration = (Math.random() * 10 + 5) + "s";
+            div.innerText = codes[Math.floor(Math.random()*codes.length)];
+            document.body.appendChild(div);
+            setTimeout(() => div.remove(), 15000);
+        }
+        setInterval(createGhostCode, 1000);
+
         // MATRIX
         const mCanvas = document.getElementById('bg-canvas');
         const mCtx = mCanvas.getContext('2d');
         mCanvas.width = window.innerWidth; mCanvas.height = window.innerHeight;
-        const letters = "0101010101010101";
-        const fontSize = 14;
-        const drops = Array(Math.floor(mCanvas.width / fontSize)).fill(1);
+        const letters = "0101010101";
+        const drops = Array(Math.floor(mCanvas.width / 15)).fill(1);
         function drawMatrix() {
             mCtx.fillStyle = "rgba(0, 0, 0, 0.1)"; mCtx.fillRect(0, 0, mCanvas.width, mCanvas.height);
-            mCtx.fillStyle = "#00f2fe"; mCtx.font = fontSize + "px monospace";
+            mCtx.fillStyle = "#00f2fe"; mCtx.font = "15px monospace";
             drops.forEach((y, i) => {
-                const text = letters.charAt(Math.floor(Math.random() * letters.length));
-                mCtx.fillText(text, i * fontSize, y * fontSize);
-                if (y * fontSize > mCanvas.height && Math.random() > 0.975) drops[i] = 0;
+                mCtx.fillText(letters.charAt(Math.floor(Math.random() * letters.length)), i * 15, y * 15);
+                if (y * 15 > mCanvas.height && Math.random() > 0.975) drops[i] = 0;
                 drops[i]++;
             });
         }
         setInterval(drawMatrix, 50);
 
         // TYPEWRITER
-        const textLines = ["> ACCESSING_ILICIT_FILES...", "> DOWNLOADING_CORE_DATA...", "> SECURITY_BYPASSED.", "> WELCOME_MASTER_HACKER."];
+        const textLines = ["> ACCESSING_OMEGA_CORE...", "> INJECTING_LIQUID_RESOURCES...", "> ALL_SYSTEMS_OVERDRIVE.", "> WELCOME_MASTER_USER."];
         let lineIdx = 0; let charIdx = 0;
         function type() {
             if (lineIdx < textLines.length) {
@@ -265,8 +289,8 @@
         window.onload = () => { type(); fetchStats(); };
 
         // MOUSE HUD
-        const hud = document.getElementById('mouse-hud');
         document.addEventListener('mousemove', e => {
+            const hud = document.getElementById('mouse-hud');
             hud.style.left = e.clientX + 'px';
             hud.style.top = e.clientY + 'px';
             document.documentElement.style.setProperty('--mouse-x', `${(e.clientX/window.innerWidth)*100}%`);
@@ -276,36 +300,34 @@
         // TOAST
         setInterval(() => {
             const t = document.getElementById('purchase-toast');
-            t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 4000);
+            t.style.transform = 'translateY(0)';
+            setTimeout(() => t.style.transform = 'translateY(200%)', 4000);
         }, 15000);
 
         async function fetchStats() {
             try {
-                await fetch('/api/stats/visit');
                 const res = await fetch('/api/check-services');
                 const data = await res.json();
                 document.getElementById('stat-buyers').innerText = data.stats.totalBuyers;
                 document.getElementById('stat-visitors').innerText = data.stats.totalVisitors;
                 if (data.services.ptero === 'offline') {
                     const card = document.getElementById('card-ptero');
-                    card.style.filter = 'grayscale(1) brightness(0.5)';
+                    card.style.filter = 'grayscale(1) contrast(2)';
                     card.style.pointerEvents = 'none';
                     document.getElementById('badge-ptero').classList.remove('hidden');
-                    document.getElementById('btn-ptero').innerHTML = 'SYSTEM_LOCKED';
+                    document.getElementById('btn-ptero').innerHTML = 'LOCKED';
                 }
             } catch (e) {}
         }
 
         const feed = document.getElementById('live-feed');
-        const logs = ["NODE_SG_CONNECTED.", "DDoS_SHIELD_UP.", "MEM_LEAK_FIXED.", "ENCRYPTING_DATABASE...", "PORT_SCANNING...", "PACKET_INJECTED.", "ROOT_ACCESS_GRANTED."];
+        const logs = ["BYPASSING_KERNEL...", "NEURAL_LINK_OK.", "ENCRYPTING_PACKETS...", "NODE_OMEGA_STABLE.", "DDoS_SHIELD_V4_UP.", "UPLOADING_CORE.BIN"];
         setInterval(() => {
             if(!feed) return;
             const d = document.createElement('div');
-            d.innerHTML = `<span style="color:#00f2fe">[${new Date().toLocaleTimeString()}]</span> system@chaos: ${logs[Math.floor(Math.random()*logs.length)]}`;
+            d.innerHTML = `<span style="color:#bcfe00">[${new Date().toLocaleTimeString()}]</span> system@omega: ${logs[Math.floor(Math.random()*logs.length)]}`;
             feed.prepend(d); if (feed.children.length > 15) feed.lastChild.remove();
-        }, 1200);
-
-        @keyframes tickerMove { from { transform: translateX(100%); } to { transform: translateX(-100%); } }
+        }, 1000);
     </script>
 </body>
 </html>
