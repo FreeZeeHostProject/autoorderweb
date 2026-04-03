@@ -36,7 +36,7 @@
         .glow-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 50% -10%, rgba(0, 242, 254, 0.08) 0%, transparent 50%), radial-gradient(circle at 100% 100%, rgba(0, 242, 254, 0.03) 0%, transparent 40%); z-index: -1; }
         .hero-title { letter-spacing: -0.05em; background: linear-gradient(180deg, #FFFFFF 0%, rgba(255, 255, 255, 0.6) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .glass-nav { background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.05); }
-        .service-item { transition: all 0.4s ease; padding: 2.5rem 2rem; border-radius: 32px; border: 1px solid transparent; }
+        .service-item { transition: all 0.4s ease; padding: 2.5rem 2rem; border-radius: 32px; border: 1px solid transparent; background: rgba(255,255,255,0.01); }
         .service-item:hover { background: rgba(255, 255, 255, 0.02); border-color: rgba(0, 242, 254, 0.1); transform: translateY(-5px); }
         .maintenance { opacity: 0.4; filter: grayscale(1); pointer-events: none !important; }
         .btn-glow { background: #fff; color: #000; transition: all 0.3s ease; }
@@ -65,6 +65,7 @@
                 </div>
                 <div class="hidden md:flex items-center gap-10">
                     <a href="#home" class="text-[10px] font-black uppercase tracking-widest text-white/40 hover:text-white transition-all">Beranda</a>
+                    <a href="#features" class="text-[10px] font-black uppercase tracking-widest text-white/40 hover:text-white transition-all">Fitur</a>
                     <a href="#products" class="text-[10px] font-black uppercase tracking-widest text-white/40 hover:text-white transition-all">Layanan</a>
                     <a href="Dev.html" class="text-[10px] font-black uppercase tracking-widest text-white/40 hover:text-brand transition-all flex items-center gap-2">Admin</a>
                     <a href="order-panel.html" id="nav-order-btn" class="bg-white text-black text-[10px] font-black px-8 py-3 rounded-xl hover:scale-105 transition-all">ORDER NOW</a>
@@ -76,11 +77,38 @@
     <section id="home" class="min-h-screen flex flex-col items-start justify-center pt-20">
         <div class="max-w-5xl mx-auto px-6 text-left w-full" data-aos="zoom-out" data-aos-duration="1500">
             <div class="inline-block px-4 py-1.5 rounded-full border border-brand/20 bg-brand/5 text-brand text-[9px] font-black uppercase tracking-[0.3em] mb-10" id="cyber-greeting">INITIALIZING...</div>
-            <h1 class="hero-title text-6xl md:text-7xl lg:text-[7.5rem] font-extrabold leading-[1.1] md:leading-[0.9] mb-8 tracking-tight md:tracking-tighter">Powering <br>The <span class="text-brand">Future.</span></h1>
+            <h1 class="hero-title text-6xl md:text-7xl lg:text-[7.5rem] font-extrabold leading-[1.1] md:leading-[0.9] mb-8 tracking-tight md:tracking-tighter text-left">Powering <br>The <span class="text-brand">Future.</span></h1>
             <p class="text-white/40 text-lg md:text-xl max-w-2xl mb-12 font-medium leading-relaxed">Hosting super dingin dengan performa tanpa batas. <br class="hidden md:block"> Aktivasi instan untuk server game, bot, dan cloud vps.</p>
             <div class="flex flex-col md:flex-row justify-start gap-4 md:gap-6 w-full md:w-auto">
                 <a href="#products" id="btn-magnetic" class="bg-white text-black px-12 py-4 rounded-full text-xs font-black uppercase tracking-widest shadow-2xl hover:scale-105 transition-all text-center">Mulai Sekarang</a>
                 <a href="https://wa.me/6285102360656" class="px-12 py-4 rounded-full text-xs font-black uppercase tracking-widest border border-white/10 hover:bg-white/5 transition-all text-center">Hubungi Kami</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- KEY FEATURES -->
+    <section id="features" class="py-24 border-y border-white/5 bg-white/[0.01]">
+        <div class="max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-16">
+            <div data-aos="fade-up">
+                <div class="w-12 h-12 bg-brand/10 rounded-2xl flex items-center justify-center mb-8 border border-brand/20">
+                    <i class="fa-solid fa-bolt-lightning text-brand"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-4">Instant Deployment</h3>
+                <p class="text-white/30 text-sm leading-relaxed">Server langsung aktif dalam hitungan detik setelah pembayaran terverifikasi otomatis.</p>
+            </div>
+            <div data-aos="fade-up" data-aos-delay="100">
+                <div class="w-12 h-12 bg-emerald-500/10 rounded-2xl flex items-center justify-center mb-8 border border-emerald-500/20">
+                    <i class="fa-solid fa-shield-halved text-emerald-400"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-4">Anti-DDoS Shield</h3>
+                <p class="text-white/30 text-sm leading-relaxed">Proteksi jaringan berlapis untuk menjaga server kamu tetap online dari serangan cyber.</p>
+            </div>
+            <div data-aos="fade-up" data-aos-delay="200">
+                <div class="w-12 h-12 bg-purple-500/10 rounded-2xl flex items-center justify-center mb-8 border border-purple-500/20">
+                    <i class="fa-solid fa-microchip text-purple-400"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-4">Enterprise NVMe</h3>
+                <p class="text-white/30 text-sm leading-relaxed">Menggunakan penyimpanan SSD NVMe Gen4 terbaru untuk kecepatan read/write maksimal.</p>
             </div>
         </div>
     </section>
@@ -139,11 +167,13 @@
             <div class="flex py-4 animate-marquee whitespace-nowrap gap-16 md:gap-32">
                 <span class="text-white/20 text-xs md:text-sm font-black uppercase tracking-[0.5em] flex items-center gap-4"><i class="fa-solid fa-snowflake text-brand"></i> PTERODACTYL</span>
                 <span class="text-white/20 text-xs md:text-sm font-black uppercase tracking-[0.5em] flex items-center gap-4"><i class="fa-brands fa-digital-ocean text-blue-500"></i> DIGITAL OCEAN</span>
+                <span class="text-white/20 text-xs md:text-sm font-black uppercase tracking-[0.5em] flex items-center gap-4"><i class="fa-brands fa-cloudflare text-orange-500"></i> CLOUDFLARE</span>
                 <span class="text-white/20 text-xs md:text-sm font-black uppercase tracking-[0.5em] flex items-center gap-4"><i class="fa-solid fa-bolt text-brand"></i> PAKASIR</span>
             </div>
             <div class="flex py-4 animate-marquee whitespace-nowrap gap-16 md:gap-32">
                 <span class="text-white/20 text-xs md:text-sm font-black uppercase tracking-[0.5em] flex items-center gap-4"><i class="fa-solid fa-snowflake text-brand"></i> PTERODACTYL</span>
                 <span class="text-white/20 text-xs md:text-sm font-black uppercase tracking-[0.5em] flex items-center gap-4"><i class="fa-brands fa-digital-ocean text-blue-500"></i> DIGITAL OCEAN</span>
+                <span class="text-white/20 text-xs md:text-sm font-black uppercase tracking-[0.5em] flex items-center gap-4"><i class="fa-brands fa-cloudflare text-orange-500"></i> CLOUDFLARE</span>
                 <span class="text-white/20 text-xs md:text-sm font-black uppercase tracking-[0.5em] flex items-center gap-4"><i class="fa-solid fa-bolt text-brand"></i> PAKASIR</span>
             </div>
         </div>
@@ -156,6 +186,7 @@
                 <h2 class="text-4xl md:text-6xl font-extrabold tracking-tighter text-white">Infrastruktur <br>Pilihan.</h2>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 md:gap-16">
+                <!-- PTERO -->
                 <div class="service-item group text-left relative" id="card-ptero" data-aos="fade-up">
                     <div class="absolute -top-4 left-0 bg-brand/10 border border-brand/30 text-brand text-[7px] font-black uppercase tracking-[0.2em] px-3 py-1 rounded-full shadow-lg">Best Seller</div>
                     <div id="badge-ptero" class="hidden absolute top-6 right-6 bg-red-500 text-white text-[8px] font-black px-3 py-1 rounded-full">OFFLINE</div>
@@ -164,28 +195,64 @@
                     <p class="text-white/40 text-xs leading-relaxed mb-10 text-left">Manajemen server game dan bot dengan performa maksimal.</p>
                     <a href="order-panel.html" id="btn-ptero" class="text-brand text-[10px] font-black uppercase tracking-[0.2em] flex items-center justify-start gap-3 group-hover:gap-5 transition-all">ORDER NOW <i class="fa-solid fa-arrow-right"></i></a>
                 </div>
+                <!-- AKUN DO (KEMBALIKAN) -->
                 <div class="service-item group text-left relative" id="card-do" data-aos="fade-up" data-aos-delay="100">
-                    <div id="badge-do" class="hidden absolute top-6 right-6 bg-red-500 text-white text-[8px] font-black px-3 py-1 rounded-full">OFFLINE</div>
+                    <div class="absolute -top-4 left-0 bg-blue-500/10 border border-blue-500/30 text-blue-400 text-[7px] font-black uppercase tracking-[0.2em] px-3 py-1 rounded-full shadow-lg">Premium Account</div>
+                    <div id="badge-do" class="hidden absolute top-6 right-6 bg-red-500 text-white text-[8px] font-black px-3 py-1 rounded-full">MAINTENANCE</div>
                     <i class="fa-brands fa-digital-ocean text-5xl mb-10 text-white/10 group-hover:text-blue-500 transition-all duration-500"></i>
-                    <h3 class="text-xl font-bold mb-4 text-white">Cloud VPS</h3>
-                    <p class="text-white/40 text-xs leading-relaxed mb-10 text-left">Akses root penuh dengan stabilitas jaringan kelas atas.</p>
-                    <a href="order-vps.html" id="btn-do" class="text-brand text-[10px] font-black uppercase tracking-[0.2em] flex items-center justify-start gap-3 group-hover:gap-5 transition-all">ORDER NOW <i class="fa-solid fa-arrow-right"></i></a>
+                    <h3 class="text-xl font-bold mb-4 text-white">Akun Digital Ocean</h3>
+                    <p class="text-white/40 text-xs leading-relaxed mb-10 text-left">Akun Fresh Ready Stock. Limit $200 (10 Droplets). Cocok untuk mining/hosting besar.</p>
+                    <a href="https://wa.me/6285102360656?text=Beli_Akun_DO" id="btn-do" class="text-brand text-[10px] font-black uppercase tracking-[0.2em] flex items-center justify-start gap-3 group-hover:gap-5 transition-all">ORDER VIA WA <i class="fa-solid fa-arrow-right"></i></a>
                 </div>
+                <!-- SOURCE SCRIPT -->
                 <div class="service-item group text-left relative" data-aos="fade-up" data-aos-delay="200">
-                    <div class="absolute -top-4 left-0 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[7px] font-black uppercase tracking-[0.2em] px-3 py-1 rounded-full shadow-lg">Premium Script</div>
+                    <div class="absolute -top-4 left-0 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[7px] font-black uppercase tracking-[0.2em] px-3 py-1 rounded-full shadow-lg">Ready Stock</div>
                     <i class="fa-solid fa-code text-5xl mb-10 text-white/10 group-hover:text-emerald-400 transition-all duration-500"></i>
                     <h3 class="text-xl font-bold mb-4 text-white">Source Script</h3>
-                    <p class="text-white/40 text-xs leading-relaxed mb-10 text-left">Katalog script bot WhatsApp premium siap pakai.</p>
+                    <p class="text-white/40 text-xs leading-relaxed mb-10 text-left">Katalog script bot WhatsApp premium siap pakai dengan fitur tercanggih.</p>
                     <a href="https://freezeehostbot.vercel.app" target="_blank" class="text-brand text-[10px] font-black uppercase tracking-[0.2em] flex items-center justify-start gap-3 group-hover:gap-5 transition-all">VIEW CATALOG <i class="fa-solid fa-arrow-right"></i></a>
                 </div>
             </div>
         </div>
     </section>
 
+    <!-- FAQ SECTION -->
+    <section class="py-32 bg-white/[0.01]">
+        <div class="max-w-4xl mx-auto px-6">
+            <h2 class="text-3xl font-bold mb-16 tracking-tighter text-center">Frequently Asked <span class="text-brand">Questions.</span></h2>
+            <div class="space-y-6">
+                <div class="p-8 rounded-3xl border border-white/5 bg-white/[0.02]">
+                    <h4 class="font-bold mb-2">Berapa lama proses aktivasi server?</h4>
+                    <p class="text-white/30 text-sm">Jika menggunakan Pakasir, server akan aktif secara otomatis kurang dari 1 menit setelah pembayaran.</p>
+                </div>
+                <div class="p-8 rounded-3xl border border-white/5 bg-white/[0.02]">
+                    <h4 class="font-bold mb-2">Apakah ada garansi untuk Akun DO?</h4>
+                    <p class="text-white/30 text-sm">Tentu, kami memberikan garansi login dan garansi saldo selama 7 hari pemakaian wajar.</p>
+                </div>
+                <div class="p-8 rounded-3xl border border-white/5 bg-white/[0.02]">
+                    <h4 class="font-bold mb-2">Bagaimana jika panel sedang maintenance?</h4>
+                    <p class="text-white/30 text-sm">Sistem kami akan mendeteksi otomatis dan menutup layanan sementara untuk menjaga keamanan transaksi kamu.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="py-24 border-t border-white/5">
+        <div class="max-w-6xl mx-auto px-6 flex flex-col md:flex-row justify-between items-start gap-12">
+            <div class="flex items-center gap-4"><i class="fa-solid fa-snowflake text-brand text-3xl"></i><div class="font-bold text-xl text-white tracking-tighter">FreeZeeHosting <span class="block text-[10px] text-white/20 font-black uppercase tracking-widest mt-1 text-left">Est. 2026</span></div></div>
+            <div class="flex gap-10">
+                <a href="https://wa.me/6285102360656" target="_blank" class="text-white/20 hover:text-brand transition-all text-2xl"><i class="fa-brands fa-whatsapp"></i></a>
+                <a href="https://t.me/FreeZeeHost" target="_blank" class="text-white/20 hover:text-brand transition-all text-2xl"><i class="fa-brands fa-telegram"></i></a>
+            </div>
+            <div class="text-[9px] font-black text-white/10 uppercase tracking-[0.4em]">&copy; 2026 FREEZEEHOSTING</div>
+        </div>
+    </footer>
+
     <!-- CS BUTTON -->
     <a href="https://wa.me/6285102360656" target="_blank" class="fixed bottom-8 right-8 z-[100] group">
         <div class="absolute inset-0 bg-brand rounded-full blur-xl opacity-20 animate-pulse"></div>
-        <div class="relative w-16 h-16 bg-white flex items-center justify-center rounded-full shadow-2xl transition-transform group-hover:scale-110">
+        <div class="relative w-16 h-16 bg-white flex items-center justify-center rounded-full shadow-2xl transition-transform group-hover:scale-110 group-active:scale-95">
             <i class="fa-brands fa-whatsapp text-3xl text-black"></i>
         </div>
     </a>
@@ -201,13 +268,15 @@
         else if(hr < 18) gr.innerText = "SISTEM SIAP DIGUNAKAN, SIR";
         else gr.innerText = "SELAMAT MALAM, AGENT";
 
-        // MAGNETIC
+        // MAGNETIC & MOUSE TRACKING
         const btnM = document.getElementById('btn-magnetic');
         document.addEventListener('mousemove', e => {
-            const r = btnM.getBoundingClientRect();
-            const x = e.clientX - (r.left + r.width/2), y = e.clientY - (r.top + r.height/2);
-            if(Math.abs(x) < 100 && Math.abs(y) < 100) btnM.style.transform = `translate(${x*0.3}px, ${y*0.3}px)`;
-            else btnM.style.transform = `translate(0,0)`;
+            if(btnM) {
+                const r = btnM.getBoundingClientRect();
+                const x = e.clientX - (r.left + r.width/2), y = e.clientY - (r.top + r.height/2);
+                if(Math.abs(x) < 100 && Math.abs(y) < 100) btnM.style.transform = `translate(${x*0.3}px, ${y*0.3}px)`;
+                else btnM.style.transform = `translate(0,0)`;
+            }
             document.documentElement.style.setProperty('--mouse-x', `${(e.clientX/window.innerWidth)*100}%`);
             document.documentElement.style.setProperty('--mouse-y', `${(e.clientY/window.innerHeight)*100}%`);
         });
@@ -249,17 +318,12 @@
                     document.getElementById('stat-status').className = 'text-3xl md:text-4xl font-bold mb-2 text-red-500';
                     document.getElementById('nav-order-btn').classList.add('hidden');
                 }
-                if (data.services.do === 'offline') {
-                    document.getElementById('card-do').classList.add('maintenance');
-                    document.getElementById('badge-do').classList.remove('hidden');
-                    document.getElementById('btn-do').innerHTML = 'OFFLINE';
-                }
             } catch (e) {}
         }
         window.onload = fetchStats;
 
         const feed = document.getElementById('live-feed');
-        const logs = ["Init FreeZeeHost...", "Deploy Node...", "Verified FZH-992.", "Alloc RAM 8GB.", "User joined."];
+        const logs = ["Deploying Node US-1...", "Analyzing Traffic...", "Transaction FZH-992 Verified.", "Ptero Container Allocated.", "DDoS Attack Mitigated.", "Cloud Sync Complete.", "New Agent Joined Cluster."];
         setInterval(() => {
             if(!feed) return;
             const div = document.createElement('div');
@@ -267,7 +331,7 @@
             div.innerHTML = `<span class="text-brand/40">[${new Date().toLocaleTimeString()}]</span> ${logs[Math.floor(Math.random()*logs.length)]}`;
             feed.prepend(div);
             if (feed.children.length > 8) feed.lastChild.remove();
-        }, 3000);
+        }, 2500);
 
         window.onscroll = () => {
             const h = document.documentElement, b = document.body, st = 'scrollTop', sh = 'scrollHeight';
