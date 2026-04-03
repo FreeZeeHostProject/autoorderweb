@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FREEZEEHOST | BIO-AUTH OVERDRIVE</title>
+    <title>FREEZEEHOST | INFINITE SCROLL OVERLOAD</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@800&family=JetBrains+Mono:wght@400;700&family=Press+Start+2P&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -23,43 +24,50 @@
     <style>
         body { background-color: #000; color: #fff; overflow: hidden; position: relative; cursor: crosshair; }
         
-        /* LOADING SCREEN FINGERPRINT */
-        #loading-screen { position: fixed; inset: 0; background: #000; z-index: 100000; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 1s, visibility 1s; }
-        .fingerprint-box { position: relative; width: 150px; height: 150px; cursor: pointer; transition: 0.3s; }
-        .fingerprint-box i { font-size: 80px; color: #00f2fe; filter: drop-shadow(0 0 20px #00f2fe); animation: fPulse 2s infinite; }
-        .scan-line { position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: #ff00c8; box-shadow: 0 0 20px #ff00c8; animation: scanF 2s infinite; }
-        @keyframes scanF { 0%, 100% { top: 0; } 50% { top: 100%; } }
-        @keyframes fPulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.1); opacity: 0.5; } }
-        .scan-text { font-family: 'Press Start 2P'; font-size: 8px; color: #00f2fe; margin-top: 30px; letter-spacing: 2px; }
+        /* NO-INTERACTION OVERLAYS */
+        #bg-canvas, .scanlines, .orb, #mouse-hud, .v-gauge, .noise, .ghost-code { pointer-events: none !important; }
 
-        /* CHAOS BACKGROUND */
-        #matrix-canvas { position: fixed; inset: 0; z-index: -10; opacity: 0.4; pointer-events: none; }
-        .scanlines { position: fixed; inset: 0; background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.2) 50%); z-index: 999; background-size: 100% 4px; pointer-events: none; }
-        .orb { position: fixed; width: 800px; height: 800px; border-radius: 50%; filter: blur(150px); opacity: 0.3; z-index: -9; pointer-events: none; animation: orbMove 20s infinite alternate; }
+        #matrix-canvas { position: fixed; inset: 0; z-index: -10; opacity: 0.3; }
+        .noise { position: fixed; inset: 0; background-image: url("https://grainy-gradients.vercel.app/noise.svg"); opacity: 0.08; z-index: 999; }
+        .orb { position: fixed; width: 800px; height: 800px; border-radius: 50%; filter: blur(150px); opacity: 0.3; z-index: -9; animation: orbMove 20s infinite alternate; }
         .orb-1 { background: #00f2fe; top: -20%; left: -20%; }
         .orb-2 { background: #ff00c8; bottom: -20%; right: -20%; }
         @keyframes orbMove { from { transform: translate(0,0) scale(1); } to { transform: translate(150px, 150px) scale(1.4); } }
+
+        .ghost-code { position: fixed; font-family: 'JetBrains Mono'; font-size: 10px; color: rgba(0, 242, 254, 0.1); white-space: nowrap; z-index: -3; animation: floatCode 15s linear infinite; }
+        @keyframes floatCode { from { transform: translateY(100vh); } to { transform: translateY(-100vh); } }
+
+        .scanlines { position: fixed; inset: 0; background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.2) 50%); z-index: 100; background-size: 100% 4px; opacity: 0.15; }
+
+        /* LOADING BIO-AUTH */
+        #loading-screen { position: fixed; inset: 0; background: #000; z-index: 100000; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: 1s; }
+        .fingerprint-box { position: relative; width: 120px; height: 120px; cursor: pointer; }
+        .fingerprint-box i { font-size: 80px; color: #00f2fe; animation: fPulse 2s infinite; }
+        .scan-line { position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: #ff00c8; box-shadow: 0 0 20px #ff00c8; animation: scanF 2s infinite; }
+        @keyframes scanF { 0%, 100% { top: 0; } 50% { top: 100%; } }
+        @keyframes fPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
 
         /* RAINBOW TEXT */
         .hyper-text { background: linear-gradient(to right, #00f2fe, #ff00c8, #bcfe00, #ff003c, #00f2fe); background-size: 400% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: rainbowFlow 3s linear infinite; filter: drop-shadow(0 0 10px rgba(0, 242, 254, 0.5)); }
         @keyframes rainbowFlow { to { background-position: 400% center; } }
 
-        /* BUSY CARDS */
-        .electric-card { background: rgba(10, 10, 10, 0.9); border: 2px solid rgba(255,255,255,0.1); border-radius: 4rem; padding: 4rem; backdrop-filter: blur(40px); position: relative; overflow: hidden; z-index: 100; transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        .electric-card:hover { transform: translateY(-20px) scale(1.05); border-color: #00f2fe; box-shadow: 0 0 80px rgba(0, 242, 254, 0.3); }
-        .electric-card::after { content: ""; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: conic-gradient(transparent, #00f2fe, transparent, #ff00c8, transparent); animation: rotate 4s linear infinite; z-index: -1; opacity: 0.2; }
+        /* HUD CARDS */
+        .chaos-card { background: rgba(10, 10, 10, 0.9); border: 2px solid rgba(255,255,255,0.1); border-radius: 4rem; padding: 4rem; backdrop-filter: blur(40px); position: relative; overflow: hidden; z-index: 100; transition: 0.5s; }
+        .chaos-card:hover { border-color: #00f2fe; transform: translateY(-10px); box-shadow: 0 0 80px rgba(0, 242, 254, 0.3); }
 
         /* TICKERS */
-        .ticker-bar { position: fixed; width: 100%; background: #000; color: #bcfe00; font-family: 'Press Start 2P'; font-size: 8px; z-index: 2000; padding: 12px 0; overflow: hidden; border-y: 2px solid #bcfe00; }
+        .ticker-bar { position: fixed; width: 100%; background: #000; color: #bcfe00; font-family: 'Press Start 2P'; font-size: 7px; z-index: 2000; padding: 10px 0; overflow: hidden; border-y: 2px solid #bcfe00; }
         .bottom-ticker { bottom: 0; border-color: #ff00c8; color: #ff00c8; }
 
-        /* HUD */
-        #mouse-hud { position: fixed; width: 120px; height: 120px; border: 1px solid rgba(0, 242, 254, 0.5); border-radius: 50%; z-index: 10000; transform: translate(-50%, -50%); display: flex; align-items: center; justify-content: center; pointer-events: none; }
+        /* PROGRESS BARS */
+        .health-bar { width: 100%; height: 6px; background: rgba(255,255,255,0.1); border-radius: 99px; overflow: hidden; }
+        .health-fill { height: 100%; background: #00f2fe; width: 0%; transition: width 1s; }
+
+        #mouse-hud { position: fixed; width: 100px; height: 100px; border: 1px solid rgba(0, 242, 254, 0.5); border-radius: 50%; z-index: 10000; transform: translate(-50%, -50%); display: flex; align-items: center; justify-content: center; pointer-events: none; }
         .hud-ring { position: absolute; border: 1px dashed rgba(255, 0, 200, 0.5); border-radius: 50%; animation: spin 5s linear infinite; }
 
-        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         @keyframes tickerMove { from { transform: translateX(100%); } to { transform: translateX(-100%); } }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
     </style>
 </head>
 <body class="antialiased">
@@ -70,91 +78,148 @@
             <i class="fa-solid fa-fingerprint"></i>
             <div class="scan-line"></div>
         </div>
-        <p class="scan-text">HOLD_TO_BYPASS_FIREWALL</p>
-        <div class="mt-10 font-mono text-[10px] text-white/20" id="load-log">SECURE_HANDSHAKE... PENDING</div>
+        <p class="mt-10 font-pixel text-[8px] text-brand">HOLD_TO_AUTHORIZE</p>
     </div>
 
-    <div class="ticker-bar" style="top:0;"><div style="display: inline-block; white-space: nowrap; animation: tickerMove 15s linear infinite;">SYSTEM_OVERDRIVE_V.9.9 // BIO-AUTH_SUCCESSFUL // UNLIMITED_RAM_AVAILABLE // DDoS_SHIELD_ACTIVE // </div></div>
+    <div class="ticker-bar" style="top:0;"><div style="display: inline-block; white-space: nowrap; animation: tickerMove 15s linear infinite;">SYSTEM_OVERDRIVE_V.9.9 // HOSTING TERPERCAYA INDONESIA // UNLIMITED_RAM_AVAILABLE // DDoS_SHIELD_ACTIVE // </div></div>
     <div class="ticker-bar bottom-ticker"><div style="display: inline-block; white-space: nowrap; animation: tickerMove 20s linear infinite reverse;">ENCRYPTING_NEURAL_LINK... // NODE_SG_MAXIMIZED // FreeZeeHosting // BYPASSING_CORE_LIMITS // </div></div>
 
     <canvas id="matrix-canvas"></canvas>
     <div class="scanlines"></div>
-    <div id="mouse-hud"><div class="hud-ring" style="width:90%; height:90%;"></div><div class="hud-ring" style="width:60%; height:60%; animation-direction:reverse;"></div></div>
+    <div id="mouse-hud"><div class="hud-ring" style="width:90%; height:90%;"></div></div>
     <div class="orb orb-1"></div>
     <div class="orb orb-2"></div>
 
-    <nav class="fixed w-full z-[1500] py-12 px-6">
-        <div class="max-w-7xl mx-auto flex items-center justify-between h-24 bg-black/60 backdrop-blur-3xl border-4 border-white/10 rounded-full px-12 shadow-[0_0_100px_rgba(0,0,0,0.9)]">
-            <a href="#" class="font-display text-4xl font-black flex items-center gap-4">
-                <i class="fa-solid fa-atom text-brand animate-spin"></i>
-                <span class="hyper-text">FREEZEEHOST</span>
-            </a>
-            <div class="hidden md:flex items-center gap-12 font-mono text-xs font-black tracking-[0.3em]">
-                <a href="#products" class="hover:text-brand">SYSTEMS</a>
-                <a href="Dev.html" class="hover:text-brand">CONSOLE</a>
-                <button onclick="window.location.href='order-panel.html'" class="bg-brand text-black px-12 py-3 rounded-full font-black shadow-[0_0_50px_#00f2fe] hover:bg-white transition-all">ACCESS_NOW</button>
-            </div>
-        </div>
-    </nav>
-
     <div id="main-content" style="opacity: 0; transition: opacity 1s;">
+        
+        <nav class="fixed w-full z-[1500] py-12 px-6">
+            <div class="max-w-7xl mx-auto flex items-center justify-between h-20 bg-black/60 backdrop-blur-3xl border-4 border-white/10 rounded-full px-10 shadow-[0_0_100px_rgba(0,0,0,0.9)]">
+                <a href="#" class="font-display text-3xl font-black flex items-center gap-4"><i class="fa-solid fa-atom text-brand animate-spin"></i><span class="hyper-text">FREEZEEHOST</span></a>
+                <div class="hidden md:flex items-center gap-10 font-mono text-[10px] font-black uppercase">
+                    <a href="#products" class="hover:text-brand transition-all">HARDWARE</a>
+                    <a href="#network" class="hover:text-brand transition-all">NETWORK</a>
+                    <a href="Dev.html" class="hover:text-brand transition-all">CONSOLE</a>
+                    <button onclick="window.location.href='order-panel.html'" class="bg-brand text-black px-10 py-2 rounded-full font-black shadow-[0_0_30px_#00f2fe]">BUY_NOW</button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- HERO -->
         <section id="home" class="min-h-screen flex flex-col items-center justify-center pt-24 px-6 text-center">
-            <div class="max-w-6xl mx-auto relative p-20 border-[15px] border-double border-brand/20 rounded-[6rem]" data-aos="zoom-out">
-                <div class="absolute -top-12 left-1/2 -translate-x-1/2 bg-danger text-white font-pixel text-[10px] p-5 rotate-2 animate-pulse shadow-2xl">!! SYSTEM_OVERLOAD_DETECTED !!</div>
+            <div class="max-w-6xl mx-auto relative p-20 border-[15px] border-double border-brand/20 rounded-[6rem]">
                 <h1 class="text-7xl md:text-[14rem] font-black leading-none mb-12 tracking-tighter hyper-text italic">Hosting <br>Terpercaya.</h1>
-                <div class="bg-white/5 border-4 border-brand p-12 backdrop-blur-3xl mb-20 relative rounded-[4rem] transform skew-x-[-5deg]">
-                    <p class="font-mono text-sm md:text-2xl text-brand font-bold italic" id="typewriter"></p>
+                <div class="bg-white/5 border-4 border-brand p-12 rounded-[4rem] transform skew-x-[-5deg] mb-12">
+                    <p class="font-mono text-sm md:text-2xl text-brand font-bold" id="typewriter"></p>
                 </div>
-                <div class="flex flex-col md:flex-row justify-center gap-12 relative z-50">
-                    <button onclick="window.location.href='#products'" class="bg-white text-black font-black py-6 px-16 rounded-full text-lg shadow-[0_0_50px_#00f2fe] hover:scale-110 transition-all border-4 border-brand uppercase">INITIALIZE_DEPLOYMENT</button>
-                    <button onclick="window.location.href='https://wa.me/6285102360656'" class="px-16 py-5 rounded-full border-4 border-white/20 hover:border-brand hover:text-brand transition-all font-black text-sm uppercase tracking-widest bg-black/80">TALK_TO_OPERATOR</button>
-                </div>
+                <button onclick="window.location.href='#products'" class="bg-white text-black font-black py-6 px-20 rounded-full text-xl shadow-[0_0_50px_#00f2fe] hover:scale-110 transition-all border-4 border-brand uppercase">INITIALIZE_CHAOS</button>
             </div>
         </section>
 
-        <!-- MEGA STATS -->
+        <!-- STATS -->
         <section class="py-32 px-6">
             <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
-                <div class="p-16 rounded-[5rem] bg-brand/10 border-4 border-brand text-center relative overflow-hidden shadow-[0_0_100px_rgba(0,242,254,0.2)]">
+                <div class="p-16 rounded-[5rem] bg-brand/10 border-4 border-brand text-center shadow-[0_0_50px_rgba(0,242,254,0.2)]">
                     <div class="text-8xl font-black text-brand mb-4" id="stat-buyers">0</div>
-                    <div class="text-[10px] font-pixel text-white/40">Verified_Agents</div>
+                    <div class="text-[10px] font-pixel text-white/40 uppercase">Agents</div>
                 </div>
-                <div class="p-16 rounded-[5rem] bg-pink/10 border-4 border-pink text-center relative overflow-hidden shadow-[0_0_100px_rgba(255,0,200,0.2)]">
+                <div class="p-16 rounded-[5rem] bg-pink/10 border-4 border-pink text-center shadow-[0_0_50px_rgba(255,0,200,0.2)]">
                     <div class="text-8xl font-black text-pink mb-4" id="stat-visitors">0</div>
-                    <div class="text-[10px] font-pixel text-white/40">Inbound_Hits</div>
+                    <div class="text-[10px] font-pixel text-white/40 uppercase">Hits</div>
                 </div>
-                <div class="p-16 rounded-[5rem] bg-neon/10 border-4 border-neon text-center relative overflow-hidden">
+                <div class="p-16 rounded-[5rem] bg-neon/10 border-4 border-neon text-center shadow-[0_0_50px_rgba(188,254,0,0.2)]">
                     <div class="text-8xl font-black text-neon mb-4">100%</div>
-                    <div class="text-[10px] font-pixel text-white/40">System_Integrity</div>
+                    <div class="text-[10px] font-pixel text-white/40 uppercase">Uptime</div>
                 </div>
-                <div class="p-16 rounded-[5rem] bg-white/5 border-4 border-white/20 text-center relative overflow-hidden">
+                <div class="p-16 rounded-[5rem] bg-white/5 border-4 border-white/20 text-center">
                     <div class="text-8xl font-black text-white mb-4">0.0ms</div>
-                    <div class="text-[10px] font-pixel text-white/40">Sync_Latency</div>
+                    <div class="text-[10px] font-pixel text-white/40 uppercase">Latency</div>
                 </div>
             </div>
         </section>
 
+        <!-- NEW: HARDWARE SPECS -->
+        <section id="hardware" class="py-40 px-6 bg-white/[0.01]">
+            <div class="max-w-7xl mx-auto">
+                <h2 class="text-6xl md:text-9xl font-black tracking-tighter text-center mb-32 uppercase rainbow-text italic">The_Machinery</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                    <div class="chaos-card">
+                        <h3 class="text-4xl font-black mb-8 text-brand uppercase">>> CPU_CLUSTER</h3>
+                        <p class="text-white/40 font-mono text-sm leading-relaxed mb-10">Intel® Xeon® Platinum 8380 Processors<br>Overclocked to 4.2GHz Stable<br>Extreme multi-threaded performance for heavy bot processing.</p>
+                        <div class="health-bar"><div class="health-fill" style="width: 42%;"></div></div>
+                        <div class="flex justify-between mt-2 font-mono text-[10px] text-brand"><span>CPU_LOAD</span><span>42.1%</span></div>
+                    </div>
+                    <div class="chaos-card">
+                        <h3 class="text-4xl font-black mb-8 text-pink uppercase">>> MEMORY_ORB</h3>
+                        <p class="text-white/40 font-mono text-sm leading-relaxed mb-10">DDR5 ECC Enterprise Memory<br>Low Latency 4800MHz<br>Prevent memory leaks and ensure 24/7 stability for game servers.</p>
+                        <div class="health-bar"><div class="health-fill" style="width: 68%; background: #ff00c8;"></div></div>
+                        <div class="flex justify-between mt-2 font-mono text-[10px] text-pink"><span>RAM_ALLOC</span><span>68.4%</span></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- NEW: NETWORK MAP -->
+        <section id="network" class="py-40 px-6">
+            <div class="max-w-7xl mx-auto text-center">
+                <h2 class="text-6xl md:text-9xl font-black tracking-tighter mb-20 uppercase hyper-text italic">Global_Edge</h2>
+                <div class="p-20 rounded-[6rem] border-8 border-double border-brand/20 bg-black relative">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-12 text-left font-mono">
+                        <div class="p-8 border-l-4 border-brand bg-white/5">
+                            <div class="text-brand font-black mb-2 uppercase">SG_SINGAPORE_01</div>
+                            <div class="text-xs text-white/40 leading-relaxed">Latency: 12ms<br>Status: OPERATIONAL<br>Traffic: 4.2 Tbps</div>
+                        </div>
+                        <div class="p-8 border-l-4 border-pink bg-white/5">
+                            <div class="text-pink font-black mb-2 uppercase">US_VIRGINIA_02</div>
+                            <div class="text-xs text-white/40 leading-relaxed">Latency: 180ms<br>Status: OPERATIONAL<br>Traffic: 8.9 Tbps</div>
+                        </div>
+                        <div class="p-8 border-l-4 border-neon bg-white/5">
+                            <div class="text-neon font-black mb-2 uppercase">EU_FRANKFURT_01</div>
+                            <div class="text-xs text-white/40 leading-relaxed">Latency: 210ms<br>Status: OPERATIONAL<br>Traffic: 3.1 Tbps</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PRODUCTS -->
         <section id="products" class="py-40 px-6">
             <div class="max-w-7xl mx-auto text-center">
-                <h2 class="text-6xl md:text-[12rem] font-black tracking-tighter mb-40 uppercase hyper-text italic">THE_HARDWARE</h2>
+                <h2 class="text-6xl md:text-12rem font-black tracking-tighter mb-40 uppercase hyper-text italic">Deploy_Center</h2>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-16">
-                    <div class="electric-card group" id="card-ptero">
+                    <div class="chaos-card group">
                         <i class="fa-solid fa-microchip text-8xl mb-12 text-brand group-hover:scale-125 transition-transform"></i>
                         <h3 class="text-4xl font-black mb-8 italic uppercase">Ptero_Panel</h3>
-                        <p class="text-white/40 text-[13px] font-mono mb-16 border-l-8 border-brand pl-8 leading-relaxed">>> CPU: AMD_EPYC_GEN_4<br>>> RAM: DYNAMIC_64GB<br>>> STORAGE: NVME_GEN5</p>
-                        <button onclick="window.location.href='order-panel.html'" class="w-full py-5 bg-brand text-black font-black rounded-full uppercase text-xs">ORDER_SYSTEM</button>
+                        <p class="text-white/40 text-[13px] font-mono mb-16 border-l-8 border-brand pl-8 leading-relaxed">>> AUTO_INSTALL<br>>> FREE_SUBDOMAIN<br>>> DDoS_PROTECTION</p>
+                        <button onclick="window.location.href='order-panel.html'" class="w-full py-6 bg-brand text-black font-black rounded-full uppercase text-sm shadow-[0_0_50px_rgba(0,242,254,0.5)]">EXECUTE_ORDER</button>
                     </div>
-                    <div class="electric-card group" id="card-do">
+                    <div class="chaos-card group">
                         <i class="fa-brands fa-digital-ocean text-8xl mb-12 text-blue-500 group-hover:rotate-12 transition-transform"></i>
-                        <h3 class="text-4xl font-black mb-8 italic uppercase">Cloud_D.O</h3>
-                        <p class="text-white/40 text-[13px] font-mono mb-16 border-l-8 border-blue-500 pl-8 leading-relaxed">>> CREDIT: $200.00_USD<br>>> STATUS: FRESH_ACTIVE<br>>> SUPPORT: 24/7_LIVE</p>
-                        <button onclick="window.location.href='https://wa.me/6285102360656'" class="w-full py-5 bg-blue-600 text-white font-black rounded-full uppercase text-xs">GET_ACCESS</button>
+                        <h3 class="text-4xl font-black mb-8 italic uppercase">DO_System</h3>
+                        <p class="text-white/40 text-[13px] font-mono mb-16 border-l-8 border-blue-500 pl-8 leading-relaxed">>> $200 CREDIT<br>>> 10 DROPS LIMIT<br>>> FULL WARRANTY</p>
+                        <button onclick="window.location.href='https://wa.me/6285102360656'" class="w-full py-6 bg-blue-600 text-white font-black rounded-full uppercase text-sm shadow-[0_0_50px_rgba(59,130,246,0.5)]">CONTACT_ADMIN</button>
                     </div>
-                    <div class="electric-card group">
-                        <i class="fa-solid fa-code-branch text-8xl mb-12 text-emerald-400 group-hover:scale-110 transition-transform"></i>
-                        <h3 class="text-4xl font-black mb-8 italic uppercase">Bot_Scripts</h3>
-                        <p class="text-white/40 text-[13px] font-mono mb-16 border-l-8 border-emerald-400 pl-8 leading-relaxed">>> VERSION: ULTIMATE_V4<br>>> AI: INTEGRATED_SYNC<br>>> PATCH: AUTO_UPDATE</p>
-                        <button onclick="window.open('https://freezeehostbot.vercel.app')" class="w-full py-5 bg-emerald-600 text-white font-black rounded-full uppercase text-xs">EXTRACT_CORE</button>
+                    <div class="chaos-card group">
+                        <i class="fa-solid fa-code text-8xl mb-12 text-emerald-400 group-hover:scale-110 transition-transform"></i>
+                        <h3 class="text-4xl font-black mb-8 italic uppercase">Premium_Scripts</h3>
+                        <p class="text-white/40 text-[13px] font-mono mb-16 border-l-8 border-emerald-400 pl-8 leading-relaxed">>> WA_BOT_AI<br>>> AUTO_RESTART<br>>> HIGH_FEATURES</p>
+                        <button onclick="window.open('https://freezeehostbot.vercel.app')" class="w-full py-6 bg-emerald-600 text-white font-black rounded-full uppercase text-sm shadow-[0_0_50px_rgba(16,185,129,0.5)]">BROWSE_REPOS</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- FAQ -->
+        <section class="py-40 px-6">
+            <div class="max-w-4xl mx-auto">
+                <h2 class="text-5xl font-black mb-20 text-center uppercase italic">System_Inquiries</h2>
+                <div class="space-y-6">
+                    <div class="p-10 rounded-[3rem] border-4 border-white/5 bg-white/[0.02]">
+                        <h4 class="text-brand font-bold mb-4 uppercase">Q: Bagaimana proses pembayarannya?</h4>
+                        <p class="text-white/40 text-sm font-mono leading-relaxed">A: Seluruh pembayaran dilakukan melalui gateway terenkripsi (Pakasir QRIS) yang memproses transaksi secara instan 24/7.</p>
+                    </div>
+                    <div class="p-10 rounded-[3rem] border-4 border-white/5 bg-white/[0.02]">
+                        <h4 class="text-pink font-bold mb-4 uppercase">Q: Apakah ada bantuan setup?</h4>
+                        <p class="text-white/40 text-sm font-mono leading-relaxed">A: Tentu! Kamu bisa menghubungi Operator via WhatsApp untuk panduan instalasi bot atau konfigurasi server secara gratis.</p>
                     </div>
                 </div>
             </div>
@@ -162,10 +227,11 @@
 
         <footer class="py-60 bg-brand text-black text-center px-6 relative overflow-hidden">
             <h2 class="text-8xl md:text-[20rem] font-black tracking-tighter mb-20 italic uppercase">FREEZEE</h2>
-            <div class="flex justify-center gap-24 relative z-10">
+            <div class="flex justify-center gap-24">
                 <a href="https://wa.me/6285102360656" class="hover:scale-150 transition-all text-8xl"><i class="fa-brands fa-whatsapp"></i></a>
                 <a href="https://t.me/FreeZeeHost" class="hover:scale-150 transition-all text-8xl"><i class="fa-brands fa-telegram"></i></a>
             </div>
+            <p class="font-pixel text-[12px] tracking-[1.5em] mt-32">CORE_INFRASTRUCTURE_2026</p>
         </footer>
     </div>
 
@@ -179,20 +245,14 @@
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
         AOS.init();
-
         function bypassFirewall() {
-            const screen = document.getElementById('loading-screen');
-            const log = document.getElementById('load-log');
-            log.innerText = "AUTH_GRANTED. BYPASSING FIREWALL...";
-            log.style.color = "#bcfe00";
-            
+            document.getElementById('loading-screen').style.opacity = '0';
             setTimeout(() => {
-                screen.style.opacity = '0';
-                screen.style.visibility = 'hidden';
+                document.getElementById('loading-screen').style.visibility = 'hidden';
                 document.body.style.overflow = 'auto';
                 document.getElementById('main-content').style.opacity = '1';
                 type();
-            }, 1500);
+            }, 1000);
         }
 
         // MATRIX
@@ -202,7 +262,7 @@
         const drops = Array(Math.floor(mCanvas.width / 20)).fill(1);
         function drawMatrix() {
             mCtx.fillStyle = "rgba(0, 0, 0, 0.1)"; mCtx.fillRect(0, 0, mCanvas.width, mCanvas.height);
-            mCtx.fillStyle = "#00f2fe"; mCtx.font = "18px monospace";
+            mCtx.fillStyle = "#00f2fe"; mCtx.font = "15px monospace";
             drops.forEach((y, i) => {
                 mCtx.fillText(Math.floor(Math.random()*2), i * 20, y * 20);
                 if (y * 20 > mCanvas.height && Math.random() > 0.975) drops[i] = 0;
@@ -212,7 +272,7 @@
         setInterval(drawMatrix, 50);
 
         // TYPEWRITER
-        const textLines = ["> ACCESSING OMEGA CORE... SUCCESS.", "> INJECTING LIQUID RESOURCES...", "> SYSTEM STATUS: OVERDRIVE TERPERCAYA.", "> SELAMAT DATANG, MASTER USER."];
+        const textLines = ["> MENGHUBUNGKAN KE OMEGA CORE...", "> MENYUNTIKKAN SUMBER DAYA CAIR...", "> STATUS SISTEM: OVERDRIVE TERPERCAYA.", "> SELAMAT DATANG, MASTER USER."];
         let lineIdx = 0; let charIdx = 0;
         function type() {
             if (lineIdx < textLines.length) {
@@ -229,8 +289,7 @@
         // MOUSE HUD
         document.addEventListener('mousemove', e => {
             const hud = document.getElementById('mouse-hud');
-            hud.style.left = e.clientX + 'px';
-            hud.style.top = e.clientY + 'px';
+            hud.style.left = e.clientX + 'px'; hud.style.top = e.clientY + 'px';
             document.documentElement.style.setProperty('--mouse-x', `${(e.clientX/window.innerWidth)*100}%`);
             document.documentElement.style.setProperty('--mouse-y', `${(e.clientY/window.innerHeight)*100}%`);
         });
