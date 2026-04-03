@@ -112,11 +112,35 @@
 
                 <!-- TABS CONTENT -->
                 <div id="content-stats" class="tab-content active space-y-12">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-12 text-center">
-                        <div class="space-y-4"><label class="text-[10px] font-black text-brand uppercase tracking-widest block">Active Buyers</label><input type="number" id="stats_buyers" class="custom-input w-full font-extrabold text-4xl text-center"></div>
-                        <div class="space-y-4"><label class="text-[10px] font-black text-brand uppercase tracking-widest block">Net Revenue</label><input type="number" id="stats_earnings" class="custom-input w-full font-extrabold text-4xl text-center"></div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-12 text-center">
+                        <div class="space-y-4">
+                            <label class="text-[10px] font-black text-brand uppercase tracking-widest block">Active Buyers</label>
+                            <div id="display_buyers" class="text-5xl font-extrabold text-white">0</div>
+                            <p class="text-[9px] text-white/20 uppercase font-bold tracking-tighter">Total Server Deployed</p>
+                        </div>
+                        <div class="space-y-4">
+                            <label class="text-[10px] font-black text-brand uppercase tracking-widest block">Net Revenue</label>
+                            <div id="display_earnings" class="text-5xl font-extrabold text-white">Rp 0</div>
+                            <p class="text-[9px] text-white/20 uppercase font-bold tracking-tighter">Verified Transactions</p>
+                        </div>
+                        <div class="space-y-4">
+                            <label class="text-[10px] font-black text-brand uppercase tracking-widest block">Global Visitors</label>
+                            <div id="display_visitors" class="text-5xl font-extrabold text-white">0</div>
+                            <p class="text-[9px] text-white/20 uppercase font-bold tracking-tighter">Unique Page Views</p>
+                        </div>
                     </div>
-                    <div class="space-y-4 text-center"><label class="text-[10px] font-black text-brand uppercase tracking-widest block">Global Visitors</label><input type="number" id="stats_visitors" class="custom-input w-full max-w-xs mx-auto font-extrabold text-4xl text-center"></div>
+                    
+                    <div class="mt-20 p-8 rounded-[2rem] bg-white/[0.02] border border-white/5">
+                         <div class="flex items-center justify-between mb-8">
+                             <div class="text-[10px] font-black uppercase tracking-widest text-white/40">Manual Override (Optional)</div>
+                             <div class="h-px flex-1 bg-white/5 mx-6"></div>
+                         </div>
+                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <input type="number" id="stats_buyers" class="custom-input text-center text-xs" placeholder="Buyers">
+                            <input type="number" id="stats_earnings" class="custom-input text-center text-xs" placeholder="Earnings">
+                            <input type="number" id="stats_visitors" class="custom-input text-center text-xs" placeholder="Visitors">
+                         </div>
+                    </div>
                 </div>
 
                 <div id="content-ptero" class="tab-content space-y-10 text-left">
@@ -187,10 +211,15 @@
         async function loginDev() {
             const user = document.getElementById('devUser').value;
             const pass = document.getElementById('devPassword').value;
-            const res = await fetch('/api/admin/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user, pass }) });
-            const data = await res.json();
-            if (data.status === 'success') { localStorage.setItem('admin_token', data.token); showAdminPanel(); }
-            else alert("Access Denied");
+            const btn = document.getElementById('btnLogin');
+            btn.disabled = true; btn.innerHTML = "VERIFYING...";
+            try {
+                const res = await fetch('/api/admin/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user, pass }) });
+                const data = await res.json();
+                if (data.status === 'success') { localStorage.setItem('admin_token', data.token); showAdminPanel(); }
+                else showAlert("ACCESS_DENIED", "Invalid administrative credentials.");
+            } catch (e) { showAlert("SYSTEM_ERR", "Could not connect to core."); }
+            finally { btn.disabled = false; btn.innerHTML = "Authorize Session"; }
         }
 
         async function showAdminPanel() {
@@ -204,9 +233,16 @@
                 const res = await fetch('/api/admin/config', { headers: { 'Authorization': token } });
                 const data = await res.json();
                 if (data.config) {
+                    // Update display elements
+                    document.getElementById('display_buyers').innerText = data.stats.totalBuyers;
+                    document.getElementById('display_earnings').innerText = "Rp " + data.stats.totalEarnings.toLocaleString('id-ID');
+                    document.getElementById('display_visitors').innerText = data.stats.totalVisitors;
+
+                    // Update inputs
                     document.getElementById('stats_buyers').value = data.stats.totalBuyers;
                     document.getElementById('stats_earnings').value = data.stats.totalEarnings;
                     document.getElementById('stats_visitors').value = data.stats.totalVisitors;
+                    
                     document.getElementById('ptero_url').value = data.config.url;
                     document.getElementById('ptero_token').value = data.config.key;
                     document.getElementById('ptero_client_token').value = data.config.client_key;
@@ -224,6 +260,11 @@
                     document.getElementById('smtp_from').value = data.config.smtp_from;
                 }
             } catch(e) {}
+        }
+
+        function logoutDev() {
+            localStorage.removeItem('admin_token');
+            location.reload();
         }
 
         async function savePteroSettings(e) {

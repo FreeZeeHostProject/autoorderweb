@@ -175,17 +175,23 @@
                     <p class="text-white/40 text-xs leading-relaxed mb-10 text-left" id="desc-ptero">Manajemen server game dan bot dengan performa maksimal.</p>
                     <a href="order-panel.html" id="btn-ptero" class="text-brand text-[10px] font-black uppercase tracking-[0.2em] flex items-center justify-start gap-3 group-hover:gap-5 transition-all">ORDER NOW <i class="fa-solid fa-arrow-right"></i></a>
                 </div>
-                <div class="service-item group text-left" data-aos="fade-up" data-aos-delay="100">
-                    <i class="fa-brands fa-digital-ocean text-5xl mb-10 text-white/10 group-hover:text-blue-500 transition-all duration-500"></i>
+                <div class="service-item group text-left relative" id="card-do" data-aos="fade-up" data-aos-delay="100">
+                    <div class="flex items-center justify-start gap-4 mb-10">
+                        <i class="fa-brands fa-digital-ocean text-5xl text-white/10 group-hover:text-blue-500 transition-all duration-500"></i>
+                        <div id="badge-do" class="hidden px-2 py-0.5 rounded border border-red-500/50 text-red-500 text-[8px] font-black uppercase">Maintenance</div>
+                    </div>
                     <h3 class="text-xl font-bold mb-4 text-white">Akun Digital Ocean</h3>
                     <p class="text-white/40 text-xs leading-relaxed mb-10 text-left">Akun DO fresh dengan saldo limit tinggi untuk cloud kamu.</p>
-                    <a href="https://wa.me/6285102360656" class="text-brand text-[10px] font-black uppercase tracking-[0.2em] flex items-center justify-start gap-3 group-hover:gap-5 transition-all">BELI AKUN <i class="fa-solid fa-arrow-right"></i></a>
+                    <a href="https://wa.me/6285102360656" id="btn-do" class="text-brand text-[10px] font-black uppercase tracking-[0.2em] flex items-center justify-start gap-3 group-hover:gap-5 transition-all">BELI AKUN <i class="fa-solid fa-arrow-right"></i></a>
                 </div>
-                <div class="service-item group text-left" data-aos="fade-up" data-aos-delay="200">
-                    <i class="fa-solid fa-server text-5xl mb-10 text-white/10 group-hover:text-blue-400 transition-all duration-500"></i>
+                <div class="service-item group text-left relative" id="card-vps" data-aos="fade-up" data-aos-delay="200">
+                    <div class="flex items-center justify-start gap-4 mb-10">
+                        <i class="fa-solid fa-server text-5xl text-white/10 group-hover:text-blue-400 transition-all duration-500"></i>
+                        <div id="badge-vps" class="hidden px-2 py-0.5 rounded border border-red-500/50 text-red-500 text-[8px] font-black uppercase">Maintenance</div>
+                    </div>
                     <h3 class="text-xl font-bold mb-4 text-white">Cloud VPS</h3>
-                    <p class="text-white/40 text-xs leading-relaxed mb-10 text-left">Akses root penuh dengan stabilitas jaringan kelas atas.</p>
-                    <a href="order-vps.html" class="text-brand text-[10px] font-black uppercase tracking-[0.2em] flex items-center justify-start gap-3 group-hover:gap-5 transition-all">LIHAT PAKET <i class="fa-solid fa-arrow-right"></i></a>
+                    <p class="text-white/40 text-xs leading-relaxed mb-10 text-left">Akses root penuh dengan stabilitas jaringan kelas atas (Linode/D.O).</p>
+                    <a href="order-vps.html" id="btn-vps" class="text-brand text-[10px] font-black uppercase tracking-[0.2em] flex items-center justify-start gap-3 group-hover:gap-5 transition-all">LIHAT PAKET <i class="fa-solid fa-arrow-right"></i></a>
                 </div>
                 <div class="service-item group text-left relative" data-aos="fade-up" data-aos-delay="300">
                     <div class="absolute -top-4 left-0 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[7px] font-black uppercase tracking-[0.2em] px-3 py-1 rounded-full shadow-[0_0_15px_rgba(16,185,129,0.2)]">Best Seller</div>
@@ -309,11 +315,29 @@
                     animateCounter('stat-earnings', data.stats.totalEarnings);
                     animateCounter('stat-visitors', data.stats.totalVisitors);
                 }
-                if (data.status === 'offline') {
+
+                // Service Status Logic
+                const s = data.services || { ptero: data.status, do: 'online', linode: 'online' };
+
+                if (s.ptero === 'offline') {
                     const card = document.getElementById('card-ptero');
-                    if(card) { card.style.opacity = "0.4"; card.style.filter = "grayscale(1)"; }
+                    if(card) { card.style.opacity = "0.4"; card.style.filter = "grayscale(1)"; card.style.pointerEvents = "none"; }
                     document.getElementById('badge-ptero').classList.remove('hidden');
                     document.getElementById('btn-ptero').innerHTML = 'MAINTENANCE';
+                }
+
+                if (s.do === 'offline') {
+                    const card = document.getElementById('card-do');
+                    if(card) { card.style.opacity = "0.4"; card.style.filter = "grayscale(1)"; card.style.pointerEvents = "none"; }
+                    document.getElementById('badge-do').classList.remove('hidden');
+                    document.getElementById('btn-do').innerHTML = 'OFFLINE';
+                }
+
+                if (s.do === 'offline' && s.linode === 'offline') {
+                    const card = document.getElementById('card-vps');
+                    if(card) { card.style.opacity = "0.4"; card.style.filter = "grayscale(1)"; card.style.pointerEvents = "none"; }
+                    document.getElementById('badge-vps').classList.remove('hidden');
+                    document.getElementById('btn-vps').innerHTML = 'MAINTENANCE';
                 }
             } catch (e) { console.error("Stats error"); }
         }

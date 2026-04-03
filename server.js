@@ -10,7 +10,6 @@ const app = express();
 app.use(helmet({ contentSecurityPolicy: false }));
 app.use(cors());
 app.use(express.json());
-app.use(express.static(__dirname));
 
 // --- SECURITY ---
 const ADMIN_USER = process.env.ADMIN_USER || "FreeZeeHost";
@@ -139,14 +138,51 @@ app.post('/api/admin/settings', async (req, res) => {
 });
 
 app.get('/api/check-services', async (req, res) => {
-    let status = 'offline';
+    let status = { ptero: 'offline', do: 'offline', linode: 'offline' };
+    
+    // Check Pterodactyl
     try {
         if (pteroConfig.url && pteroConfig.key) {
-            const r = await axios.get(`${pteroConfig.url}/api/application/nodes`, { headers: { 'Authorization': `Bearer ${pteroConfig.key}` }, timeout: 2000 });
-            if (r.status === 200) status = 'online';
+            const r = await axios.get(`${pteroConfig.url}/api/application/nodes`, { 
+                headers: { 'Authorization': `Bearer ${pteroConfig.key}` }, 
+                timeout: 3000 
+            });
+            if (r.status === 200) status.ptero = 'online';
         }
     } catch (e) {}
-    res.json({ status, stats: { totalBuyers: pteroConfig.customerCounter - 1, totalEarnings: pteroConfig.totalEarnings, totalVisitors: pteroConfig.totalVisitors }, active_gateway: pteroConfig.active_gateway });
+
+    // Check DigitalOcean
+    try {
+        if (pteroConfig.do_token) {
+            const r = await axios.get('https://api.digitalocean.com/v2/account', {
+                headers: { 'Authorization': `Bearer ${pteroConfig.do_token}` },
+                timeout: 3000
+            });
+            if (r.status === 200) status.do = 'online';
+        }
+    } catch (e) {}
+
+    // Check Linode
+    try {
+        if (pteroConfig.linode_token) {
+            const r = await axios.get('https://api.linode.com/v4/profile', {
+                headers: { 'Authorization': `Bearer ${pteroConfig.linode_token}` },
+                timeout: 3000
+            });
+            if (r.status === 200) status.linode = 'online';
+        }
+    } catch (e) {}
+
+    res.json({ 
+        status: status.ptero, // Legacy support for frontend
+        services: status,
+        stats: { 
+            totalBuyers: pteroConfig.customerCounter - 1, 
+            totalEarnings: pteroConfig.totalEarnings, 
+            totalVisitors: pteroConfig.totalVisitors 
+        }, 
+        active_gateway: pteroConfig.active_gateway 
+    });
 });
 
 app.post('/api/checkout', (req, res) => {
@@ -180,8 +216,14 @@ app.get('/api/verify', async (req, res) => {
     } catch (e) { res.json({ status: 'error' }); }
 });
 
-app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
-app.get('/Dev.html', (req, res) => res.sendFile(path.join(__dirname, 'Dev.html')));
+app.get('/', (req, res) => res.sendFile(path.resolve(__dirname, 'index.html')));
+app.get('/index.html', (req, res) => res.sendFile(path.resolve(__dirname, 'index.html')));
+app.get('/Dev.html', (req, res) => res.sendFile(path.resolve(__dirname, 'Dev.html')));
+app.get('/order-panel.html', (req, res) => res.sendFile(path.resolve(__dirname, 'order-panel.html')));
+app.get('/order-vps.html', (req, res) => res.sendFile(path.resolve(__dirname, 'order-vps.html')));
+app.get('/status.html', (req, res) => res.sendFile(path.resolve(__dirname, 'status.html')));
+
+app.use(express.static(path.resolve(__dirname)));
 
 if (process.env.NODE_ENV !== 'production') app.listen(3000);
 module.exports = app;
