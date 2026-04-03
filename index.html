@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FREEZEEHOST | HYPER CHAOS MODE</title>
+    <title>FREEZEEHOST | ULTRON CYBER CHAOS</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=Space+Grotesk:wght@700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@800&family=Space+Grotesk:wght@700&family=JetBrains+Mono:wght@400;700&family=Press+Start+2P&display=swap" rel="stylesheet">
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
@@ -22,202 +22,205 @@
                         sans: ['"Plus Jakarta Sans"', 'sans-serif'],
                         display: ['"Space Grotesk"', 'sans-serif'],
                         mono: ['"JetBrains Mono"', 'monospace'],
+                        pixel: ['"Press Start 2P"', 'cursive'],
                     },
-                    colors: { brand: '#00f2fe', pink: '#ff00c8', neon: '#bcfe00', warn: '#ffae00' }
+                    colors: { brand: '#00f2fe', pink: '#ff00c8', neon: '#bcfe00', danger: '#ff003c' }
                 }
             }
         }
     </script>
     <style>
-        body { background-color: #000000; color: #ffffff; overflow-x: hidden; position: relative; cursor: none; }
+        body { background-color: #000000; color: #ffffff; overflow-x: hidden; position: relative; }
         
-        /* HYPER BACKGROUND */
-        #bg-canvas { position: fixed; inset: 0; z-index: -5; opacity: 0.5; }
-        .orb { position: fixed; width: 500px; height: 500px; border-radius: 50%; filter: blur(120px); opacity: 0.3; z-index: -4; pointer-events: none; animation: orbMove 15s infinite alternate; }
+        /* OVERLAYS - MUST HAVE POINTER-EVENTS: NONE */
+        #bg-canvas, #mouse-hud, .v-ticker, .scanner, .hud-corner, .orb, .noise, .scanlines { 
+            pointer-events: none !important; 
+        }
+
+        #bg-canvas { position: fixed; inset: 0; z-index: -5; opacity: 0.6; }
+        .orb { position: fixed; width: 600px; height: 600px; border-radius: 50%; filter: blur(120px); opacity: 0.4; z-index: -4; animation: orbMove 15s infinite alternate; }
         .orb-1 { background: #00f2fe; top: -10%; left: -10%; }
         .orb-2 { background: #ff00c8; bottom: -10%; right: -10%; animation-delay: -7s; }
         @keyframes orbMove { from { transform: translate(0,0) scale(1); } to { transform: translate(100px, 100px) scale(1.5); } }
 
-        /* RAINBOW GRADIENT TEXT */
+        /* SCANLINES EFFECT */
+        .scanlines { position: fixed; inset: 0; background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06)); z-index: 999; background-size: 100% 2px, 3px 100%; }
+
+        /* RAINBOW TEXT */
         .rainbow-text {
-            background: linear-gradient(to right, #00f2fe, #ff00c8, #bcfe00, #00f2fe);
-            background-size: 300% auto;
+            background: linear-gradient(to right, #00f2fe, #ff00c8, #bcfe00, #ff003c, #00f2fe);
+            background-size: 400% auto;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            animation: rainbowFlow 4s linear infinite;
+            animation: rainbowFlow 5s linear infinite;
         }
-        @keyframes rainbowFlow { to { background-position: 300% center; } }
+        @keyframes rainbowFlow { to { background-position: 400% center; } }
 
-        /* MOUSE HUD */
-        #mouse-hud { position: fixed; width: 100px; height: 100px; border: 2px solid rgba(0, 242, 254, 0.5); border-radius: 50%; pointer-events: none; z-index: 10000; transform: translate(-50%, -50%); transition: width 0.3s, height 0.3s; display: flex; align-items: center; justify-content: center; }
-        #mouse-hud::before { content: ""; width: 80%; height: 80%; border: 1px dashed rgba(255, 0, 200, 0.5); border-radius: 50%; animation: spin 10s linear infinite; }
-        #mouse-hud::after { content: ""; width: 4px; height: 4px; background: #fff; border-radius: 50%; box-shadow: 0 0 10px #fff; }
+        /* HUD ELEMENTS */
+        #mouse-hud { position: fixed; width: 120px; height: 120px; border: 1px solid rgba(0, 242, 254, 0.8); border-radius: 50%; z-index: 10000; transform: translate(-50%, -50%); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 20px rgba(0, 242, 254, 0.2); }
+        #mouse-hud::before { content: ""; width: 90%; height: 90%; border: 2px dashed rgba(255, 0, 200, 0.6); border-radius: 50%; animation: spin 5s linear infinite; }
+        #mouse-hud::after { content: ""; width: 10px; height: 10px; border: 1px solid #fff; transform: rotate(45deg); }
 
-        /* VERTICAL TICKERS */
-        .v-ticker { position: fixed; top: 0; width: 30px; height: 100%; background: rgba(255,255,255,0.02); z-index: 1000; display: flex; align-items: center; justify-content: center; overflow: hidden; border-left: 1px solid rgba(255,255,255,0.05); }
-        .v-ticker-left { left: 0; }
-        .v-ticker-right { right: 0; }
-        .v-ticker p { transform: rotate(90deg); white-space: nowrap; font-family: 'JetBrains Mono'; font-size: 8px; font-weight: 900; color: rgba(0, 242, 254, 0.3); animation: vTickerMove 10s linear infinite; }
-        @keyframes vTickerMove { from { transform: translateY(100%) rotate(90deg); } to { transform: translateY(-100%) rotate(90deg); } }
+        /* VERTICAL GAUGES */
+        .v-gauge { position: fixed; top: 20%; width: 4px; height: 60%; background: rgba(255,255,255,0.1); z-index: 1000; }
+        .v-gauge-fill { width: 100%; height: 0%; background: #00f2fe; box-shadow: 0 0 15px #00f2fe; animation: gaugePulse 2s infinite ease-in-out; }
+        @keyframes gaugePulse { 0%, 100% { height: 20%; } 50% { height: 80%; } }
 
-        /* LIQUID CARDS */
-        .chaos-card {
-            background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(40px);
-            border: 2px solid rgba(255, 255, 255, 0.05); border-radius: 5rem;
-            padding: 4rem 3rem; transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
-            position: relative; overflow: hidden;
+        /* PRODUCT CARDS */
+        .cyber-card {
+            background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(20px);
+            border: 2px solid rgba(255, 255, 255, 0.1); border-radius: 2rem;
+            padding: 3rem; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative; overflow: hidden; z-index: 10;
         }
-        .chaos-card:hover { transform: translateY(-20px) scale(1.05); border-color: #00f2fe; box-shadow: 0 40px 100px rgba(0, 242, 254, 0.3); }
-        .chaos-card i { filter: drop-shadow(0 0 20px currentColor); }
+        .cyber-card:hover { transform: translateY(-15px) scale(1.05) rotate(1deg); border-color: #00f2fe; box-shadow: 0 0 50px rgba(0, 242, 254, 0.4); }
+        .cyber-card::before { content: "LOCKED"; position: absolute; top: 10px; right: 10px; font-family: 'JetBrains Mono'; font-size: 8px; opacity: 0.2; }
 
-        /* FLOATING TAGS */
-        .tag { position: absolute; padding: 4px 12px; border-radius: 99px; background: rgba(0, 242, 254, 0.1); border: 1px solid rgba(0, 242, 254, 0.2); font-size: 8px; font-weight: 900; color: #00f2fe; z-index: -1; animation: floatTag 20s infinite linear; }
-        @keyframes floatTag { from { transform: translate(0,0) rotate(0deg); } to { transform: translate(500px, 500px) rotate(360deg); } }
-
-        /* PILL BUTTONS */
-        .pill-btn {
-            background: linear-gradient(45deg, #00f2fe, #ff00c8); color: #fff;
-            font-weight: 900; padding: 1.5rem 4rem; border-radius: 999px;
-            box-shadow: 0 0 50px rgba(0, 242, 254, 0.5); transition: all 0.4s;
-            text-transform: uppercase; letter-spacing: 4px; font-size: 12px; border: 4px solid #000;
+        /* BUTTONS */
+        .ultra-btn {
+            background: #fff; color: #000; font-weight: 900; padding: 1.2rem 3rem; border-radius: 1rem;
+            box-shadow: 0 0 30px #00f2fe; transition: all 0.3s;
+            text-transform: uppercase; letter-spacing: 2px; position: relative; z-index: 50; cursor: pointer !important;
         }
-        .pill-btn:hover { transform: scale(1.1) rotate(2deg); box-shadow: 0 0 100px #ff00c8; }
+        .ultra-btn:hover { background: #00f2fe; box-shadow: 0 0 60px #00f2fe; transform: scale(1.1); }
+
+        /* TICKERS */
+        .ticker-bar { position: fixed; width: 100%; background: #ff003c; color: white; font-family: 'Press Start 2P'; font-size: 8px; z-index: 2000; padding: 8px 0; overflow: hidden; border-bottom: 2px solid white; }
+        .top-ticker { top: 0; }
+        .bottom-ticker { bottom: 0; background: #bcfe00; color: #000; border-top: 2px solid #000; border-bottom: none; }
+
+        #purchase-toast { position: fixed; bottom: 80px; left: 30px; background: #00f2fe; color: #000; padding: 15px 30px; border-radius: 0; font-weight: 900; transform: skew(-15deg) translateX(-200%); transition: all 0.5s; z-index: 9999; border: 4px solid #fff; box-shadow: 10px 10px 0 rgba(0,0,0,0.5); }
+        #purchase-toast.show { transform: skew(-15deg) translateX(0); }
 
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-
-        #purchase-toast { position: fixed; top: 100px; left: 50%; transform: translateX(-50%) translateY(-200%); background: #bcfe00; color: #000; padding: 15px 40px; border-radius: 999px; font-weight: 900; font-family: 'JetBrains Mono'; transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 10000; box-shadow: 0 0 50px #bcfe00; }
-        #purchase-toast.show { transform: translateX(-50%) translateY(0); }
-
-        body::before { content: ""; position: fixed; inset: 0; background-image: url("https://grainy-gradients.vercel.app/noise.svg"); opacity: 0.05; pointer-events: none; z-index: 999; }
     </style>
 </head>
 <body class="antialiased">
 
-    <div id="mouse-hud"></div>
+    <div class="ticker-bar top-ticker"><div style="display: inline-block; white-space: nowrap; animation: tickerMove 20s linear infinite;">ALERT: SYSTEM OVERDRIVE ACTIVE // NO LAG DETECTED // UNLIMITED RAM AVAILABLE // FREEZEEHOST CLOUD V4.0 // </div></div>
+    <div class="ticker-bar bottom-ticker"><div style="display: inline-block; white-space: nowrap; animation: tickerMove 25s linear infinite reverse;">ENCRYPTING DATA... 100% // BYPASSING FIREWALL... DONE // ROOT ACCESS GRANTED // WELCOME AGENT_092 // </div></div>
+
     <canvas id="bg-canvas"></canvas>
+    <div class="scanlines"></div>
+    <div id="mouse-hud"></div>
     <div class="orb orb-1"></div>
     <div class="orb orb-2"></div>
 
-    <div class="v-ticker v-ticker-left"><p>DATA_STREAM_INBOUND // ENCRYPTED // NODE_ACTIVE // 01010101010101</p></div>
-    <div class="v-ticker v-ticker-right"><p>SYSTEM_UPTIME_100% // NO_LAG_ENABLED // AUTH_SUCCESS // 101010101010</p></div>
+    <div class="v-gauge v-gauge-left" style="left: 10px;"><div class="v-gauge-fill"></div></div>
+    <div class="v-gauge v-gauge-right" style="right: 10px;"><div class="v-gauge-fill" style="animation-delay: -1s;"></div></div>
 
     <nav class="fixed w-full z-[1500] py-10 px-6">
-        <div class="max-w-7xl mx-auto flex items-center justify-between h-20 bg-black/40 backdrop-blur-3xl border-2 border-white/10 rounded-full px-10 shadow-[0_0_50px_rgba(0,0,0,0.5)]">
-            <a href="#" class="font-display text-2xl font-black tracking-tighter flex items-center gap-4">
-                <i class="fa-solid fa-atom text-brand animate-spin-slow"></i>
+        <div class="max-w-7xl mx-auto flex items-center justify-between h-20 bg-black/80 backdrop-blur-3xl border-4 border-brand rounded-xl px-10 shadow-[0_0_50px_rgba(0,242,254,0.3)]">
+            <a href="#" class="font-display text-3xl font-black tracking-tighter flex items-center gap-4">
+                <i class="fa-solid fa-radiation text-neon animate-spin"></i>
                 <span class="rainbow-text">FREEZEEHOST</span>
             </a>
-            <div class="hidden md:flex items-center gap-10 font-mono text-[10px] font-black uppercase tracking-[0.3em]">
-                <a href="#products" class="hover:text-brand transition-all">TERMINAL</a>
-                <a href="Dev.html" class="hover:text-brand transition-all">CORE_V3</a>
-                <button onclick="window.location.href='order-panel.html'" class="bg-white text-black px-10 py-3 rounded-full hover:bg-neon transition-all font-black">LOGIN</button>
+            <div class="hidden md:flex items-center gap-8 font-mono text-[10px] font-black">
+                <a href="#products" class="hover:text-brand transition-all">SYSTEMS</a>
+                <a href="Dev.html" class="hover:text-brand transition-all">CONSOLE</a>
+                <button onclick="window.location.href='order-panel.html'" class="bg-brand text-black px-8 py-2 border-2 border-white shadow-[5px_5px_0_#ff00c8] font-black">LOGIN_CORE</button>
             </div>
         </div>
     </nav>
 
     <section id="home" class="min-h-screen flex flex-col items-center justify-center pt-24 px-6 text-center relative">
-        <!-- BACKGROUND DECOR -->
-        <div class="tag" style="top: 20%; left: 10%;">HIGH_SPEED</div>
-        <div class="tag" style="top: 15%; right: 15%; animation-delay: -5s;">DDoS_SHIELD</div>
-        <div class="tag" style="bottom: 20%; left: 20%; animation-delay: -10s;">INSTANT_BOOT</div>
-        <div class="tag" style="bottom: 15%; right: 10%; animation-delay: -15s;">24/7_UPTIME</div>
+        <div class="max-w-6xl mx-auto relative p-12 border-8 border-double border-white/10" data-aos="zoom-out">
+            <div class="absolute -top-10 -left-10 bg-danger text-white font-pixel text-[8px] p-4 -rotate-12 animate-bounce">WARNING: HIGH_LOAD</div>
+            
+            <h1 class="text-7xl md:text-[12rem] font-black leading-none mb-12 tracking-tighter rainbow-text italic" style="filter: drop-shadow(10px 10px 0px #000);">HYPER <br>DRIVE.</h1>
+            
+            <div class="bg-white/5 border-2 border-brand p-8 backdrop-blur-2xl mb-16 relative transform skew-x-[-10deg]">
+                <div class="absolute -top-4 left-10 bg-brand text-black text-[9px] px-4 font-black">AI_CORE_LOGS</div>
+                <p class="font-mono text-sm md:text-lg text-brand font-bold" id="typewriter"></p>
+            </div>
 
-        <div class="max-w-6xl mx-auto relative" data-aos="zoom-in">
-            <div class="inline-block px-10 py-2 rounded-full border-4 border-brand bg-brand/10 text-brand font-black text-[10px] mb-12 tracking-[0.8em] animate-pulse">ULTRA_OVERDRIVE</div>
-            <h1 class="text-7xl md:text-[11rem] font-black leading-[0.8] mb-12 tracking-tighter rainbow-text">HYPER <br>CORE.</h1>
-            <p class="text-white font-mono text-xs md:text-sm max-w-2xl mx-auto mb-20 leading-relaxed bg-white/5 p-6 rounded-[2rem] border border-white/10 backdrop-blur-xl">
-                >> DETECTING SYSTEM OVERLOAD... SUCCESS.<br>
-                >> ALLOCATING LIQUID RESOURCES... DONE.<br>
-                >> WELCOME TO THE FUTURE OF PREMIUM HOSTING.
-            </p>
-            <div class="flex flex-col md:flex-row justify-center gap-12 w-full">
-                <button onclick="location.href='#products'" class="pill-btn">INITIALIZE CLUSTER</button>
-                <button onclick="location.href='https://wa.me/6285102360656'" class="px-16 py-5 rounded-full border-4 border-white/10 hover:border-brand hover:text-brand transition-all font-black text-xs uppercase tracking-widest bg-black">TALK_TO_AI</button>
+            <div class="flex flex-col md:flex-row justify-center gap-12 relative z-50">
+                <button onclick="window.location.href='#products'" class="ultra-btn">INITIALIZE_CHAOS</button>
+                <button onclick="window.location.href='https://wa.me/6285102360656'" class="px-16 py-5 border-4 border-brand/20 hover:bg-brand/10 transition-all font-black text-xs uppercase tracking-widest text-brand bg-black">CONTACT_OPERATOR</button>
             </div>
         </div>
     </section>
 
-    <!-- CRAZY CIRCULAR STATS -->
-    <section class="py-24 px-6">
-        <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-10">
-            <div class="p-12 rounded-full border-4 border-brand/20 bg-brand/5 text-center aspect-square flex flex-col justify-center items-center group hover:border-brand transition-all" data-aos="flip-right">
-                <div class="text-6xl font-black text-brand mb-2" id="stat-buyers">0</div>
-                <div class="text-[8px] font-black uppercase tracking-widest">Verified_Agents</div>
+    <!-- BUSY STATS -->
+    <section class="py-20 px-6 relative z-10">
+        <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div class="bg-brand/10 border-2 border-brand p-10 text-center relative group overflow-hidden">
+                <div class="text-7xl font-black text-brand mb-2" id="stat-buyers">0</div>
+                <div class="text-[9px] font-pixel text-white/40">AGENTS_CONNECTED</div>
             </div>
-            <div class="p-12 rounded-full border-4 border-pink/20 bg-pink/5 text-center aspect-square flex flex-col justify-center items-center group hover:border-pink transition-all" data-aos="flip-right" data-aos-delay="100">
-                <div class="text-6xl font-black text-pink mb-2" id="stat-visitors">0</div>
-                <div class="text-[8px] font-black uppercase tracking-widest">Global_Hits</div>
+            <div class="bg-pink/10 border-2 border-pink p-10 text-center relative group overflow-hidden">
+                <div class="text-7xl font-black text-pink mb-2" id="stat-visitors">0</div>
+                <div class="text-[9px] font-pixel text-white/40">SYSTEM_HITS</div>
             </div>
-            <div class="p-12 rounded-full border-4 border-neon/20 bg-neon/5 text-center aspect-square flex flex-col justify-center items-center group hover:border-neon transition-all" data-aos="flip-right" data-aos-delay="200">
-                <div class="text-6xl font-black text-neon mb-2">100%</div>
-                <div class="text-[8px] font-black uppercase tracking-widest">Integrity</div>
+            <div class="bg-neon/10 border-2 border-neon p-10 text-center relative group overflow-hidden">
+                <div class="text-7xl font-black text-neon mb-2">99.9%</div>
+                <div class="text-[9px] font-pixel text-white/40">STABILITY_LOCK</div>
             </div>
-            <div class="p-12 rounded-full border-4 border-white/20 bg-white/5 text-center aspect-square flex flex-col justify-center items-center group hover:border-white transition-all" data-aos="flip-right" data-aos-delay="300">
-                <div class="text-6xl font-black text-white mb-2">0.0ms</div>
-                <div class="text-[8px] font-black uppercase tracking-widest">Latency</div>
+            <div class="bg-white/5 border-2 border-white/20 p-10 text-center relative group overflow-hidden">
+                <div class="text-7xl font-black text-white mb-2">0.0ms</div>
+                <div class="text-[9px] font-pixel text-white/40">LATENCY_SYNC</div>
             </div>
         </div>
     </section>
 
-    <!-- LIQUID PRODUCT HUB -->
-    <section id="products" class="py-40 px-6 relative">
+    <!-- PRODUCT HUD -->
+    <section id="products" class="py-40 px-6 relative z-10">
         <div class="max-w-7xl mx-auto">
-            <h2 class="text-6xl md:text-[10rem] font-black tracking-tighter text-center mb-32 uppercase rainbow-text italic">THE_HARDWARE</h2>
+            <h2 class="text-6xl md:text-[10rem] font-black tracking-tighter text-center mb-32 uppercase rainbow-text">THE_GEAR</h2>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-16">
                 <!-- PTERO -->
-                <div class="chaos-card group" id="card-ptero" data-aos="fade-up">
-                    <div id="badge-ptero" class="hidden bg-red-500 text-white font-black text-[9px] px-6 py-2 rounded-full mb-10 w-fit mx-auto shadow-[0_0_20px_#ef4444]">OFFLINE_CRITICAL</div>
-                    <div class="w-24 h-24 bg-brand/20 rounded-full flex items-center justify-center mx-auto mb-12 shadow-[0_0_40px_rgba(0,242,254,0.3)]"><i class="fa-solid fa-microchip text-4xl text-brand"></i></div>
-                    <h3 class="text-3xl font-black mb-6 text-center uppercase tracking-tighter">NODE_PTERO</h3>
-                    <p class="text-white/40 text-[11px] font-mono text-center mb-16">>> RAM: 1-32GB DYNAMIC<br>>> CPU: OVERCLOCKED XEON<br>>> LINK: 10GBPS PORT</p>
-                    <button onclick="location.href='order-panel.html'" id="btn-ptero" class="pill-btn w-full !py-4 !text-[10px] !shadow-none hover:!shadow-[0_0_50px_#00f2fe]">EXECUTE_DEPLOY</button>
+                <div class="cyber-card group" id="card-ptero" data-aos="fade-up">
+                    <div id="badge-ptero" class="hidden bg-danger text-white font-black text-[9px] px-6 py-2 rounded mb-8 block text-center shadow-[0_0_20px_red]">LOCKED_BY_ADMIN</div>
+                    <i class="fa-solid fa-microchip text-7xl mb-10 text-brand group-hover:animate-pulse"></i>
+                    <h3 class="text-4xl font-black mb-6 italic">PTERO_V.4</h3>
+                    <p class="text-white/40 text-[11px] font-mono mb-12 border-l-4 border-brand pl-4">CPU: AMD EPYC GEN-3<br>RAM: DYNAMIC_ALLOC<br>SSD: NVME_GEN5</p>
+                    <button onclick="window.location.href='order-panel.html'" id="btn-ptero" class="ultra-btn w-full !py-4 !text-[10px] !shadow-none hover:!shadow-[0_0_50px_#00f2fe]">EXECUTE_ORDER</button>
                 </div>
                 <!-- DO -->
-                <div class="chaos-card group" id="card-do" data-aos="fade-up" data-aos-delay="150">
-                    <div id="badge-do" class="hidden bg-red-500 text-white font-black text-[9px] px-6 py-2 rounded-full mb-10 w-fit mx-auto">MAINTENANCE</div>
-                    <div class="w-24 h-24 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-12 shadow-[0_0_40px_rgba(59,130,246,0.3)]"><i class="fa-brands fa-digital-ocean text-4xl text-blue-500"></i></div>
-                    <h3 class="text-3xl font-black mb-6 text-center uppercase tracking-tighter">CLOUD_D.O</h3>
-                    <p class="text-white/40 text-[11px] font-mono text-center mb-16">>> BALANCE: $200.00<br>>> LIMIT: 10 DROPS<br>>> STATUS: FRESH_BOOT</p>
-                    <button onclick="location.href='https://wa.me/6285102360656?text=Beli_DO'" id="btn-do" class="pill-btn w-full !py-4 !text-[10px] !bg-blue-600 !shadow-none hover:!shadow-[0_0_50px_#3b82f6]">ORDER_SYSTEM</button>
+                <div class="cyber-card group" id="card-do" data-aos="fade-up" data-aos-delay="100">
+                    <div id="badge-do" class="hidden bg-danger text-white font-black text-[9px] px-6 py-2 rounded mb-8 block text-center">MAINTENANCE</div>
+                    <i class="fa-brands fa-digital-ocean text-7xl mb-10 text-blue-500 group-hover:animate-bounce"></i>
+                    <h3 class="text-4xl font-black mb-6 italic">DO_SYSTEM</h3>
+                    <p class="text-white/40 text-[11px] font-mono mb-12 border-l-4 border-blue-500 pl-4">CREDIT: $200 READY<br>DROPS: 10 ACTIVE<br>STATUS: FRESH_BOOT</p>
+                    <button onclick="window.location.href='https://wa.me/6285102360656?text=Beli_DO'" id="btn-do" class="ultra-btn w-full !py-4 !text-[10px] !bg-blue-600 !text-white !shadow-none hover:!shadow-[0_0_50px_#3b82f6]">GET_CREDENTIALS</button>
                 </div>
                 <!-- SOURCE -->
-                <div class="chaos-card group" data-aos="fade-up" data-aos-delay="300">
-                    <div class="w-24 h-24 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto mb-12 shadow-[0_0_40px_rgba(16,185,129,0.3)]"><i class="fa-solid fa-code text-4xl text-emerald-400"></i></div>
-                    <h3 class="text-3xl font-black mb-6 text-center uppercase tracking-tighter">RAW_SOURCE</h3>
-                    <p class="text-white/40 text-[11px] font-mono text-center mb-16">>> TYPE: WA_BOT_AI<br>>> LANG: JAVASCRIPT<br>>> SYNC: AUTO_PATCH</p>
-                    <button onclick="window.open('https://freezeehostbot.vercel.app')" class="pill-btn w-full !py-4 !text-[10px] !bg-emerald-600 !shadow-none hover:!shadow-[0_0_50px_#10b981]">GET_SCRIPTS</button>
+                <div class="cyber-card group" data-aos="fade-up" data-aos-delay="200">
+                    <i class="fa-solid fa-code-merge text-7xl mb-10 text-emerald-400 group-hover:rotate-12"></i>
+                    <h3 class="text-4xl font-black mb-6 italic">RAW_CODES</h3>
+                    <p class="text-white/40 text-[11px] font-mono mb-12 border-l-4 border-emerald-400 pl-4">TYPE: BOT_WHATSAPP<br>LANG: NODE_JS<br>SYNC: AUTO_PATCH</p>
+                    <button onclick="window.open('https://freezeehostbot.vercel.app')" class="ultra-btn w-full !py-4 !text-[10px] !bg-emerald-600 !text-white !shadow-none hover:!shadow-[0_0_50px_#10b981]">EXTRACT_SCRIPTS</button>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- LIVE DATA TERMINAL -->
-    <section class="py-40 px-6">
-        <div class="max-w-5xl mx-auto bg-white/5 border-4 border-brand p-16 rounded-[4rem] relative overflow-hidden shadow-[0_0_100px_rgba(0,242,254,0.1)]">
-            <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-brand via-pink to-neon animate-rainbow"></div>
+    <!-- LIVE LOGS -->
+    <section class="py-40 px-6 relative z-10">
+        <div class="max-w-5xl mx-auto bg-black border-8 border-double border-brand p-16 rounded-[3rem] relative overflow-hidden shadow-[0_0_100px_rgba(0,242,254,0.2)]">
+            <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-brand via-pink to-neon animate-pulse"></div>
             <div class="flex items-center gap-4 mb-12">
                 <div class="w-4 h-4 rounded-full bg-brand animate-ping"></div>
-                <span class="font-pixel text-[10px] text-brand uppercase">Global_Live_Traffic</span>
+                <span class="font-pixel text-[10px] text-brand uppercase tracking-widest">Global_Live_Traffic</span>
             </div>
             <div id="live-feed" class="space-y-4 font-mono text-[12px] text-white/40 h-80 overflow-hidden"></div>
         </div>
     </section>
 
-    <footer class="py-40 bg-brand text-black text-center px-6 relative overflow-hidden">
-        <div class="absolute top-0 left-0 w-full h-full opacity-5 flex flex-wrap gap-20 font-black text-[100px] leading-none">CHAOS CHAOS CHAOS CHAOS</div>
-        <h2 class="text-7xl md:text-[15rem] font-black tracking-tighter mb-16 italic">FREEZEEHOST</h2>
-        <div class="flex justify-center gap-20 relative z-10">
+    <footer class="py-40 bg-brand text-black text-center px-6 relative overflow-hidden z-10">
+        <h2 class="text-7xl md:text-[15rem] font-black tracking-tighter mb-16 italic opacity-20">FREEZEEHOST</h2>
+        <div class="flex justify-center gap-20 mb-20 relative z-10">
             <a href="https://wa.me/6285102360656" class="hover:scale-150 transition-all text-7xl"><i class="fa-brands fa-whatsapp"></i></a>
             <a href="https://t.me/FreeZeeHost" class="hover:scale-150 transition-all text-7xl"><i class="fa-brands fa-telegram"></i></a>
         </div>
-        <p class="font-mono text-[12px] font-black tracking-[1.5em] mt-24">SYSTEM_DEPOLYED_2026_V.4.0</p>
+        <p class="font-pixel text-[10px] tracking-[1.5em]">SYSTEM_VERSION_2026_V.4.8.0</p>
     </footer>
 
-    <div id="purchase-toast">NEW_AGENT_CONNECTED: USER_092 BOUGHT UNLIMITED_RAM_v2</div>
+    <div id="purchase-toast">NEW_AGENT_CONNECTED: AGENT_092 BOUGHT UNLIMITED_RAM</div>
 
     <!-- CS BUTTON -->
     <a href="https://wa.me/6285102360656" target="_blank" class="fixed bottom-12 right-12 z-[20000]">
-        <div class="w-24 h-24 bg-pink text-white flex items-center justify-center rounded-full shadow-[0_0_60px_#ff00c8] hover:scale-125 transition-all border-4 border-white animate-bounce">
+        <div class="w-24 h-24 bg-pink text-white flex items-center justify-center rounded-full shadow-[0_0_60px_#ff00c8] hover:scale-125 transition-all border-4 border-white">
             <i class="fa-brands fa-whatsapp text-4xl"></i>
         </div>
     </a>
@@ -226,25 +229,40 @@
     <script>
         AOS.init();
 
-        // PARTICLE BACKGROUND
-        const canvas = document.getElementById('bg-canvas');
-        const ctx = canvas.getContext('2d');
-        let pArray = [];
-        canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-        class P {
-            constructor() {
-                this.x = Math.random() * canvas.width;
-                this.y = Math.random() * canvas.height;
-                this.s = Math.random() * 2;
-                this.vX = Math.random() * 2 - 1;
-                this.vY = Math.random() * 2 - 1;
-            }
-            u() { this.x += this.vX; this.y += this.vY; if(this.x > canvas.width) this.x = 0; if(this.y > canvas.height) this.y = 0; }
-            d() { ctx.fillStyle = '#00f2fe'; ctx.beginPath(); ctx.arc(this.x, this.y, this.s, 0, Math.PI*2); ctx.fill(); }
+        // MATRIX
+        const mCanvas = document.getElementById('bg-canvas');
+        const mCtx = mCanvas.getContext('2d');
+        mCanvas.width = window.innerWidth; mCanvas.height = window.innerHeight;
+        const letters = "0101010101010101";
+        const fontSize = 14;
+        const drops = Array(Math.floor(mCanvas.width / fontSize)).fill(1);
+        function drawMatrix() {
+            mCtx.fillStyle = "rgba(0, 0, 0, 0.1)"; mCtx.fillRect(0, 0, mCanvas.width, mCanvas.height);
+            mCtx.fillStyle = "#00f2fe"; mCtx.font = fontSize + "px monospace";
+            drops.forEach((y, i) => {
+                const text = letters.charAt(Math.floor(Math.random() * letters.length));
+                mCtx.fillText(text, i * fontSize, y * fontSize);
+                if (y * fontSize > mCanvas.height && Math.random() > 0.975) drops[i] = 0;
+                drops[i]++;
+            });
         }
-        function init() { for(let i=0; i<200; i++) pArray.push(new P()); }
-        function anim() { ctx.clearRect(0,0,canvas.width,canvas.height); pArray.forEach(p => { p.u(); p.d(); }); requestAnimationFrame(anim); }
-        init(); anim();
+        setInterval(drawMatrix, 50);
+
+        // TYPEWRITER
+        const textLines = ["> ACCESSING_ILICIT_FILES...", "> DOWNLOADING_CORE_DATA...", "> SECURITY_BYPASSED.", "> WELCOME_MASTER_HACKER."];
+        let lineIdx = 0; let charIdx = 0;
+        function type() {
+            if (lineIdx < textLines.length) {
+                if (charIdx < textLines[lineIdx].length) {
+                    document.getElementById('typewriter').innerHTML += textLines[lineIdx].charAt(charIdx);
+                    charIdx++; setTimeout(type, 30);
+                } else {
+                    document.getElementById('typewriter').innerHTML += "<br>";
+                    lineIdx++; charIdx = 0; setTimeout(type, 500);
+                }
+            }
+        }
+        window.onload = () => { type(); fetchStats(); };
 
         // MOUSE HUD
         const hud = document.getElementById('mouse-hud');
@@ -269,22 +287,25 @@
                 document.getElementById('stat-buyers').innerText = data.stats.totalBuyers;
                 document.getElementById('stat-visitors').innerText = data.stats.totalVisitors;
                 if (data.services.ptero === 'offline') {
-                    document.getElementById('card-ptero').style.filter = 'grayscale(1) brightness(0.5)';
+                    const card = document.getElementById('card-ptero');
+                    card.style.filter = 'grayscale(1) brightness(0.5)';
+                    card.style.pointerEvents = 'none';
                     document.getElementById('badge-ptero').classList.remove('hidden');
                     document.getElementById('btn-ptero').innerHTML = 'SYSTEM_LOCKED';
                 }
             } catch (e) {}
         }
-        window.onload = fetchStats;
 
         const feed = document.getElementById('live-feed');
-        const logs = ["PORT_ACCESS_GRANTED.", "DDoS_SHIELD_UP.", "SYNC_CLUSTER_US_1.", "MEM_LEAK_FIXED.", "NODE_SG_STABLE.", "ENCRYPTING_TRAFFIC...", "HANDSHAKE_COMPLETE.", "DATABASE_REPLICATION_OK."];
+        const logs = ["NODE_SG_CONNECTED.", "DDoS_SHIELD_UP.", "MEM_LEAK_FIXED.", "ENCRYPTING_DATABASE...", "PORT_SCANNING...", "PACKET_INJECTED.", "ROOT_ACCESS_GRANTED."];
         setInterval(() => {
             if(!feed) return;
             const d = document.createElement('div');
-            d.innerHTML = `<span style="color:#00f2fe">[${new Date().toLocaleTimeString()}]</span> system@overdrive: ${logs[Math.floor(Math.random()*logs.length)]}`;
+            d.innerHTML = `<span style="color:#00f2fe">[${new Date().toLocaleTimeString()}]</span> system@chaos: ${logs[Math.floor(Math.random()*logs.length)]}`;
             feed.prepend(d); if (feed.children.length > 15) feed.lastChild.remove();
-        }, 1500);
+        }, 1200);
+
+        @keyframes tickerMove { from { transform: translateX(100%); } to { transform: translateX(-100%); } }
     </script>
 </body>
 </html>
