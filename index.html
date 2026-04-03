@@ -39,8 +39,10 @@
         .service-item { transition: all 0.4s ease; padding: 2.5rem 2rem; border-radius: 32px; border: 1px solid transparent; }
         .service-item:hover { background: rgba(255, 255, 255, 0.02); border-color: rgba(0, 242, 254, 0.1); transform: translateY(-5px); }
         .maintenance { opacity: 0.4; filter: grayscale(1); pointer-events: none !important; }
-        .animate-marquee { animation: marquee 40s linear infinite; }
+        .btn-glow { background: #fff; color: #000; transition: all 0.3s ease; }
+        .btn-glow:hover { box-shadow: 0 0 25px rgba(0, 242, 254, 0.4); transform: scale(1.02); }
         @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+        .animate-marquee { animation: marquee 30s linear infinite; }
         body::before { content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-image: url("https://grainy-gradients.vercel.app/noise.svg"); opacity: 0.03; pointer-events: none; z-index: 99; }
     </style>
 </head>
@@ -72,19 +74,19 @@
     </nav>
 
     <section id="home" class="min-h-screen flex flex-col items-start justify-center pt-20">
-        <div class="max-w-5xl mx-auto px-6 text-left w-full" data-aos="fade-up" data-aos-duration="1500">
-            <div class="inline-block px-4 py-1.5 rounded-full border border-brand/20 bg-brand/5 text-brand text-[9px] font-black uppercase tracking-[0.3em] mb-10" id="cyber-greeting">SELAMAT DATANG, SIR</div>
+        <div class="max-w-5xl mx-auto px-6 text-left w-full" data-aos="zoom-out" data-aos-duration="1500">
+            <div class="inline-block px-4 py-1.5 rounded-full border border-brand/20 bg-brand/5 text-brand text-[9px] font-black uppercase tracking-[0.3em] mb-10" id="cyber-greeting">INITIALIZING...</div>
             <h1 class="hero-title text-6xl md:text-7xl lg:text-[7.5rem] font-extrabold leading-[1.1] md:leading-[0.9] mb-8 tracking-tight md:tracking-tighter">Powering <br>The <span class="text-brand">Future.</span></h1>
-            <p class="text-white/40 text-lg md:text-xl max-w-2xl mb-12 font-medium leading-relaxed">Hosting super dingin dengan performa tanpa batas. <br> Aktivasi instan untuk server game, bot, dan cloud vps.</p>
+            <p class="text-white/40 text-lg md:text-xl max-w-2xl mb-12 font-medium leading-relaxed">Hosting super dingin dengan performa tanpa batas. <br class="hidden md:block"> Aktivasi instan untuk server game, bot, dan cloud vps.</p>
             <div class="flex flex-col md:flex-row justify-start gap-4 md:gap-6 w-full md:w-auto">
-                <a href="#products" class="bg-white text-black px-12 py-4 rounded-full text-xs font-black uppercase tracking-widest shadow-2xl hover:scale-105 transition-all text-center">Mulai Sekarang</a>
+                <a href="#products" id="btn-magnetic" class="bg-white text-black px-12 py-4 rounded-full text-xs font-black uppercase tracking-widest shadow-2xl hover:scale-105 transition-all text-center">Mulai Sekarang</a>
                 <a href="https://wa.me/6285102360656" class="px-12 py-4 rounded-full text-xs font-black uppercase tracking-widest border border-white/10 hover:bg-white/5 transition-all text-center">Hubungi Kami</a>
             </div>
         </div>
     </section>
 
     <section class="py-20">
-        <div class="max-w-5xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-12 text-left">
+        <div class="max-w-5xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12 text-left">
             <div data-aos="fade-up">
                 <div class="text-3xl md:text-4xl font-bold mb-2 tracking-tighter" id="stat-buyers">0</div>
                 <div class="text-[8px] md:text-[9px] font-black text-white/30 uppercase tracking-[0.2em]">Pelanggan</div>
@@ -94,12 +96,12 @@
                 <div class="text-[8px] md:text-[9px] font-black text-white/30 uppercase tracking-[0.2em]">Pengunjung</div>
             </div>
             <div data-aos="fade-up" data-aos-delay="200">
-                <div class="text-3xl md:text-4xl font-bold mb-2 tracking-tighter" id="stat-uptime">24/7</div>
+                <div class="text-3xl md:text-4xl font-bold mb-2 tracking-tighter">24/7</div>
                 <div class="text-[8px] md:text-[9px] font-black text-white/30 uppercase tracking-[0.2em]">Uptime</div>
             </div>
             <div data-aos="fade-up" data-aos-delay="300">
                 <div class="text-3xl md:text-4xl font-bold mb-2 tracking-tighter text-emerald-400" id="stat-status">ONLINE</div>
-                <div class="text-[8px] md:text-[9px] font-black text-white/30 uppercase tracking-[0.2em]">Koneksi</div>
+                <div class="text-[8px] md:text-[9px] font-black text-white/30 uppercase tracking-[0.2em]">Node Status</div>
             </div>
         </div>
     </section>
@@ -123,7 +125,7 @@
                     <div class="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-white/5 border border-white/5 mt-8"><div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div><span class="text-[10px] text-white/50 font-black uppercase tracking-widest">+142 Online Now</span></div>
                 </div>
                 <div class="md:w-1/2 w-full" data-aos="fade-left">
-                    <div class="p-6 md:p-8 rounded-[2rem] bg-white/[0.02] border border-white/5 font-mono text-[10px] md:text-[11px] h-72 overflow-hidden relative">
+                    <div class="p-6 md:p-8 rounded-[2rem] bg-white/[0.02] border border-white/5 font-mono text-[10px] md:text-[11px] h-72 overflow-hidden relative shadow-2xl">
                         <div id="live-feed" class="space-y-3"></div>
                         <div class="absolute bottom-0 left-0 w-full h-24 bg-gradient-to-t from-black to-transparent"></div>
                     </div>
@@ -133,7 +135,7 @@
     </section>
 
     <section class="py-16 border-y border-white/[0.03] bg-white/[0.01]">
-        <div class="flex overflow-hidden">
+        <div class="flex overflow-hidden group">
             <div class="flex py-4 animate-marquee whitespace-nowrap gap-16 md:gap-32">
                 <span class="text-white/20 text-xs md:text-sm font-black uppercase tracking-[0.5em] flex items-center gap-4"><i class="fa-solid fa-snowflake text-brand"></i> PTERODACTYL</span>
                 <span class="text-white/20 text-xs md:text-sm font-black uppercase tracking-[0.5em] flex items-center gap-4"><i class="fa-brands fa-digital-ocean text-blue-500"></i> DIGITAL OCEAN</span>
@@ -149,33 +151,38 @@
 
     <section id="products" class="py-32 md:py-48">
         <div class="max-w-6xl mx-auto px-6">
-            <h2 class="text-4xl md:text-6xl font-extrabold tracking-tighter text-white mb-20">Infrastruktur <br>Pilihan.</h2>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-16">
-                <div class="service-item group relative" id="card-ptero" data-aos="fade-up">
-                    <div id="badge-ptero" class="hidden absolute -top-4 left-0 bg-red-500 text-white text-[7px] font-black uppercase tracking-[0.2em] px-3 py-1 rounded-full shadow-lg">OFFLINE</div>
-                    <i class="fa-solid fa-gamepad text-5xl mb-10 text-white/10 group-hover:text-brand transition-all duration-500"></i>
+            <div class="mb-20 md:mb-32 text-left">
+                <div class="text-brand text-[10px] font-black uppercase tracking-[0.4em] mb-4">Our Services</div>
+                <h2 class="text-4xl md:text-6xl font-extrabold tracking-tighter text-white">Infrastruktur <br>Pilihan.</h2>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 md:gap-16">
+                <div class="service-item group text-left relative" id="card-ptero" data-aos="fade-up">
+                    <div class="absolute -top-4 left-0 bg-brand/10 border border-brand/30 text-brand text-[7px] font-black uppercase tracking-[0.2em] px-3 py-1 rounded-full shadow-lg">Best Seller</div>
+                    <div id="badge-ptero" class="hidden absolute top-6 right-6 bg-red-500 text-white text-[8px] font-black px-3 py-1 rounded-full">OFFLINE</div>
+                    <div class="flex items-center justify-start gap-4 mb-10"><i class="fa-solid fa-gamepad text-5xl text-white/10 group-hover:text-brand transition-all duration-500"></i></div>
                     <h3 class="text-xl font-bold mb-4 text-white">Panel Pterodactyl</h3>
-                    <p class="text-white/40 text-xs leading-relaxed mb-10">Manajemen server game dan bot dengan performa maksimal.</p>
-                    <a href="order-panel.html" id="btn-ptero" class="text-brand text-[10px] font-black uppercase tracking-[0.2em] flex items-center gap-3">ORDER NOW <i class="fa-solid fa-arrow-right"></i></a>
+                    <p class="text-white/40 text-xs leading-relaxed mb-10 text-left">Manajemen server game dan bot dengan performa maksimal.</p>
+                    <a href="order-panel.html" id="btn-ptero" class="text-brand text-[10px] font-black uppercase tracking-[0.2em] flex items-center justify-start gap-3 group-hover:gap-5 transition-all">ORDER NOW <i class="fa-solid fa-arrow-right"></i></a>
                 </div>
-                <div class="service-item group relative" id="card-do" data-aos="fade-up" data-aos-delay="100">
-                    <div id="badge-do" class="hidden absolute -top-4 left-0 bg-red-500 text-white text-[7px] font-black uppercase tracking-[0.2em] px-3 py-1 rounded-full shadow-lg">OFFLINE</div>
+                <div class="service-item group text-left relative" id="card-do" data-aos="fade-up" data-aos-delay="100">
+                    <div id="badge-do" class="hidden absolute top-6 right-6 bg-red-500 text-white text-[8px] font-black px-3 py-1 rounded-full">OFFLINE</div>
                     <i class="fa-brands fa-digital-ocean text-5xl mb-10 text-white/10 group-hover:text-blue-500 transition-all duration-500"></i>
                     <h3 class="text-xl font-bold mb-4 text-white">Cloud VPS</h3>
-                    <p class="text-white/40 text-xs leading-relaxed mb-10">Akses root penuh dengan stabilitas jaringan kelas atas.</p>
-                    <a href="order-vps.html" id="btn-do" class="text-brand text-[10px] font-black uppercase tracking-[0.2em] flex items-center gap-3">ORDER NOW <i class="fa-solid fa-arrow-right"></i></a>
+                    <p class="text-white/40 text-xs leading-relaxed mb-10 text-left">Akses root penuh dengan stabilitas jaringan kelas atas.</p>
+                    <a href="order-vps.html" id="btn-do" class="text-brand text-[10px] font-black uppercase tracking-[0.2em] flex items-center justify-start gap-3 group-hover:gap-5 transition-all">ORDER NOW <i class="fa-solid fa-arrow-right"></i></a>
                 </div>
-                <div class="service-item group" data-aos="fade-up" data-aos-delay="200">
+                <div class="service-item group text-left relative" data-aos="fade-up" data-aos-delay="200">
+                    <div class="absolute -top-4 left-0 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[7px] font-black uppercase tracking-[0.2em] px-3 py-1 rounded-full shadow-lg">Premium Script</div>
                     <i class="fa-solid fa-code text-5xl mb-10 text-white/10 group-hover:text-emerald-400 transition-all duration-500"></i>
                     <h3 class="text-xl font-bold mb-4 text-white">Source Script</h3>
-                    <p class="text-white/40 text-xs leading-relaxed mb-10">Katalog script bot WhatsApp premium siap pakai.</p>
-                    <a href="https://freezeehostbot.vercel.app" class="text-brand text-[10px] font-black uppercase tracking-[0.2em] flex items-center gap-3">VIEW CATALOG <i class="fa-solid fa-arrow-right"></i></a>
+                    <p class="text-white/40 text-xs leading-relaxed mb-10 text-left">Katalog script bot WhatsApp premium siap pakai.</p>
+                    <a href="https://freezeehostbot.vercel.app" target="_blank" class="text-brand text-[10px] font-black uppercase tracking-[0.2em] flex items-center justify-start gap-3 group-hover:gap-5 transition-all">VIEW CATALOG <i class="fa-solid fa-arrow-right"></i></a>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- FLOATING CS BUTTON -->
+    <!-- CS BUTTON -->
     <a href="https://wa.me/6285102360656" target="_blank" class="fixed bottom-8 right-8 z-[100] group">
         <div class="absolute inset-0 bg-brand rounded-full blur-xl opacity-20 animate-pulse"></div>
         <div class="relative w-16 h-16 bg-white flex items-center justify-center rounded-full shadow-2xl transition-transform group-hover:scale-110">
@@ -187,15 +194,39 @@
     <script>
         AOS.init({ once: true, duration: 1000 });
         
-        // PERFORMANCE CHART
+        // GREETING
+        const gr = document.getElementById('cyber-greeting');
+        const hr = new Date().getHours();
+        if(hr < 12) gr.innerText = "SELAMAT PAGI, COMMANDER";
+        else if(hr < 18) gr.innerText = "SISTEM SIAP DIGUNAKAN, SIR";
+        else gr.innerText = "SELAMAT MALAM, AGENT";
+
+        // MAGNETIC
+        const btnM = document.getElementById('btn-magnetic');
+        document.addEventListener('mousemove', e => {
+            const r = btnM.getBoundingClientRect();
+            const x = e.clientX - (r.left + r.width/2), y = e.clientY - (r.top + r.height/2);
+            if(Math.abs(x) < 100 && Math.abs(y) < 100) btnM.style.transform = `translate(${x*0.3}px, ${y*0.3}px)`;
+            else btnM.style.transform = `translate(0,0)`;
+            document.documentElement.style.setProperty('--mouse-x', `${(e.clientX/window.innerWidth)*100}%`);
+            document.documentElement.style.setProperty('--mouse-y', `${(e.clientY/window.innerHeight)*100}%`);
+        });
+
+        // RIPPLE
+        document.addEventListener('mousedown', e => {
+            const rip = document.getElementById('click-ripple');
+            rip.style.setProperty('--click-x', `${e.clientX}px`); rip.style.setProperty('--click-y', `${e.clientY}px`);
+            rip.style.opacity = "1"; setTimeout(() => rip.style.opacity = "0", 600);
+        });
+
+        // CHART
         const ctx = document.getElementById('performanceChart').getContext('2d');
         new Chart(ctx, {
             type: 'line',
             data: {
                 labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
                 datasets: [{
-                    label: 'Network Load',
-                    data: [30, 45, 32, 70, 55, 90, 85],
+                    label: 'Load', data: [30, 45, 32, 70, 55, 90, 85],
                     borderColor: '#00f2fe', borderWidth: 3, pointRadius: 0, tension: 0.4, fill: true,
                     backgroundColor: (c) => { const g = c.chart.ctx.createLinearGradient(0, 0, 0, 300); g.addColorStop(0, 'rgba(0, 242, 254, 0.2)'); g.addColorStop(1, 'rgba(0, 242, 254, 0)'); return g; }
                 }]
@@ -208,35 +239,27 @@
                 await fetch('/api/stats/visit');
                 const res = await fetch('/api/check-services');
                 const data = await res.json();
-                
                 document.getElementById('stat-buyers').innerText = data.stats.totalBuyers;
                 document.getElementById('stat-visitors').innerText = data.stats.totalVisitors;
-                
                 if (data.services.ptero === 'offline') {
                     document.getElementById('card-ptero').classList.add('maintenance');
                     document.getElementById('badge-ptero').classList.remove('hidden');
                     document.getElementById('btn-ptero').innerHTML = 'OFFLINE';
                     document.getElementById('stat-status').innerText = 'MAINTENANCE';
-                    document.getElementById('stat-status').classList.replace('text-emerald-400', 'text-red-500');
+                    document.getElementById('stat-status').className = 'text-3xl md:text-4xl font-bold mb-2 text-red-500';
                     document.getElementById('nav-order-btn').classList.add('hidden');
                 }
-                
                 if (data.services.do === 'offline') {
                     document.getElementById('card-do').classList.add('maintenance');
                     document.getElementById('badge-do').classList.remove('hidden');
                     document.getElementById('btn-do').innerHTML = 'OFFLINE';
                 }
-            } catch (e) { console.error("Stats Error"); }
+            } catch (e) {}
         }
         window.onload = fetchStats;
 
-        document.addEventListener('mousemove', e => {
-            document.documentElement.style.setProperty('--mouse-x', `${(e.clientX / window.innerWidth) * 100}%`);
-            document.documentElement.style.setProperty('--mouse-y', `${(e.clientY / window.innerHeight) * 100}%`);
-        });
-
         const feed = document.getElementById('live-feed');
-        const logs = ["Init FreeZeeHost...", "Deploy US-1 Node...", "Verified FZH-992.", "Alloc RAM 8GB.", "Agent joined."];
+        const logs = ["Init FreeZeeHost...", "Deploy Node...", "Verified FZH-992.", "Alloc RAM 8GB.", "User joined."];
         setInterval(() => {
             if(!feed) return;
             const div = document.createElement('div');
@@ -245,6 +268,11 @@
             feed.prepend(div);
             if (feed.children.length > 8) feed.lastChild.remove();
         }, 3000);
+
+        window.onscroll = () => {
+            const h = document.documentElement, b = document.body, st = 'scrollTop', sh = 'scrollHeight';
+            document.getElementById('scroll-progress').style.width = (h[st]||b[st]) / ((h[sh]||b[sh]) - h.clientHeight) * 100 + '%';
+        };
     </script>
 </body>
 </html>
