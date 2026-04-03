@@ -1,145 +1,106 @@
 <!DOCTYPE html>
-<html lang="id" class="scroll-smooth">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Configure Server | FreeZeeHosting</title>
+    <title>CONFIGURATOR | FREEZEEHOST</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@800&family=JetBrains+Mono:wght@400;700&family=Press+Start+2P&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
-                    fontFamily: {
-                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
-                        display: ['"Space Grotesk"', 'sans-serif'],
-                    },
-                    colors: { brand: '#00f2fe', dark: '#000000' }
+                    fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'], mono: ['"JetBrains Mono"', 'monospace'], pixel: ['"Press Start 2P"', 'cursive'] },
+                    colors: { brand: '#00f2fe', pink: '#ff00c8' }
                 }
             }
         }
     </script>
     <style>
-        body { background-color: #000000; color: #ffffff; overflow-x: hidden; }
-        .grid-bg-static { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-image: linear-gradient(to right, rgba(255, 255, 255, 0.01) 1px, transparent 1px), linear-gradient(to bottom, rgba(255, 255, 255, 0.01) 1px, transparent 1px); background-size: 50px 50px; z-index: -2; }
-        .grid-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-image: linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px), linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px); background-size: 50px 50px; mask-image: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), black 0%, transparent 50%); -webkit-mask-image: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), black 0%, transparent 50%); z-index: -1; }
-        .glow-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 50% 0%, rgba(0, 242, 254, 0.05) 0%, transparent 50%); z-index: -1; }
-        .custom-input { background: transparent; border: none; border-bottom: 1px solid rgba(255,255,255,0.1); color: white; border-radius: 0; padding: 0.5rem 0; transition: all 0.3s; }
-        .custom-input:focus { border-bottom-color: #00f2fe; outline: none; }
-        .selection-item { cursor: pointer; transition: all 0.3s ease; opacity: 0.3; filter: grayscale(1); position: relative; z-index: 10; }
-        .selection-item:hover { opacity: 0.6; transform: translateY(-2px); }
-        .radio-hidden { position: absolute; opacity: 0; width: 0; height: 0; }
-        .radio-hidden:checked + .selection-item { opacity: 1 !important; filter: grayscale(0) !important; transform: scale(1.05); text-shadow: 0 0 15px rgba(0, 242, 254, 0.4); }
-        .radio-hidden:checked + .selection-item i { color: #00f2fe; }
-        .btn-action { background: #fff; color: #000; font-weight: 900; transition: all 0.3s; cursor: pointer; position: relative; z-index: 70; }
-        .btn-action:hover { box-shadow: 0 0 25px rgba(0, 242, 254, 0.3); transform: scale(1.02); }
-        .btn-action:disabled { background: #1e293b; color: #475569; pointer-events: none; }
-        .step-dot { width: 5px; height: 5px; border-radius: 50%; background: rgba(255,255,255,0.1); transition: all 0.4s; }
-        .step-dot.active { background: #00f2fe; box-shadow: 0 0 10px #00f2fe; transform: scale(1.3); }
-        .section-hidden { opacity: 0; pointer-events: none; height: 0; overflow: hidden; transform: translateY(10px); transition: all 0.5s ease; }
-        .section-visible { opacity: 1; pointer-events: auto; height: auto; transform: translateY(0); transition: all 0.5s ease; }
-        body::before { content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-image: url("https://grainy-gradients.vercel.app/noise.svg"); opacity: 0.03; pointer-events: none; z-index: 99; }
+        body { background-color: #000; color: #fff; overflow-x: hidden; cursor: crosshair; }
+        .chaos-card { background: rgba(10, 10, 10, 0.9); border: 2px solid rgba(255,255,255,0.1); border-radius: 3rem; padding: 3rem; backdrop-filter: blur(40px); position: relative; overflow: hidden; z-index: 100; }
+        .custom-input { background: rgba(255,255,255,0.05); border: 2px solid rgba(255,255,255,0.1); color: #00f2fe; border-radius: 1rem; padding: 1.5rem; font-family: 'JetBrains Mono'; font-weight: 700; width: 100%; transition: 0.3s; }
+        .custom-input:focus { border-color: #ff00c8; outline: none; }
+        .selection-item { cursor: pointer; transition: 0.3s; opacity: 0.3; filter: grayscale(1); }
+        .radio-hidden { position: absolute; opacity: 0; }
+        .radio-hidden:checked + .selection-item { opacity: 1; filter: grayscale(0); transform: scale(1.1); text-shadow: 0 0 20px #00f2fe; }
+        .btn-action { background: #fff; color: #000; font-weight: 900; padding: 1.2rem 3rem; border-radius: 999px; border: 4px solid #fff; font-size: 12px; text-transform: uppercase; cursor: pointer; transition: 0.3s; box-shadow: 0 0 50px #00f2fe; }
+        .btn-action:hover { background: #ff00c8; color: #fff; transform: scale(1.05); }
+        .step-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.1); transition: 0.4s; }
+        .step-dot.active { background: #00f2fe; box-shadow: 0 0 15px #00f2fe; transform: scale(1.5); }
+        #mouse-hud { position: fixed; width: 80px; height: 80px; border: 1px solid rgba(0, 242, 254, 0.5); border-radius: 50%; z-index: 10000; transform: translate(-50%, -50%); pointer-events: none; }
     </style>
 </head>
-<body class="antialiased">
+<body class="antialiased p-6">
+    <div id="mouse-hud"></div>
 
-    <div class="grid-bg-static"></div>
-    <div class="grid-bg"></div>
-    <div class="glow-overlay"></div>
-
-    <nav class="fixed w-full z-50 py-6 bg-black/40 backdrop-blur-xl border-b border-white/5">
-        <div class="max-w-6xl mx-auto px-8 flex justify-between items-center">
-            <a href="index.html" class="font-display text-lg font-bold tracking-tighter flex items-center gap-2">
-                <i class="fa-solid fa-snowflake text-brand"></i>
+    <nav class="fixed w-full z-[1500] py-8 px-6 top-0 left-0">
+        <div class="max-w-6xl mx-auto flex items-center justify-between h-16 bg-black/60 backdrop-blur-2xl border border-white/10 rounded-full px-8 shadow-2xl">
+            <a href="index.html" class="font-display text-xl font-bold flex items-center gap-3">
+                <i class="fa-solid fa-snowflake text-brand animate-spin-slow"></i>
                 <span>FreeZee<span class="text-brand">Hosting</span></span>
             </a>
-            <div class="flex gap-2" id="step-indicator">
+            <div class="flex gap-3" id="step-indicator">
                 <div class="step-dot active"></div><div class="step-dot"></div><div class="step-dot"></div><div class="step-dot"></div>
             </div>
         </div>
     </nav>
 
     <main class="min-h-screen pt-32 pb-48 px-6">
-        <div class="max-w-3xl mx-auto">
-            <form id="orderForm" class="space-y-24">
-                <section id="step1">
-                    <div class="text-[9px] font-black text-brand uppercase tracking-[0.3em] mb-4">01. Infrastructure</div>
-                    <h2 class="text-3xl md:text-4xl font-extrabold mb-8 tracking-tight">Pilih Pondasi Server.</h2>
-                    <div class="grid grid-cols-2 gap-8">
-                        <label class="relative block">
-                            <input type="radio" name="infra_type" value="legal" class="radio-hidden" onchange="refreshAll()" checked>
-                            <div class="selection-item">
-                                <i class="fa-solid fa-shield-check text-2xl mb-4"></i>
-                                <div class="text-lg font-bold mb-1">VPS Legal</div>
-                                <p class="text-[10px] text-white/30 uppercase font-bold">Murni & Stabil</p>
-                            </div>
-                        </label>
-                        <label class="relative block">
-                            <input type="radio" name="infra_type" value="do" class="radio-hidden" onchange="refreshAll()">
-                            <div class="selection-item">
-                                <i class="fa-brands fa-digital-ocean text-2xl mb-4"></i>
-                                <div class="text-lg font-bold mb-1">VPS D.O</div>
-                                <p class="text-[10px] text-white/30 uppercase font-bold">Global Speed</p>
-                            </div>
-                        </label>
-                    </div>
-                </section>
+        <div class="max-w-4xl mx-auto">
+            <div class="chaos-card border-brand shadow-[0_0_100px_rgba(0,242,254,0.1)]">
+                <form id="orderForm" class="space-y-20">
+                    <section id="step1">
+                        <div class="text-[9px] font-pixel text-brand mb-6">01_INFRASTRUCTURE</div>
+                        <h2 class="text-4xl font-black mb-10 tracking-tighter uppercase italic">Select_Core</h2>
+                        <div class="grid grid-cols-2 gap-10">
+                            <label class="relative block"><input type="radio" name="infra_type" value="legal" class="radio-hidden" checked onchange="refreshAll()"><div class="selection-item p-10 border-4 border-white/5 rounded-[2.5rem] text-center bg-white/5"><i class="fa-solid fa-shield-check text-4xl mb-6 text-brand"></i><div class="font-black">LEGAL_CORE</div></div></label>
+                            <label class="relative block"><input type="radio" name="infra_type" value="do" class="radio-hidden" onchange="refreshAll()"><div class="selection-item p-10 border-4 border-white/5 rounded-[2.5rem] text-center bg-white/5"><i class="fa-brands fa-digital-ocean text-4xl mb-6 text-blue-500"></i><div class="font-black">D.O_CLOUD</div></div></label>
+                        </div>
+                    </section>
 
-                <section id="step2">
-                    <div class="text-[9px] font-black text-brand uppercase tracking-[0.3em] mb-4">02. Category</div>
-                    <h2 class="text-3xl md:text-4xl font-extrabold mb-8 tracking-tight">Tentukan Layanan.</h2>
-                    <div class="grid grid-cols-3 md:grid-cols-5 gap-6 text-center" id="categoryContainer"></div>
-                </section>
+                    <section id="step2">
+                        <div class="text-[9px] font-pixel text-brand mb-6">02_CATEGORY</div>
+                        <h2 class="text-4xl font-black mb-10 tracking-tighter uppercase italic">Target_Service</h2>
+                        <div class="grid grid-cols-2 md:grid-cols-5 gap-6 text-center" id="categoryContainer"></div>
+                    </section>
 
-                <section id="eggSection" class="section-hidden">
-                    <div class="text-[9px] font-black text-brand uppercase tracking-[0.3em] mb-4">03. Specification</div>
-                    <h2 class="text-3xl md:text-4xl font-extrabold mb-8 tracking-tight">Pilih Software.</h2>
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center" id="eggContainer"></div>
-                </section>
+                    <section id="eggSection" class="hidden">
+                        <div class="text-[9px] font-pixel text-brand mb-6">03_SOFTWARE</div>
+                        <h2 class="text-4xl font-black mb-10 tracking-tighter uppercase italic">Injection_Type</h2>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center" id="eggContainer"></div>
+                    </section>
 
-                <section id="packageSection" class="section-hidden">
-                    <div class="text-[9px] font-black text-brand uppercase tracking-[0.3em] mb-4">04. Capacity</div>
-                    <h2 class="text-3xl md:text-4xl font-extrabold mb-8 tracking-tight">Besaran RAM.</h2>
-                    <div class="grid grid-cols-3 md:grid-cols-4 gap-6 text-center" id="packageContainer"></div>
-                </section>
+                    <section id="packageSection" class="hidden">
+                        <div class="text-[9px] font-pixel text-brand mb-6">04_CAPACITY</div>
+                        <h2 class="text-4xl font-black mb-10 tracking-tighter uppercase italic">Allocation_Size</h2>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center" id="packageContainer"></div>
+                    </section>
 
-                <section id="contactSection" class="section-hidden">
-                    <div class="text-[9px] font-black text-brand uppercase tracking-[0.3em] mb-4">05. Personal Data</div>
-                    <h2 class="text-3xl md:text-4xl font-extrabold mb-8 tracking-tight">Detail Pengiriman.</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <input type="email" id="userEmail" placeholder="Email Address" class="custom-input text-xl font-bold">
-                        <input type="text" id="userWa" placeholder="WhatsApp Number" class="custom-input text-xl font-bold">
-                    </div>
-                </section>
-            </form>
+                    <section id="contactSection" class="hidden">
+                        <div class="text-[9px] font-pixel text-brand mb-6">05_PERSONAL_LINK</div>
+                        <h2 class="text-4xl font-black mb-10 tracking-tighter uppercase italic">Auth_Identity</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                            <input type="email" id="userEmail" placeholder="EMAIL_ADDRESS" class="custom-input text-2xl font-black">
+                            <input type="text" id="userWa" placeholder="WA_PROTOCOL" class="custom-input text-2xl font-black">
+                        </div>
+                    </section>
+                </form>
+            </div>
         </div>
     </main>
 
-    <div class="fixed bottom-0 left-0 w-full z-[60] py-6 border-t border-white/5 bg-black/90 backdrop-blur-xl">
-        <div class="max-w-6xl mx-auto px-10 flex flex-col md:flex-row items-center justify-between gap-6">
-            <div>
-                <div class="text-[8px] font-black text-white/30 uppercase tracking-[0.2em] mb-1 text-center md:text-left">Estimated Total</div>
-                <div class="text-3xl font-extrabold tracking-tighter" id="totalPriceDisplay">Rp 0</div>
+    <div class="fixed bottom-0 left-0 w-full z-[1000] py-10 border-t-4 border-brand bg-black/90 backdrop-blur-3xl shadow-[0_-50px_100px_rgba(0,0,0,0.9)]">
+        <div class="max-w-6xl mx-auto px-12 flex flex-col md:row items-center justify-between gap-10">
+            <div class="text-center md:text-left">
+                <div class="text-[10px] font-pixel text-brand mb-2">ESTIMATED_CREDITS</div>
+                <div class="text-6xl font-black tracking-tighter" id="totalPriceDisplay">Rp 0</div>
             </div>
-            <button id="btnBayar" onclick="processCheckout()" class="btn-action px-12 py-4 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-3">
-                CHECKOUT NOW <i class="fa-solid fa-arrow-right text-[8px]"></i>
-            </button>
-        </div>
-    </div>
-
-    <div id="customAlertModal" class="fixed inset-0 z-[100] flex items-center justify-center px-6 opacity-0 pointer-events-none transition-all duration-500">
-        <div class="absolute inset-0 bg-black/95 backdrop-blur-md"></div>
-        <div class="relative text-center max-w-sm">
-            <h3 id="alertTitle" class="text-2xl font-extrabold mb-2 text-white"></h3>
-            <p id="alertMsg" class="text-white/40 text-xs mb-8"></p>
-            <button onclick="closeAlert()" class="w-full py-3 border border-white/10 rounded-full text-[9px] font-black uppercase tracking-widest text-white">OKE</button>
+            <button id="btnBayar" onclick="processCheckout()" class="btn-action px-20 py-6 !text-lg">INITIALIZE_ORDER_v4.0</button>
         </div>
     </div>
 
@@ -161,68 +122,61 @@
             },
             pricing: []
         };
-
         for(let i=1; i<=10; i++) { DATA.pricing.push({ label: i + 'GB RAM', ram: i, do: i * 1000, legal: i * 1500 }); }
         DATA.pricing.push({ label: 'Unlimited', ram: 0, do: 15000, legal: 15000 });
 
         let currentOrder = { infra: 'legal', category: '', egg: null, package: null };
 
-        window.onload = () => { renderCategories(); checkServerStatus(); };
+        window.onload = () => { renderCategories(); };
 
         function renderCategories() {
             const container = document.getElementById('categoryContainer');
             container.innerHTML = DATA.categories.map(cat => `
                 <label class="relative block">
                     <input type="radio" name="cat" value="${cat.id}" class="radio-hidden" onchange="selectCategory('${cat.id}')">
-                    <div class="selection-item text-center">
-                        <i class="fa-solid ${cat.icon} text-xl mb-3"></i>
-                        <div class="text-[8px] font-black uppercase tracking-widest">${cat.label}</div>
+                    <div class="selection-item p-6 border-2 border-white/5 rounded-3xl bg-white/5 text-center">
+                        <i class="fa-solid ${cat.icon} text-2xl mb-4 text-brand"></i>
+                        <div class="text-[8px] font-pixel">${cat.label}</div>
                     </div>
                 </label>`).join('');
         }
 
         function selectCategory(id) {
-            currentOrder.category = id; currentOrder.egg = null; currentOrder.package = null;
+            currentOrder.category = id; 
             const container = document.getElementById('eggContainer');
             container.innerHTML = DATA.eggs[id].map(egg => `
                 <label class="relative block">
                     <input type="radio" name="egg" value="${egg.id}" class="radio-hidden" onchange="selectEgg(${egg.id}, '${egg.label}')">
-                    <div class="selection-item text-center">
-                        <div class="text-[9px] font-black uppercase tracking-widest">${egg.label}</div>
+                    <div class="selection-item p-6 border-2 border-white/5 rounded-3xl bg-white/5 text-center">
+                        <div class="text-[8px] font-pixel">${egg.label}</div>
                     </div>
                 </label>`).join('');
-            const section = document.getElementById('eggSection');
-            section.className = "section-visible";
+            document.getElementById('eggSection').classList.remove('hidden');
             updateDots(2);
-            setTimeout(() => section.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
         }
 
         function selectEgg(id, label) {
-            currentOrder.egg = { id, label }; currentOrder.package = null;
+            currentOrder.egg = { id, label };
             const container = document.getElementById('packageContainer');
             const infra = document.querySelector('input[name="infra_type"]:checked').value;
             container.innerHTML = DATA.pricing.map((pkg, i) => `
                 <label class="relative block">
                     <input type="radio" name="pkg" value="${i}" class="radio-hidden" onchange="selectPackage(${i})">
-                    <div class="selection-item text-center">
-                        <div class="text-sm font-bold mb-1">${pkg.label}</div>
-                        <div class="text-[8px] text-white/30 font-bold">Rp ${pkg[infra].toLocaleString('id-ID')}</div>
+                    <div class="selection-item p-6 border-2 border-white/5 rounded-3xl bg-white/5 text-center">
+                        <div class="font-black text-xs mb-2">${pkg.label}</div>
+                        <div class="text-[8px] font-pixel text-white/30">Rp ${pkg[infra].toLocaleString()}</div>
                     </div>
                 </label>`).join('');
-            const section = document.getElementById('packageSection');
-            section.className = "section-visible";
+            document.getElementById('packageSection').classList.remove('hidden');
             updateDots(3);
-            setTimeout(() => section.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
         }
 
         function selectPackage(i) {
             const infra = document.querySelector('input[name="infra_type"]:checked').value;
             currentOrder.package = DATA.pricing[i];
             currentOrder.price = currentOrder.package[infra];
-            const section = document.getElementById('contactSection');
-            section.className = "section-visible";
+            document.getElementById('contactSection').classList.remove('hidden');
             updatePrice(); updateDots(4);
-            setTimeout(() => section.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
         }
 
         function updatePrice() {
@@ -232,34 +186,22 @@
         }
 
         function updateDots(step) {
-            const dots = document.querySelectorAll('.step-dot');
-            dots.forEach((d, i) => d.classList.toggle('active', i < step));
+            document.querySelectorAll('.step-dot').forEach((d, i) => d.classList.toggle('active', i < step));
         }
 
         function refreshAll() { 
-            currentOrder.infra = document.querySelector('input[name="infra_type"]:checked').value;
             if(currentOrder.category) selectCategory(currentOrder.category); 
             updatePrice(); 
-        }
-
-        async function checkServerStatus() {
-            const btn = document.getElementById('btnBayar');
-            try {
-                const res = await fetch('/api/check-services');
-                const data = await res.json();
-                if (data.status !== 'online') btn.disabled = true;
-            } catch (e) { btn.disabled = true; }
         }
 
         async function processCheckout() {
             const email = document.getElementById('userEmail').value;
             const wa = document.getElementById('userWa').value;
             const infra = document.querySelector('input[name="infra_type"]:checked').value;
-            if(!currentOrder.package) return showAlert("Opps", "Pilih paket RAM.");
-            if(!email || !wa) return showAlert("Data Kosong", "Isi email & WA.");
+            if(!currentOrder.package || !email || !wa) return alert("INCOMPLETE_DATA");
             
             const btn = document.getElementById('btnBayar');
-            btn.disabled = true; btn.innerHTML = "WAIT...";
+            btn.disabled = true; btn.innerHTML = "INJECTING...";
             try {
                 const nestId = DATA.categories.find(c => c.id === currentOrder.category).nest;
                 const response = await fetch('/api/checkout', {
@@ -273,21 +215,13 @@
                 });
                 const result = await response.json();
                 if(result.status === 'success') window.location.href = result.checkout_url;
-                else showAlert("Gagal", result.message);
-            } catch (e) { showAlert("Error", "Server sibuk."); }
-            finally { btn.disabled = false; btn.innerHTML = "CHECKOUT NOW"; }
+            } catch (e) { alert("CORE_ERROR"); }
+            finally { btn.disabled = false; btn.innerHTML = "INITIALIZE_ORDER"; }
         }
-
-        function showAlert(title, msg) {
-            document.getElementById('alertTitle').innerText = title;
-            document.getElementById('alertMsg').innerText = msg;
-            document.getElementById('customAlertModal').classList.remove('opacity-0', 'pointer-events-none');
-        }
-        function closeAlert() { document.getElementById('customAlertModal').classList.add('opacity-0', 'pointer-events-none'); }
 
         document.addEventListener('mousemove', e => {
-            document.documentElement.style.setProperty('--mouse-x', `${(e.clientX / window.innerWidth) * 100}%`);
-            document.documentElement.style.setProperty('--mouse-y', `${(e.clientY / window.innerHeight) * 100}%`);
+            const h = document.getElementById('mouse-hud');
+            h.style.left = e.clientX + 'px'; h.style.top = e.clientY + 'px';
         });
     </script>
 </body>
